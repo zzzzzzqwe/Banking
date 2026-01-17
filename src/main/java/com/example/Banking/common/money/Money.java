@@ -12,7 +12,7 @@ public record Money(BigDecimal amount, String currency) {
         Objects.requireNonNull(currency);
 
         if (currency.isBlank()) throw new IllegalArgumentException("currency is blank");
-        amount = amount.setScale(7, RoundingMode.HALF_UP);
+        amount = amount.setScale(2, RoundingMode.HALF_UP);
 
         if (amount.compareTo(BigDecimal.ZERO) < 0) {
             throw new IllegalArgumentException("amount < 0");
