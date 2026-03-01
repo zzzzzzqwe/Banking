@@ -27,6 +27,14 @@ public class AccountJpaEntity {
 
     protected AccountJpaEntity() { }
 
+    public AccountJpaEntity(UUID id, UUID ownerId, BigDecimal balance, String currency, LocalDateTime createdAt) {
+        this.id = id;
+        this.ownerId = ownerId;
+        this.balance = balance;
+        this.currency = currency;
+        this.createdAt = createdAt;
+    }
+
     public UUID getId() { return id; }
     public UUID getOwnerId() { return ownerId; }
     public BigDecimal getBalance() { return balance; }
