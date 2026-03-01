@@ -8,13 +8,13 @@ import com.example.Banking.transaction.core.usecase.TransferMoneyService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-@Configuration
-public class TransactionBeansConfig {
-
-    @Bean
-    TransferMoneyUseCase transferMoneyUseCase(AccountRepositoryPort accounts,
-                                              TransactionRepositoryPort txRepo,
-                                              IdempotencyPort idempotency) {
-        return new TransferMoneyService(accounts, txRepo, idempotency);
-    }
-}
+//@Configuration
+//public class TransactionBeansConfig {
+//
+//    @Bean
+//    TransferMoneyUseCase transferMoneyUseCase(AccountRepositoryPort accounts,
+//                                              TransactionRepositoryPort txRepo,
+//                                              IdempotencyPort idempotency) {
+//        return new TransferMoneyService(accounts, txRepo, idempotency);
+//    }
+// }
