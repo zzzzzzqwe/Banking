@@ -1,4 +1,4 @@
-package com.example.Banking.account.adapter.web;
+package com.example.Banking.config;
 
 import java.util.UUID;
 

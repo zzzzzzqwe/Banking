@@ -1,6 +1,5 @@
 package com.example.Banking.config;
 
-import com.example.Banking.account.adapter.web.AccountNotFoundException;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 

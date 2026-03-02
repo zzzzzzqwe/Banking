@@ -2,15 +2,18 @@ package com.example.Banking.account.adapter.web;
 
 import com.example.Banking.account.adapter.persistence.AccountJpaEntity;
 import com.example.Banking.account.adapter.persistence.AccountJpaRepository;
+import com.example.Banking.account.adapter.persistence.AccountTransactionJpaRepository;
 import com.example.Banking.common.ids.AccountId;
+import com.example.Banking.config.AccountNotFoundException;
 import com.example.Banking.config.InsufficientFundsException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import com.example.Banking.account.adapter.web.AccountTransactionJpaEntity;
 
-import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -19,9 +22,11 @@ import java.util.UUID;
 public class AccountController {
 
     private final AccountJpaRepository accountRepository;
+    private final AccountTransactionJpaRepository txRepo;
 
-    public AccountController(AccountJpaRepository accountRepository) {
+    public AccountController(AccountJpaRepository accountRepository, AccountTransactionJpaRepository txRepo) {
         this.accountRepository = accountRepository;
+        this.txRepo = txRepo;
     }
 
     @GetMapping("/{id}")
@@ -80,6 +85,15 @@ public class AccountController {
         }
 
         entity.setBalance(entity.getBalance().add(req.amount()));
+
+        txRepo.save(new AccountTransactionJpaEntity(
+                UUID.randomUUID(),
+                entity.getId(),
+                "DEPOSIT",
+                entity.getCurrency(),
+                req.amount(),
+                Instant.now()
+        ));
         accountRepository.save(entity);
 
         return new AccountResponse(
@@ -116,6 +130,15 @@ public class AccountController {
         }
 
         entity.setBalance(newBalance);
+
+        txRepo.save(new AccountTransactionJpaEntity(
+                UUID.randomUUID(),
+                entity.getId(),
+                "WITHDRAW",
+                entity.getCurrency(),
+                req.amount(),
+                Instant.now()
+        ));
         accountRepository.save(entity);
 
         return new AccountResponse(
