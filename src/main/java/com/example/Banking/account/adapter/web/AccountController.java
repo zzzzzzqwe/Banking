@@ -3,6 +3,7 @@ package com.example.Banking.account.adapter.web;
 import com.example.Banking.account.adapter.persistence.AccountJpaEntity;
 import com.example.Banking.account.adapter.persistence.AccountJpaRepository;
 import com.example.Banking.common.ids.AccountId;
+import com.example.Banking.config.InsufficientFundsException;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -79,6 +80,42 @@ public class AccountController {
         }
 
         entity.setBalance(entity.getBalance().add(req.amount()));
+        accountRepository.save(entity);
+
+        return new AccountResponse(
+                entity.getId(),
+                entity.getOwnerId(),
+                entity.getBalance(),
+                entity.getCurrency(),
+                entity.getCreatedAt()
+        );
+    }
+
+    @PostMapping("/{id}/withdraw")
+    @Transactional
+    public AccountResponse withdraw(
+            @PathVariable("id") String id,
+            @RequestBody @Valid WithdrawRequest req
+    ) {
+        var accountId = AccountId.parse(id);
+
+        var entity = accountRepository.findById(accountId.value())
+                .orElseThrow(() -> new AccountNotFoundException(accountId.value()));
+
+        if (!entity.getCurrency().equals(req.currency())) {
+            throw new IllegalArgumentException("currency mismatch: account=" + entity.getCurrency() + ", request=" + req.currency());
+        }
+
+        if (req.amount().signum() <= 0) {
+            throw new IllegalArgumentException("amount must be > 0");
+        }
+
+        var newBalance = entity.getBalance().subtract(req.amount());
+        if (newBalance.signum() < 0) {
+            throw new InsufficientFundsException("insufficient funds: balance=" + entity.getBalance() + ", withdraw=" + req.amount());
+        }
+
+        entity.setBalance(newBalance);
         accountRepository.save(entity);
 
         return new AccountResponse(
