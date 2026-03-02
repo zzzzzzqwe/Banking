@@ -6,6 +6,7 @@ import com.example.Banking.common.ids.AccountId;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
@@ -58,5 +59,34 @@ public class AccountController {
 
         accountRepository.save(entity);
         return new CreateAccountResponse(id.toString());
+    }
+
+    @PostMapping("/{id}/deposit")
+    @Transactional
+    public AccountResponse deposit(
+            @PathVariable("id") String id,
+            @RequestBody @Valid DepositRequest req
+    ) {
+        var accountId = AccountId.parse(id);
+
+        AccountJpaEntity entity = accountRepository.findById(accountId.value())
+                .orElseThrow(() -> new AccountNotFoundException(accountId.value()));
+
+        if (!entity.getCurrency().equals(req.currency())) {
+            throw new IllegalArgumentException(
+                    "Currency mismatch: account=" + entity.getCurrency() + ", request=" + req.currency()
+            );
+        }
+
+        entity.setBalance(entity.getBalance().add(req.amount()));
+        accountRepository.save(entity);
+
+        return new AccountResponse(
+                entity.getId(),
+                entity.getOwnerId(),
+                entity.getBalance(),
+                entity.getCurrency(),
+                entity.getCreatedAt()
+        );
     }
 }

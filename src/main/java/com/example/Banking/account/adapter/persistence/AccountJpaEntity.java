@@ -35,6 +35,10 @@ public class AccountJpaEntity {
         this.createdAt = createdAt;
     }
 
+    public void setBalance(BigDecimal balance) {
+        this.balance = balance;
+    }
+
     public UUID getId() { return id; }
     public UUID getOwnerId() { return ownerId; }
     public BigDecimal getBalance() { return balance; }
