@@ -1,80 +1,67 @@
-CREATE TABLE accounts (
-                          id UUID PRIMARY KEY,
-                          owner_id UUID NOT NULL,
-                          balance NUMERIC(19,7) NOT NULL CHECK (balance >= 0),
-                          currency VARCHAR(10) NOT NULL,
-                          version BIGINT NOT NULL DEFAULT 0
-);
-
-CREATE TABLE transactions (
-                              id UUID PRIMARY KEY,
-                              from_account_id UUID NOT NULL,
-                              to_account_id UUID NOT NULL,
-                              amount NUMERIC(19,7) NOT NULL CHECK (amount > 0),
-                              currency VARCHAR(10) NOT NULL,
-                              created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-
-                              CONSTRAINT fk_from_account
-                                  FOREIGN KEY (from_account_id) REFERENCES accounts(id),
-
-                              CONSTRAINT fk_to_account
-                                  FOREIGN KEY (to_account_id) REFERENCES accounts(id)
-);
-
-CREATE TABLE idempotency_keys (
-                                  idem_key VARCHAR(120) PRIMARY KEY,
-                                  transaction_id UUID NOT NULL,
-                                  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-
-                                  CONSTRAINT fk_transaction
-                                      FOREIGN KEY (transaction_id) REFERENCES transactions(id)
-);
-
-create table if not exists transactions (
-    id uuid primary key,
-    account_id uuid not null,
-    type varchar(32) not null,
-    currency varchar(3) not null,
-    amount numeric(19,2) not null,
-    created_at timestamp not null
-    );
-
-create index if not exists idx_transactions_account_id_created_at
-    on transactions(account_id, created_at desc);
-
+-- CREATE TABLE accounts (
+--                           id UUID PRIMARY KEY,
+--                           owner_id UUID NOT NULL,
+--                           balance NUMERIC(19,7) NOT NULL CHECK (balance >= 0),
+--                           currency VARCHAR(10) NOT NULL,
+--                           version BIGINT NOT NULL DEFAULT 0
+-- );
 --
--- INSERT INTO accounts (id, owner_id, balance, currency)
--- VALUES
---     ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
---      'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
---      1000.0000000,
---      'EUR'),
+-- CREATE TABLE transactions (
+--                               id UUID PRIMARY KEY,
+--                               from_account_id UUID NOT NULL,
+--                               to_account_id UUID NOT NULL,
+--                               amount NUMERIC(19,7) NOT NULL CHECK (amount > 0),
+--                               currency VARCHAR(10) NOT NULL,
+--                               created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
 --
---     ('cccccccc-cccc-cccc-cccc-cccccccccccc',
---      'dddddddd-dddd-dddd-dddd-dddddddddddd',
---      100.0000000,
---      'EUR');
+--                               CONSTRAINT fk_from_account
+--                                   FOREIGN KEY (from_account_id) REFERENCES accounts(id),
 --
--- INSERT INTO transactions (
---     id,
---     from_account_id,
---     to_account_id,
---     amount,
---     currency
--- )
--- VALUES (
---            'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
---            'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
---            'cccccccc-cccc-cccc-cccc-cccccccccccc',
---            50.0000000,
---            'EUR'
---        );
+--                               CONSTRAINT fk_to_account
+--                                   FOREIGN KEY (to_account_id) REFERENCES accounts(id)
+-- );
 --
--- INSERT INTO idempotency_keys (
---     idem_key,
---     transaction_id
--- )
--- VALUES (
---            'demo-idempotency-key',
---            'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'
---        );
+-- CREATE TABLE idempotency_keys (
+--                                   idem_key VARCHAR(120) PRIMARY KEY,
+--                                   transaction_id UUID NOT NULL,
+--                                   created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+--
+--                                   CONSTRAINT fk_transaction
+--                                       FOREIGN KEY (transaction_id) REFERENCES transactions(id)
+-- );
+-- --
+-- -- INSERT INTO accounts (id, owner_id, balance, currency)
+-- -- VALUES
+-- --     ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+-- --      'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+-- --      1000.0000000,
+-- --      'EUR'),
+-- --
+-- --     ('cccccccc-cccc-cccc-cccc-cccccccccccc',
+-- --      'dddddddd-dddd-dddd-dddd-dddddddddddd',
+-- --      100.0000000,
+-- --      'EUR');
+-- --
+-- -- INSERT INTO transactions (
+-- --     id,
+-- --     from_account_id,
+-- --     to_account_id,
+-- --     amount,
+-- --     currency
+-- -- )
+-- -- VALUES (
+-- --            'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
+-- --            'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+-- --            'cccccccc-cccc-cccc-cccc-cccccccccccc',
+-- --            50.0000000,
+-- --            'EUR'
+-- --        );
+-- --
+-- -- INSERT INTO idempotency_keys (
+-- --     idem_key,
+-- --     transaction_id
+-- -- )
+-- -- VALUES (
+-- --            'demo-idempotency-key',
+-- --            'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee'
+-- --        );
