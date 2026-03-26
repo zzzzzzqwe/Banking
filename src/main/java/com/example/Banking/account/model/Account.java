@@ -24,7 +24,7 @@ public class Account {
     private String currency;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
+    @Column(length = 20, columnDefinition = "varchar(20) default 'ACTIVE'")
     private AccountStatus status;
 
     @Column(name = "created_at", nullable = false)
