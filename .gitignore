@@ -1,6 +1,6 @@
 HELP.md
 target/
-Banking/.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 
@@ -14,7 +14,7 @@ Banking/.mvn/wrapper/maven-wrapper.jar
 .sts4-cache
 
 ### IntelliJ IDEA ###
-Banking/.idea
+.idea/
 *.iws
 *.iml
 *.ipr
@@ -31,3 +31,4 @@ build/
 
 ### VS Code ###
 .vscode/
+.claude/
