@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banking API Tester</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: monospace; background: #1a1a2e; color: #e0e0e0; padding: 20px; }
+        h1 { color: #00d4ff; margin-bottom: 20px; }
+        h2 { color: #00d4ff; margin: 20px 0 10px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; }
+
+        .section { background: #16213e; border: 1px solid #0f3460; border-radius: 8px; padding: 16px; margin-bottom: 12px; }
+        .row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; flex-wrap: wrap; }
+        input, select { background: #0f3460; border: 1px solid #533483; color: #e0e0e0; padding: 8px 12px; border-radius: 4px; font-family: monospace; font-size: 13px; }
+        input::placeholder { color: #666; }
+        input.wide { flex: 1; min-width: 200px; }
+
+        button { background: #533483; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-family: monospace; font-size: 13px; white-space: nowrap; }
+        button:hover { background: #6a42a0; }
+
+        .status-bar { background: #0a0a1a; border: 1px solid #333; border-radius: 4px; padding: 10px; margin-top: 8px; font-size: 12px; min-height: 40px; white-space: pre-wrap; word-break: break-all; max-height: 300px; overflow-y: auto; }
+        .status-bar.ok { border-color: #2ecc71; }
+        .status-bar.err { border-color: #e74c3c; }
+
+        .token-bar { background: #0a0a1a; border: 1px solid #00d4ff; border-radius: 4px; padding: 10px; margin: 10px 0; font-size: 12px; word-break: break-all; }
+        .token-bar span { color: #00d4ff; }
+
+        label { color: #999; font-size: 12px; min-width: 80px; }
+    </style>
+</head>
+<body>
+
+<h1>Banking API Tester</h1>
+
+<!-- Token display -->
+<div class="token-bar">
+    <span>JWT Token:</span> <span id="tokenDisplay">not logged in</span>
+</div>
+
+<!-- AUTH -->
+<h2>Auth</h2>
+
+<div class="section">
+    <div class="row">
+        <label>Register</label>
+        <input id="regEmail" placeholder="email" value="john@example.com">
+        <input id="regPassword" placeholder="password" value="secret123">
+        <input id="regFirst" placeholder="first name" value="John">
+        <input id="regLast" placeholder="last name" value="Doe">
+        <button onclick="register()">Register</button>
+    </div>
+    <div id="registerResult" class="status-bar"></div>
+</div>
+
+<div class="section">
+    <div class="row">
+        <label>Login</label>
+        <input id="loginEmail" placeholder="email" value="john@example.com">
+        <input id="loginPassword" placeholder="password" value="secret123">
+        <button onclick="login()">Login</button>
+    </div>
+    <div id="loginResult" class="status-bar"></div>
+</div>
+
+<!-- ACCOUNTS -->
+<h2>Accounts</h2>
+
+<div class="section">
+    <div class="row">
+        <label>Create</label>
+        <input id="createCurrency" placeholder="currency" value="EUR" style="width:80px">
+        <input id="createBalance" placeholder="initial balance" value="1000" style="width:120px">
+        <button onclick="createAccount()">Create Account</button>
+    </div>
+    <div id="createResult" class="status-bar"></div>
+</div>
+
+<div class="section">
+    <div class="row">
+        <label>List mine</label>
+        <button onclick="listAccounts()">List Accounts</button>
+    </div>
+    <div id="listResult" class="status-bar"></div>
+</div>
+
+<div class="section">
+    <div class="row">
+        <label>Get by ID</label>
+        <input id="getAccountId" class="wide" placeholder="account ID">
+        <button onclick="getAccount()">Get</button>
+    </div>
+    <div id="getResult" class="status-bar"></div>
+</div>
+
+<!-- DEPOSIT / WITHDRAW -->
+<h2>Deposit & Withdraw</h2>
+
+<div class="section">
+    <div class="row">
+        <label>Deposit</label>
+        <input id="depositAccountId" class="wide" placeholder="account ID">
+        <input id="depositCurrency" placeholder="currency" value="EUR" style="width:80px">
+        <input id="depositAmount" placeholder="amount" value="500" style="width:100px">
+        <button onclick="deposit()">Deposit</button>
+    </div>
+    <div id="depositResult" class="status-bar"></div>
+</div>
+
+<div class="section">
+    <div class="row">
+        <label>Withdraw</label>
+        <input id="withdrawAccountId" class="wide" placeholder="account ID">
+        <input id="withdrawCurrency" placeholder="currency" value="EUR" style="width:80px">
+        <input id="withdrawAmount" placeholder="amount" value="200" style="width:100px">
+        <button onclick="withdraw()">Withdraw</button>
+    </div>
+    <div id="withdrawResult" class="status-bar"></div>
+</div>
+
+<!-- TRANSFERS -->
+<h2>Transfers</h2>
+
+<div class="section">
+    <div class="row">
+        <label>Transfer</label>
+        <input id="transferFrom" placeholder="from account ID" style="width:200px">
+        <input id="transferTo" placeholder="to account ID" style="width:200px">
+    </div>
+    <div class="row">
+        <label></label>
+        <input id="transferCurrency" placeholder="currency" value="EUR" style="width:80px">
+        <input id="transferAmount" placeholder="amount" value="100" style="width:100px">
+        <input id="transferKey" placeholder="idempotency key" style="width:200px">
+        <button onclick="generateKey()">Gen Key</button>
+        <button onclick="transfer()">Transfer</button>
+    </div>
+    <div id="transferResult" class="status-bar"></div>
+</div>
+
+<!-- TRANSACTIONS -->
+<h2>Transaction History</h2>
+
+<div class="section">
+    <div class="row">
+        <label>History</label>
+        <input id="txAccountId" class="wide" placeholder="account ID">
+        <input id="txPage" placeholder="page" value="0" style="width:60px">
+        <input id="txSize" placeholder="size" value="10" style="width:60px">
+        <button onclick="getTransactions()">Load</button>
+    </div>
+    <div id="txResult" class="status-bar"></div>
+</div>
+
+<!-- CLOSE ACCOUNT -->
+<h2>Close Account</h2>
+
+<div class="section">
+    <div class="row">
+        <label>Close</label>
+        <input id="closeAccountId" class="wide" placeholder="account ID (balance must be 0)">
+        <button onclick="closeAccount()">Close Account</button>
+    </div>
+    <div id="closeResult" class="status-bar"></div>
+</div>
+
+<script>
+    const BASE = '';
+    let token = null;
+
+    function headers(extra = {}) {
+        const h = { 'Content-Type': 'application/json', ...extra };
+        if (token) h['Authorization'] = 'Bearer ' + token;
+        return h;
+    }
+
+    function show(id, data, ok) {
+        const el = document.getElementById(id);
+        el.textContent = JSON.stringify(data, null, 2);
+        el.className = 'status-bar ' + (ok ? 'ok' : 'err');
+    }
+
+    async function api(method, path, body, resultId, extraHeaders = {}) {
+        try {
+            const opts = { method, headers: headers(extraHeaders) };
+            if (body) opts.body = JSON.stringify(body);
+            const res = await fetch(BASE + path, opts);
+            const text = await res.text();
+            let data;
+            try { data = JSON.parse(text); } catch { data = text; }
+            show(resultId, data, res.ok);
+            return { ok: res.ok, data };
+        } catch (e) {
+            show(resultId, { error: e.message }, false);
+            return { ok: false };
+        }
+    }
+
+    async function register() {
+        await api('POST', '/api/auth/register', {
+            email: document.getElementById('regEmail').value,
+            password: document.getElementById('regPassword').value,
+            firstName: document.getElementById('regFirst').value,
+            lastName: document.getElementById('regLast').value
+        }, 'registerResult');
+    }
+
+    async function login() {
+        const r = await api('POST', '/api/auth/login', {
+            email: document.getElementById('loginEmail').value,
+            password: document.getElementById('loginPassword').value
+        }, 'loginResult');
+        if (r.ok && r.data.token) {
+            token = r.data.token;
+            document.getElementById('tokenDisplay').textContent = token.substring(0, 50) + '...';
+        }
+    }
+
+    async function createAccount() {
+        const r = await api('POST', '/api/accounts', {
+            currency: document.getElementById('createCurrency').value,
+            initialBalance: parseFloat(document.getElementById('createBalance').value)
+        }, 'createResult');
+        if (r.ok && r.data.id) {
+            document.getElementById('getAccountId').value = r.data.id;
+            document.getElementById('depositAccountId').value = r.data.id;
+            document.getElementById('withdrawAccountId').value = r.data.id;
+            document.getElementById('txAccountId').value = r.data.id;
+            document.getElementById('closeAccountId').value = r.data.id;
+        }
+    }
+
+    async function listAccounts() {
+        await api('GET', '/api/accounts', null, 'listResult');
+    }
+
+    async function getAccount() {
+        const id = document.getElementById('getAccountId').value;
+        await api('GET', '/api/accounts/' + id, null, 'getResult');
+    }
+
+    async function deposit() {
+        const id = document.getElementById('depositAccountId').value;
+        await api('POST', '/api/accounts/' + id + '/deposit', {
+            currency: document.getElementById('depositCurrency').value,
+            amount: parseFloat(document.getElementById('depositAmount').value)
+        }, 'depositResult');
+    }
+
+    async function withdraw() {
+        const id = document.getElementById('withdrawAccountId').value;
+        await api('POST', '/api/accounts/' + id + '/withdraw', {
+            currency: document.getElementById('withdrawCurrency').value,
+            amount: parseFloat(document.getElementById('withdrawAmount').value)
+        }, 'withdrawResult');
+    }
+
+    async function transfer() {
+        await api('POST', '/api/transfers', {
+            fromAccountId: document.getElementById('transferFrom').value,
+            toAccountId: document.getElementById('transferTo').value,
+            currency: document.getElementById('transferCurrency').value,
+            amount: document.getElementById('transferAmount').value
+        }, 'transferResult', {
+            'X-Idempotency-Key': document.getElementById('transferKey').value
+        });
+    }
+
+    function generateKey() {
+        document.getElementById('transferKey').value = crypto.randomUUID();
+    }
+
+    async function getTransactions() {
+        const id = document.getElementById('txAccountId').value;
+        const page = document.getElementById('txPage').value;
+        const size = document.getElementById('txSize').value;
+        await api('GET', '/api/accounts/' + id + '/transactions?page=' + page + '&size=' + size, null, 'txResult');
+    }
+
+    async function closeAccount() {
+        const id = document.getElementById('closeAccountId').value;
+        await api('POST', '/api/accounts/' + id + '/close', null, 'closeResult');
+    }
+</script>
+
+</body>
+</html>

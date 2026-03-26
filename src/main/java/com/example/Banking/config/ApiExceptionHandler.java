@@ -1,6 +1,7 @@
 package com.example.Banking.config;
 
 import org.springframework.http.*;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
@@ -35,6 +36,16 @@ public class ApiExceptionHandler {
                 "timestamp", Instant.now(),
                 "status", 409,
                 "error", "Conflict",
+                "message", ex.getMessage()
+        ));
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<?> handleAccessDenied(AccessDeniedException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of(
+                "timestamp", Instant.now(),
+                "status", 403,
+                "error", "Forbidden",
                 "message", ex.getMessage()
         ));
     }
