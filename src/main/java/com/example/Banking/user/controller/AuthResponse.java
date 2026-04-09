@@ -1,3 +1,3 @@
 package com.example.Banking.user.controller;
 
-public record AuthResponse(String token, String userId) {}
+public record AuthResponse(String token, String userId, String role) {}

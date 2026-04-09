@@ -20,12 +20,12 @@ public class AuthController {
     @ResponseStatus(HttpStatus.CREATED)
     public AuthResponse register(@RequestBody @Valid RegisterRequest req) {
         var user = userService.register(req.email(), req.password(), req.firstName(), req.lastName());
-        return new AuthResponse(null, user.getId().toString());
+        return new AuthResponse(null, user.getId().toString(), user.getRole().name());
     }
 
     @PostMapping("/login")
     public AuthResponse login(@RequestBody @Valid LoginRequest req) {
-        var token = userService.login(req.email(), req.password());
-        return new AuthResponse(token, null);
+        var result = userService.login(req.email(), req.password());
+        return new AuthResponse(result.token(), result.userId(), result.role());
     }
 }

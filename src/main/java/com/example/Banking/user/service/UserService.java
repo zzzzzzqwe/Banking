@@ -1,6 +1,7 @@
 package com.example.Banking.user.service;
 
 import com.example.Banking.config.security.JwtTokenProvider;
+import com.example.Banking.user.model.Role;
 import com.example.Banking.user.model.User;
 import com.example.Banking.user.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -36,13 +37,14 @@ public class UserService {
                 firstName,
                 lastName,
                 true,
+                Role.USER,
                 LocalDateTime.now()
         );
 
         return userRepo.save(user);
     }
 
-    public String login(String email, String password) {
+    public LoginResult login(String email, String password) {
         var user = userRepo.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid email or password"));
 
@@ -54,6 +56,14 @@ public class UserService {
             throw new IllegalArgumentException("Account is deactivated");
         }
 
-        return jwtTokenProvider.generateToken(user.getId().toString(), user.getEmail());
+        String token = jwtTokenProvider.generateToken(
+                user.getId().toString(),
+                user.getEmail(),
+                user.getRole().name()
+        );
+
+        return new LoginResult(token, user.getId().toString(), user.getRole().name());
     }
+
+    public record LoginResult(String token, String userId, String role) {}
 }

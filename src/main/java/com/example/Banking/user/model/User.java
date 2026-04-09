@@ -28,19 +28,24 @@ public class User {
     @Column(nullable = false)
     private boolean active;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private Role role;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
     protected User() {}
 
     public User(UUID id, String email, String passwordHash,
-                String firstName, String lastName, boolean active, LocalDateTime createdAt) {
+                String firstName, String lastName, boolean active, Role role, LocalDateTime createdAt) {
         this.id = id;
         this.email = email;
         this.passwordHash = passwordHash;
         this.firstName = firstName;
         this.lastName = lastName;
         this.active = active;
+        this.role = role;
         this.createdAt = createdAt;
     }
 
@@ -50,5 +55,8 @@ public class User {
     public String getFirstName() { return firstName; }
     public String getLastName() { return lastName; }
     public boolean isActive() { return active; }
+    public Role getRole() { return role; }
     public LocalDateTime getCreatedAt() { return createdAt; }
+
+    public void setActive(boolean active) { this.active = active; }
 }
