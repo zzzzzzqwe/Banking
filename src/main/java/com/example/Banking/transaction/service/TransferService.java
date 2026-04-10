@@ -3,10 +3,14 @@ package com.example.Banking.transaction.service;
 import com.example.Banking.account.model.Account;
 import com.example.Banking.account.model.AccountStatus;
 import com.example.Banking.account.repository.AccountRepository;
+import com.example.Banking.notification.event.TransferCompletedEvent;
 import com.example.Banking.transaction.model.IdempotencyRecord;
 import com.example.Banking.transaction.model.Transfer;
 import com.example.Banking.transaction.repository.IdempotencyRepository;
 import com.example.Banking.transaction.repository.TransferRepository;
+import com.example.Banking.user.repository.UserRepository;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,17 +25,24 @@ public class TransferService {
     private final AccountRepository accountRepo;
     private final TransferRepository transferRepo;
     private final IdempotencyRepository idempotencyRepo;
+    private final UserRepository userRepo;
+    private final ApplicationEventPublisher eventPublisher;
 
     public TransferService(AccountRepository accountRepo,
                            TransferRepository transferRepo,
-                           IdempotencyRepository idempotencyRepo) {
+                           IdempotencyRepository idempotencyRepo,
+                           UserRepository userRepo,
+                           ApplicationEventPublisher eventPublisher) {
         this.accountRepo = accountRepo;
         this.transferRepo = transferRepo;
         this.idempotencyRepo = idempotencyRepo;
+        this.userRepo = userRepo;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
-    public UUID transfer(String fromAccountId, String toAccountId, String currency, String amount, String idempotencyKey) {
+    public UUID transfer(String callerId, String fromAccountId, String toAccountId,
+                         String currency, String amount, String idempotencyKey) {
         // 1) idempotency check
         var existing = idempotencyRepo.findByIdemKey(idempotencyKey);
         if (existing.isPresent()) {
@@ -40,12 +51,17 @@ public class TransferService {
 
         // 2) load accounts
         UUID fromId = UUID.fromString(fromAccountId);
-        UUID toId = UUID.fromString(toAccountId);
+        UUID toId   = UUID.fromString(toAccountId);
 
         Account from = accountRepo.findById(fromId)
                 .orElseThrow(() -> new IllegalArgumentException("from account not found"));
-        Account to = accountRepo.findById(toId)
+        Account to   = accountRepo.findById(toId)
                 .orElseThrow(() -> new IllegalArgumentException("to account not found"));
+
+        // 3) ownership check — caller must own the source account
+        if (!from.getOwnerId().toString().equals(callerId)) {
+            throw new AccessDeniedException("Account does not belong to the current user");
+        }
 
         if (from.getStatus() != AccountStatus.ACTIVE) {
             throw new IllegalArgumentException("from account is closed");
@@ -54,13 +70,13 @@ public class TransferService {
             throw new IllegalArgumentException("to account is closed");
         }
 
-        // 3) parse amount
+        // 4) parse amount
         BigDecimal transferAmount = new BigDecimal(amount).setScale(2, RoundingMode.HALF_UP);
         if (transferAmount.signum() <= 0) {
             throw new IllegalArgumentException("amount must be > 0");
         }
 
-        // 4) debit / credit
+        // 5) debit / credit
         if (from.getBalance().compareTo(transferAmount) < 0) {
             throw new IllegalArgumentException("insufficient funds");
         }
@@ -71,12 +87,29 @@ public class TransferService {
         accountRepo.save(from);
         accountRepo.save(to);
 
-        // 5) save transfer record
+        // 6) save transfer record
         UUID txId = UUID.randomUUID();
         transferRepo.save(new Transfer(txId, fromId, toId, transferAmount, currency, Instant.now()));
 
-        // 6) store idempotency
+        // 7) store idempotency
         idempotencyRepo.save(new IdempotencyRecord(idempotencyKey, txId, Instant.now()));
+
+        // 8) publish event (best-effort — lookup emails)
+        try {
+            var senderOpt    = userRepo.findById(from.getOwnerId());
+            var recipientOpt = userRepo.findById(to.getOwnerId());
+            if (senderOpt.isPresent() && recipientOpt.isPresent()) {
+                eventPublisher.publishEvent(new TransferCompletedEvent(
+                        senderOpt.get().getEmail(),
+                        recipientOpt.get().getEmail(),
+                        transferAmount,
+                        currency,
+                        txId
+                ));
+            }
+        } catch (Exception e) {
+            // don't fail the transfer if event publishing fails
+        }
 
         return txId;
     }

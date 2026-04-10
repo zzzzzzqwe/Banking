@@ -8,6 +8,10 @@ import com.example.Banking.loan.model.RepaymentScheduleEntry;
 import com.example.Banking.loan.model.RepaymentStatus;
 import com.example.Banking.loan.repository.LoanRepository;
 import com.example.Banking.loan.repository.RepaymentScheduleRepository;
+import com.example.Banking.notification.event.LoanRepaymentEvent;
+import com.example.Banking.notification.event.LoanStatusChangedEvent;
+import com.example.Banking.user.repository.UserRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
@@ -27,15 +31,21 @@ public class LoanService {
     private final RepaymentScheduleRepository scheduleRepo;
     private final AccountService accountService;
     private final LoanCalculator calculator;
+    private final UserRepository userRepo;
+    private final ApplicationEventPublisher eventPublisher;
 
     public LoanService(LoanRepository loanRepo,
                        RepaymentScheduleRepository scheduleRepo,
                        AccountService accountService,
-                       LoanCalculator calculator) {
+                       LoanCalculator calculator,
+                       UserRepository userRepo,
+                       ApplicationEventPublisher eventPublisher) {
         this.loanRepo = loanRepo;
         this.scheduleRepo = scheduleRepo;
         this.accountService = accountService;
         this.calculator = calculator;
+        this.userRepo = userRepo;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -90,6 +100,10 @@ public class LoanService {
                 startDate, monthlyPayment);
         scheduleRepo.saveAll(schedule);
 
+        userRepo.findById(loan.getBorrowerId()).ifPresent(u ->
+                eventPublisher.publishEvent(new LoanStatusChangedEvent(
+                        u.getEmail(), u.getFirstName(), loan.getId(), "ACTIVE", monthlyPayment)));
+
         return loan;
     }
 
@@ -104,7 +118,13 @@ public class LoanService {
         }
 
         loan.setStatus(LoanStatus.REJECTED);
-        return loanRepo.save(loan);
+        loanRepo.save(loan);
+
+        userRepo.findById(loan.getBorrowerId()).ifPresent(u ->
+                eventPublisher.publishEvent(new LoanStatusChangedEvent(
+                        u.getEmail(), u.getFirstName(), loan.getId(), "REJECTED", null)));
+
+        return loan;
     }
 
     @Transactional
@@ -134,13 +154,16 @@ public class LoanService {
         scheduleRepo.save(entry);
 
         // Если больше нет незакрытых взносов — закрыть кредит
-        boolean allPaid = scheduleRepo
-                .findFirstByLoanIdAndStatusOrderByInstallmentNumber(loanId, RepaymentStatus.PENDING)
-                .isEmpty();
-        if (allPaid) {
+        int remaining = (int) scheduleRepo.findByLoanIdOrderByInstallmentNumber(loanId)
+                .stream().filter(e2 -> e2.getStatus() == RepaymentStatus.PENDING).count();
+        if (remaining == 0) {
             loan.setStatus(LoanStatus.CLOSED);
             loanRepo.save(loan);
         }
+
+        userRepo.findById(loan.getBorrowerId()).ifPresent(u ->
+                eventPublisher.publishEvent(new LoanRepaymentEvent(
+                        u.getEmail(), entry.getInstallmentNumber(), entry.getTotalPayment(), remaining)));
 
         return entry;
     }

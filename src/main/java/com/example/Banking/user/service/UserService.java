@@ -1,9 +1,11 @@
 package com.example.Banking.user.service;
 
 import com.example.Banking.config.security.JwtTokenProvider;
+import com.example.Banking.notification.event.UserRegisteredEvent;
 import com.example.Banking.user.model.Role;
 import com.example.Banking.user.model.User;
 import com.example.Banking.user.repository.UserRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -16,13 +18,16 @@ public class UserService {
     private final UserRepository userRepo;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final ApplicationEventPublisher eventPublisher;
 
     public UserService(UserRepository userRepo,
                        PasswordEncoder passwordEncoder,
-                       JwtTokenProvider jwtTokenProvider) {
+                       JwtTokenProvider jwtTokenProvider,
+                       ApplicationEventPublisher eventPublisher) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
         this.jwtTokenProvider = jwtTokenProvider;
+        this.eventPublisher = eventPublisher;
     }
 
     public User register(String email, String password, String firstName, String lastName) {
@@ -41,7 +46,9 @@ public class UserService {
                 LocalDateTime.now()
         );
 
-        return userRepo.save(user);
+        var saved = userRepo.save(user);
+        eventPublisher.publishEvent(new UserRegisteredEvent(saved.getEmail(), saved.getFirstName()));
+        return saved;
     }
 
     public LoginResult login(String email, String password) {

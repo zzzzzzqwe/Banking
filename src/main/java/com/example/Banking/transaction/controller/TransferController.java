@@ -4,6 +4,7 @@ import com.example.Banking.transaction.service.TransferService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,10 +20,11 @@ public class TransferController {
     @PostMapping
     public ResponseEntity<TransferResponse> transfer(
             @RequestHeader("X-Idempotency-Key") String key,
-            @RequestBody @Valid TransferRequest req
+            @RequestBody @Valid TransferRequest req,
+            Authentication auth
     ) {
         var txId = transferService.transfer(
-                req.fromAccountId, req.toAccountId, req.currency, req.amount, key
+                auth.getName(), req.fromAccountId, req.toAccountId, req.currency, req.amount, key
         );
         return ResponseEntity.ok(new TransferResponse(txId.toString()));
     }

@@ -366,6 +366,50 @@ Add `@EnableAsync`.
 
 ---
 
+## Phase 4 — Completion Report
+
+**Статус:** ✅ Выполнено (2026-04-10)
+
+### Созданные файлы
+
+| Файл | Описание |
+|------|----------|
+| `notification/event/UserRegisteredEvent.java` | Record: email, firstName |
+| `notification/event/TransferCompletedEvent.java` | Record: senderEmail, recipientEmail, amount, currency, transferId |
+| `notification/event/LoanStatusChangedEvent.java` | Record: borrowerEmail, firstName, loanId, newStatus, monthlyPayment |
+| `notification/event/LoanRepaymentEvent.java` | Record: borrowerEmail, installmentNumber, amount, remaining |
+| `notification/EmailNotificationService.java` | `@Async @EventListener` методы для каждого события; `MailException` логируется, не пробрасывается; если `spring.mail.username` пуст — письма пропускаются с DEBUG-логом |
+
+### Изменённые файлы
+
+| Файл | Что изменилось |
+|------|---------------|
+| `BankingApplication.java` | Добавлена аннотация `@EnableAsync` |
+| `user/service/UserService.java` | Добавлен `ApplicationEventPublisher`; после `userRepo.save()` публикуется `UserRegisteredEvent` |
+| `transaction/service/TransferService.java` | **Security fix**: добавлена проверка `from.getOwnerId().equals(callerId)` — `AccessDeniedException` если перевод не со своего счёта. Добавлены `UserRepository` + `ApplicationEventPublisher`; после сохранения перевода публикуется `TransferCompletedEvent` |
+| `transaction/controller/TransferController.java` | Добавлен параметр `Authentication auth`; `auth.getName()` (userId) передаётся в `TransferService.transfer()` |
+| `loan/service/LoanService.java` | Добавлены `UserRepository` + `ApplicationEventPublisher`; `approveLoan()` → `LoanStatusChangedEvent(ACTIVE)`; `rejectLoan()` → `LoanStatusChangedEvent(REJECTED)`; `makeRepayment()` → `LoanRepaymentEvent` с количеством оставшихся взносов |
+
+### Email-события и когда отправляются
+
+| Событие | Когда | Кому |
+|---------|-------|------|
+| `UserRegisteredEvent` | После успешной регистрации | Новый пользователь — приветственное письмо |
+| `TransferCompletedEvent` | После сохранения перевода | Отправитель (Transfer Sent) + получатель (Transfer Received) |
+| `LoanStatusChangedEvent(ACTIVE)` | После одобрения кредита adminom | Заёмщик — сумма ежемесячного платежа |
+| `LoanStatusChangedEvent(REJECTED)` | После отклонения заявки | Заёмщик — уведомление об отклонении |
+| `LoanRepaymentEvent` | После каждого платежа | Заёмщик — подтверждение + количество оставшихся взносов (0 = кредит закрыт) |
+
+### Security bug fix
+
+До Фазы 4 любой авторизованный пользователь мог инициировать перевод **с чужого счёта**, зная его UUID. Теперь `TransferService.transfer()` получает `callerId` (userId из JWT) и проверяет владение исходным счётом. Попытка перевода с чужого счёта → `403 Forbidden`.
+
+### Работа без настроенного почтового сервера
+
+Если `spring.mail.username` не задан (локальная разработка), метод `send()` логирует `DEBUG` и выходит без отправки. Приложение работает в штатном режиме — почта не блокирует основной поток (все методы `@Async`).
+
+---
+
 ## Phase 5 — React Frontend
 
 Расположение: `frontend/` в корне репозитория.

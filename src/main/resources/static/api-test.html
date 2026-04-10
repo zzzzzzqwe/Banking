@@ -279,6 +279,11 @@
     .tag-admin    { background: #431407; color: #fb923c; }
     .tag-open     { background: #14532d; color: #86efac; }
     .tag-closed   { background: #1e2130; color: #64748b; }
+    .tag-pending  { background: #3b2f00; color: #fde68a; }
+    .tag-approved { background: #14532d; color: #86efac; }
+    .tag-rejected { background: #450a0a; color: #f87171; }
+    .tag-paid     { background: #14532d; color: #86efac; }
+    .tag-overdue  { background: #450a0a; color: #f87171; }
     .table-action {
       font-size: 0.67rem;
       padding: 2px 8px;
@@ -365,11 +370,13 @@
       <a onclick="showSection('accounts')"     id="nav-accounts">Accounts</a>
       <a onclick="showSection('transfers')"    id="nav-transfers">Transfers</a>
       <a onclick="showSection('transactions')" id="nav-transactions">Transactions</a>
+      <a onclick="showSection('loans')"        id="nav-loans">Loans</a>
     </div>
     <div class="nav-group">
       <div class="nav-group-title">Admin</div>
       <a onclick="showSection('admin-users')"    id="nav-admin-users"    class="admin-link">Users</a>
       <a onclick="showSection('admin-accounts')" id="nav-admin-accounts" class="admin-link">All Accounts</a>
+      <a onclick="showSection('admin-loans')"    id="nav-admin-loans"    class="admin-link">All Loans</a>
     </div>
   </nav>
 
@@ -639,6 +646,122 @@
       </div>
     </div>
 
+    <!-- ══════════════════ LOANS ══════════════════ -->
+    <div class="section" id="section-loans">
+      <div class="section-title">Loans</div>
+      <div class="grid">
+
+        <!-- Apply for loan -->
+        <div class="card">
+          <h2><span class="badge POST">POST</span> /api/loans &nbsp;<small style="color:#64748b;font-weight:400">Apply</small></h2>
+          <p class="hint">Кредит создаётся со статусом PENDING. Admin должен одобрить заявку.</p>
+          <label>Account ID (для зачисления)</label>
+          <input type="text" id="loan-account-id" placeholder="UUID" />
+          <label>Principal Amount</label>
+          <input type="number" id="loan-amount" placeholder="10000.00" step="0.01" min="0.01" />
+          <label>Annual Interest Rate (напр. 0.12 = 12%)</label>
+          <input type="number" id="loan-rate" placeholder="0.12" step="0.01" min="0" />
+          <label>Term (months)</label>
+          <input type="number" id="loan-term" placeholder="12" min="1" step="1" />
+          <button onclick="applyForLoan()">Apply for Loan</button>
+          <div class="response pending" id="res-apply-loan">—</div>
+        </div>
+
+        <!-- My loans -->
+        <div class="card">
+          <h2><span class="badge GET">GET</span> /api/loans &nbsp;<small style="color:#64748b;font-weight:400">My loans</small></h2>
+          <button onclick="getMyLoans()">Load My Loans</button>
+          <div id="loans-list-wrap"></div>
+          <div class="response pending" id="res-my-loans" style="display:none">—</div>
+        </div>
+
+        <!-- Loan details -->
+        <div class="card">
+          <h2><span class="badge GET">GET</span> /api/loans/:id</h2>
+          <p class="hint">Кликни на ID в списке выше.</p>
+          <label>Loan ID</label>
+          <input type="text" id="get-loan-id" placeholder="UUID" />
+          <button onclick="getLoan()">Get Details</button>
+          <div class="response pending" id="res-get-loan">—</div>
+        </div>
+
+        <!-- Repayment schedule -->
+        <div class="card">
+          <h2><span class="badge GET">GET</span> /api/loans/:id/schedule</h2>
+          <label>Loan ID</label>
+          <input type="text" id="schedule-loan-id" placeholder="UUID" />
+          <button onclick="getLoanSchedule()">Get Schedule</button>
+          <div id="schedule-table-wrap"></div>
+          <div class="response pending" id="res-schedule" style="display:none">—</div>
+          <span class="toggle-view" onclick="toggleView('sched')" id="toggle-sched" style="margin-top:6px;display:block">показать JSON</span>
+        </div>
+
+        <!-- Make repayment -->
+        <div class="card">
+          <h2><span class="badge POST">POST</span> /api/loans/:id/repay</h2>
+          <p class="hint">Списывает следующий PENDING взнос со счёта кредита. Кредит должен быть ACTIVE.</p>
+          <label>Loan ID</label>
+          <input type="text" id="repay-loan-id" placeholder="UUID" />
+          <button onclick="makeRepayment()">Make Repayment</button>
+          <div class="response pending" id="res-repay">—</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════════════════ ADMIN — LOANS ══════════════════ -->
+    <div class="section" id="section-admin-loans">
+      <div class="section-title">Admin — All Loans</div>
+      <p class="hint" style="margin-bottom:16px">Нужна роль <code style="color:#fb923c">ADMIN</code>. Одобрите заявку — деньги зачислятся на счёт.</p>
+      <div class="grid">
+
+        <!-- All loans list -->
+        <div class="card admin-card" style="grid-column: 1 / -1">
+          <h2>
+            <span class="badge GET">GET</span> /api/admin/loans
+            <small style="color:#fb923c44">ADMIN</small>
+            <span class="toggle-view" onclick="toggleView('admin-loans')" id="toggle-admin-loans">показать JSON</span>
+          </h2>
+          <div style="display:flex;gap:10px;align-items:flex-end">
+            <div style="flex:1">
+              <label>Page (0-based)</label>
+              <input type="number" id="admin-loans-page" value="0" min="0" />
+            </div>
+            <div style="flex:1">
+              <label>Size</label>
+              <input type="number" id="admin-loans-size" value="20" min="1" />
+            </div>
+            <div style="flex:1">
+              <button class="admin-btn" style="margin-top:0" onclick="adminGetLoans()">Load Loans</button>
+            </div>
+          </div>
+          <div id="admin-loans-table-wrap"></div>
+          <div class="response pending" id="res-admin-loans" style="display:none">—</div>
+          <div class="table-meta" id="admin-loans-meta"></div>
+        </div>
+
+        <!-- Approve -->
+        <div class="card admin-card">
+          <h2><span class="badge POST">POST</span> /api/admin/loans/:id/approve <small style="color:#fb923c44">ADMIN</small></h2>
+          <p class="hint">Кликни Fill в таблице выше. Кредит перейдёт в ACTIVE, деньги зачислятся на счёт.</p>
+          <label>Loan ID</label>
+          <input type="text" id="admin-approve-loan-id" placeholder="UUID" />
+          <button class="admin-btn" onclick="adminApproveLoan()">Approve Loan</button>
+          <div class="response pending" id="res-admin-approve">—</div>
+        </div>
+
+        <!-- Reject -->
+        <div class="card admin-card">
+          <h2><span class="badge POST">POST</span> /api/admin/loans/:id/reject <small style="color:#fb923c44">ADMIN</small></h2>
+          <label>Loan ID</label>
+          <input type="text" id="admin-reject-loan-id" placeholder="UUID" />
+          <button class="admin-btn" onclick="adminRejectLoan()">Reject Loan</button>
+          <div class="response pending" id="res-admin-reject">—</div>
+        </div>
+
+      </div>
+    </div>
+
   </main>
 </div>
 
@@ -683,12 +806,14 @@
 
   // ── Navigation ──
   const navMap = {
-    auth:           'nav-auth',
-    accounts:       'nav-accounts',
-    transfers:      'nav-transfers',
-    transactions:   'nav-transactions',
+    auth:             'nav-auth',
+    accounts:         'nav-accounts',
+    transfers:        'nav-transfers',
+    transactions:     'nav-transactions',
+    loans:            'nav-loans',
     'admin-users':    'nav-admin-users',
     'admin-accounts': 'nav-admin-accounts',
+    'admin-loans':    'nav-admin-loans',
   };
 
   function showSection(name) {
@@ -820,7 +945,7 @@
   }
 
   // ── View toggle (table ↔ JSON) ──
-  const viewMode = { users: 'table', acc: 'table' };
+  const viewMode = { users: 'table', acc: 'table', sched: 'table', 'admin-loans': 'table' };
 
   function toggleView(key) {
     viewMode[key] = viewMode[key] === 'table' ? 'json' : 'table';
@@ -829,9 +954,15 @@
     if (key === 'users') {
       document.getElementById('users-table-wrap').style.display = viewMode[key] === 'table' ? '' : 'none';
       document.getElementById('res-admin-users').style.display  = viewMode[key] === 'json'  ? '' : 'none';
-    } else {
+    } else if (key === 'acc') {
       document.getElementById('acc-table-wrap').style.display   = viewMode[key] === 'table' ? '' : 'none';
       document.getElementById('res-admin-accounts').style.display = viewMode[key] === 'json' ? '' : 'none';
+    } else if (key === 'sched') {
+      document.getElementById('schedule-table-wrap').style.display = viewMode[key] === 'table' ? '' : 'none';
+      document.getElementById('res-schedule').style.display         = viewMode[key] === 'json'  ? '' : 'none';
+    } else if (key === 'admin-loans') {
+      document.getElementById('admin-loans-table-wrap').style.display = viewMode[key] === 'table' ? '' : 'none';
+      document.getElementById('res-admin-loans').style.display         = viewMode[key] === 'json'  ? '' : 'none';
     }
   }
 
@@ -949,6 +1080,167 @@
   function adminGetAccount() {
     const id = document.getElementById('admin-get-account-id').value.trim();
     call('GET', `${base()}/api/admin/accounts/${id}`, null, 'res-admin-get-account');
+  }
+
+  // ── Loans (User) ──
+  function applyForLoan() {
+    const body = {
+      accountId:          document.getElementById('loan-account-id').value.trim(),
+      amount:             parseFloat(document.getElementById('loan-amount').value),
+      annualInterestRate: parseFloat(document.getElementById('loan-rate').value),
+      termMonths:         parseInt(document.getElementById('loan-term').value, 10),
+    };
+    call('POST', `${base()}/api/loans`, body, 'res-apply-loan');
+  }
+
+  function loanStatusTag(s) {
+    const map = { PENDING: 'tag-pending', ACTIVE: 'tag-approved', REJECTED: 'tag-rejected', CLOSED: 'tag-closed' };
+    return `<span class="tag ${map[s] || ''}">${s}</span>`;
+  }
+
+  function repayStatusTag(s) {
+    const map = { PENDING: 'tag-pending', PAID: 'tag-paid', OVERDUE: 'tag-overdue' };
+    return `<span class="tag ${map[s] || ''}">${s}</span>`;
+  }
+
+  async function getMyLoans() {
+    const result = await call('GET', `${base()}/api/loans`, null, 'res-my-loans');
+    if (result.ok && Array.isArray(result.data)) {
+      renderLoansTable(result.data, 'loans-list-wrap', true);
+    } else {
+      document.getElementById('loans-list-wrap').innerHTML = '';
+    }
+  }
+
+  function renderLoansTable(loans, wrapId, userActions) {
+    const wrap = document.getElementById(wrapId);
+    if (!loans.length) {
+      wrap.innerHTML = '<p class="hint" style="margin-top:10px">Нет кредитов.</p>';
+      return;
+    }
+    const rows = loans.map(l => `
+      <tr>
+        <td><span class="uuid" onclick="fillLoanId('${l.id}')">${l.id.slice(0,8)}…</span></td>
+        <td>${l.principalAmount}</td>
+        <td>${(l.annualInterestRate * 100).toFixed(1)}%</td>
+        <td>${l.termMonths} мес.</td>
+        <td>${l.monthlyPayment ?? '—'}</td>
+        <td>${loanStatusTag(l.status)}</td>
+        <td>
+          <button class="table-action fill" onclick="fillLoanId('${l.id}')">Fill ID</button>
+          ${userActions && l.status === 'ACTIVE' ? `<button class="table-action fill" style="margin-left:4px" onclick="quickRepay('${l.id}')">Repay</button>` : ''}
+          ${!userActions ? `<button class="table-action fill" style="margin-left:4px;border-color:#14532d;color:#86efac" onclick="quickApproveLoan('${l.id}')">Approve</button>
+          <button class="table-action deact" onclick="quickRejectLoan('${l.id}')">Reject</button>` : ''}
+        </td>
+      </tr>`).join('');
+    wrap.innerHTML = `
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead><tr><th>Loan ID</th><th>Principal</th><th>Rate</th><th>Term</th><th>Monthly</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  }
+
+  function fillLoanId(id) {
+    document.getElementById('get-loan-id').value = id;
+    document.getElementById('schedule-loan-id').value = id;
+    document.getElementById('repay-loan-id').value = id;
+    document.getElementById('admin-approve-loan-id').value = id;
+    document.getElementById('admin-reject-loan-id').value = id;
+  }
+
+  function getLoan() {
+    const id = document.getElementById('get-loan-id').value.trim();
+    call('GET', `${base()}/api/loans/${id}`, null, 'res-get-loan');
+  }
+
+  async function getLoanSchedule() {
+    const id = document.getElementById('schedule-loan-id').value.trim();
+    const result = await call('GET', `${base()}/api/loans/${id}/schedule`, null, 'res-schedule');
+    if (result.ok && Array.isArray(result.data)) {
+      renderScheduleTable(result.data);
+    } else {
+      document.getElementById('schedule-table-wrap').innerHTML = '';
+    }
+  }
+
+  function renderScheduleTable(entries) {
+    const wrap = document.getElementById('schedule-table-wrap');
+    if (!entries.length) {
+      wrap.innerHTML = '<p class="hint" style="margin-top:10px">Расписание пусто.</p>';
+      return;
+    }
+    const rows = entries.map(e => `
+      <tr>
+        <td>${e.installmentNumber}</td>
+        <td>${e.dueDate}</td>
+        <td>${e.principal}</td>
+        <td>${e.interest}</td>
+        <td>${e.totalPayment}</td>
+        <td>${repayStatusTag(e.status)}</td>
+        <td>${e.paidAt ?? '—'}</td>
+      </tr>`).join('');
+    wrap.innerHTML = `
+      <div class="table-scroll">
+        <table class="data-table">
+          <thead><tr><th>#</th><th>Due Date</th><th>Principal</th><th>Interest</th><th>Total</th><th>Status</th><th>Paid At</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      </div>`;
+  }
+
+  function makeRepayment() {
+    const id = document.getElementById('repay-loan-id').value.trim();
+    call('POST', `${base()}/api/loans/${id}/repay`, null, 'res-repay');
+  }
+
+  async function quickRepay(id) {
+    if (!confirm(`Внести следующий платёж по кредиту ${id.slice(0,8)}…?`)) return;
+    document.getElementById('repay-loan-id').value = id;
+    await call('POST', `${base()}/api/loans/${id}/repay`, null, 'res-repay');
+    getMyLoans();
+  }
+
+  // ── Admin — Loans ──
+  async function adminGetLoans() {
+    const page = document.getElementById('admin-loans-page').value || 0;
+    const size = document.getElementById('admin-loans-size').value || 20;
+    const result = await call('GET', `${base()}/api/admin/loans?page=${page}&size=${size}`, null, 'res-admin-loans');
+    if (result.ok && result.data?.content) {
+      renderLoansTable(result.data.content, 'admin-loans-table-wrap', false);
+      document.getElementById('admin-loans-meta').textContent =
+        `Страница ${result.data.number + 1} из ${result.data.totalPages} · всего ${result.data.totalElements} кредитов`;
+    } else {
+      document.getElementById('admin-loans-table-wrap').innerHTML = '';
+      document.getElementById('admin-loans-meta').textContent = '';
+    }
+  }
+
+  async function adminApproveLoan() {
+    const id = document.getElementById('admin-approve-loan-id').value.trim();
+    const result = await call('POST', `${base()}/api/admin/loans/${id}/approve`, null, 'res-admin-approve');
+    if (result.ok) adminGetLoans();
+  }
+
+  async function adminRejectLoan() {
+    const id = document.getElementById('admin-reject-loan-id').value.trim();
+    const result = await call('POST', `${base()}/api/admin/loans/${id}/reject`, null, 'res-admin-reject');
+    if (result.ok) adminGetLoans();
+  }
+
+  async function quickApproveLoan(id) {
+    if (!confirm(`Одобрить кредит ${id.slice(0,8)}…?\n\nДеньги будут зачислены на счёт.`)) return;
+    document.getElementById('admin-approve-loan-id').value = id;
+    const result = await call('POST', `${base()}/api/admin/loans/${id}/approve`, null, 'res-admin-approve');
+    if (result.ok) adminGetLoans();
+  }
+
+  async function quickRejectLoan(id) {
+    if (!confirm(`Отклонить кредит ${id.slice(0,8)}…?`)) return;
+    document.getElementById('admin-reject-loan-id').value = id;
+    const result = await call('POST', `${base()}/api/admin/loans/${id}/reject`, null, 'res-admin-reject');
+    if (result.ok) adminGetLoans();
   }
 
   // Init
