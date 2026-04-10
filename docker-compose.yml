@@ -1,0 +1,54 @@
+services:
+
+  # ── PostgreSQL ───────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       banking
+      POSTGRES_USER:     postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-123321}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d banking"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # ── Spring Boot backend ──────────────────────────────────────
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL:      jdbc:postgresql://db:5432/banking
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-123321}
+      JWT_SECRET:                 ${JWT_SECRET:-YmFua2luZy1hcHAtc2VjcmV0LWtleS1mb3Itand0LXRva2VuLWdlbmVyYXRpb24tMjAyNg==}
+      JWT_EXPIRATION:             ${JWT_EXPIRATION:-86400000}
+      SPRING_MAIL_HOST:           ${MAIL_HOST:-smtp.gmail.com}
+      SPRING_MAIL_USERNAME:       ${MAIL_USERNAME:-}
+      SPRING_MAIL_PASSWORD:       ${MAIL_PASSWORD:-}
+
+  # ── React frontend (nginx) ───────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+
+volumes:
+  postgres_data:

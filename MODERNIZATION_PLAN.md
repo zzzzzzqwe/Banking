@@ -509,6 +509,78 @@ pages/
 
 ---
 
+## Phase 5 — Completion Report
+
+**Статус:** ✅ Выполнено (2026-04-10)
+
+### Структура фронтенда
+
+```
+frontend/
+├── package.json          (Vite, React 18, TS, Tailwind, framer-motion, recharts, zustand, axios)
+├── vite.config.ts        (proxy /api → localhost:8080)
+├── tailwind.config.js    (кастомные цвета space-*, анимации float/pulseGlow/slideUp)
+├── index.html            (шрифт Inter + JetBrains Mono из Google Fonts)
+└── src/
+    ├── types.ts           — все TypeScript-интерфейсы (Account, Loan, User, Page<T> и т.д.)
+    ├── api/               — Axios-модули для каждого ресурса
+    ├── store/             — Zustand: useAuthStore (persist) + useToastStore
+    ├── components/        — переиспользуемые компоненты
+    └── pages/             — страницы + admin/
+```
+
+### Дизайн-система "NEXUS BANK"
+
+| Элемент | Реализация |
+|---------|-----------|
+| Тема | Deep space (`#02020a`) с анимированными neon-orbs |
+| Glassmorphism | `backdrop-blur-xl`, `bg-white/[0.03]`, subtle cyan border |
+| Accentы | Electric Cyan `#06b6d4`, Neon Purple `#a855f7`, Blue `#3b82f6` |
+| Анимации | `framer-motion` AnimatePresence (page transitions), StatCard counter-up, orbs floating |
+| Типография | Inter (UI) + JetBrains Mono (числа/UUID) |
+| CSS | 200+ строк в `index.css`: `.glass`, `.btn-primary`, `.badge-*`, `.input`, `.data-table`, shimmer, progress-bar |
+
+### Компоненты
+
+| Компонент | Описание |
+|-----------|---------|
+| `AnimatedBackground` | Три анимированных neon-орба + CSS-сетка |
+| `GlassCard` | Базовый glass-контейнер с hover-glow |
+| `StatCard` | Карточка с анимацией counter-up и цветным акцентом |
+| `Sidebar` | Фиксированный 240px сайдбар, nav-active с left-border glow, admin-секция оранжевая |
+| `Layout` | AnimatePresence page transitions |
+| `Modal` | Glass-модал с blur-backdrop и framer-motion |
+| `Toast` | Анимированные toast-уведомления (success/error/warning/info) |
+| `LoadingSpinner` / `PageLoader` / `SkeletonLine` | Branded loading states |
+
+### Страницы
+
+| Маршрут | Страница | Ключевые фичи |
+|---------|---------|---------------|
+| `/login` | LoginPage | Glass-карточка с gradient-border, show/hide password, demo-hint |
+| `/register` | RegisterPage | Аналогично, purple accent |
+| `/dashboard` | DashboardPage | 4 StatCard с counter-up, AreaChart (recharts), список счетов, таблица кредитов |
+| `/accounts` | AccountsPage | Card grid с inline deposit/withdraw (animated expand), close account |
+| `/transfers` | TransfersPage | Idempotency key display + regenerate, success state с transactionId |
+| `/transactions` | TransactionsPage | Search по accountId, paginated list с цветными иконками |
+| `/loans` | LoansPage | Loan cards с progress bar погашения, inline schedule table, annuity preview |
+| `/admin/users` | AdminUsersPage | Таблица с фильтром, deactivate с confirm |
+| `/admin/accounts` | AdminAccountsPage | Таблица всех счетов с page-summary статистикой |
+| `/admin/loans` | AdminLoansPage | Amber pending-banner, Approve/Reject inline кнопки |
+
+### Запуск
+
+```bash
+cd frontend
+npm install
+npm run dev
+# → http://localhost:5173
+```
+
+Vite proxy передаёт `/api/*` запросы на `http://localhost:8080` — CORS не нужен при разработке.
+
+---
+
 ## Phase 6 — Docker
 
 ### Backend `Dockerfile` (в корне проекта)
@@ -614,6 +686,60 @@ JWT_SECRET=YmFua2luZy1hcHAtc2VjcmV0LWtleS1mb3Itand0LXRva2VuLWdlbmVyYXRpb24tMjAyN
 MAIL_USERNAME=your-email@gmail.com
 MAIL_PASSWORD=your-app-password
 ```
+
+---
+
+## Phase 6 — Completion Report
+
+**Статус:** ✅ Выполнено (2026-04-11)
+
+### Созданные файлы
+
+| Файл | Описание |
+|------|----------|
+| `Dockerfile` | Multi-stage: JDK 17 Alpine → JRE 17 Alpine, `mvnw package -DskipTests` |
+| `frontend/Dockerfile` | Multi-stage: Node 20 Alpine → nginx:alpine |
+| `frontend/nginx.conf` | SPA fallback + proxy `/api/` → `http://app:8080` + кэш статики |
+| `docker-compose.yml` | Три сервиса: db, app, frontend |
+| `.env.example` | Шаблон переменных с комментариями |
+
+### Архитектура
+
+```
+Browser → :80  → nginx (frontend)
+                    ↓ /api/*
+              :8080  → Spring Boot (app)
+                          ↓
+                    PostgreSQL (db) :5432
+```
+
+Nginx проксирует `/api/*` → `app:8080` внутри Docker-сети. CORS в prod не нужен — запросы идут с одного origin.
+
+### Переменные окружения
+
+Все секреты читаются из `.env` (создаётся по шаблону `.env.example`):
+
+| Переменная | По умолчанию | Описание |
+|------------|-------------|----------|
+| `DB_PASSWORD` | `123321` | Пароль PostgreSQL |
+| `JWT_SECRET` | base64-строка | Секрет подписи токенов |
+| `MAIL_USERNAME` | пусто | Gmail / SMTP логин |
+| `MAIL_PASSWORD` | пусто | App password |
+
+### Запуск
+
+```bash
+cp .env.example .env        # заполнить при необходимости
+docker compose up --build   # первый запуск (сборка ~3-5 мин)
+docker compose up           # последующие запуски
+```
+
+После старта:
+- Фронтенд: `http://localhost`
+- API: `http://localhost:8080`
+- БД: `localhost:5432`
+
+Hibernate DDL auto=update создаёт все таблицы при первом старте backend-контейнера. DataInitializer создаёт `admin@bank.local / admin123`.
 
 ---
 
