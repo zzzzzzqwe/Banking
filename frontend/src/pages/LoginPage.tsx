@@ -26,7 +26,7 @@ export function LoginPage() {
     setLoading(true)
     try {
       const data = await login({ email, password })
-      setAuth(data.token!, data.userId, data.role as Role)
+      setAuth(data.token!, data.userId, data.role as Role, data.firstName, data.lastName)
       push('Welcome back!', 'success')
       navigate('/dashboard')
     } catch (err: any) {

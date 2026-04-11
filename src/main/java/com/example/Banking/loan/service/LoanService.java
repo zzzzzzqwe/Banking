@@ -142,8 +142,9 @@ public class LoanService {
         }
 
         var entry = scheduleRepo
-                .findFirstByLoanIdAndStatusOrderByInstallmentNumber(loanId, RepaymentStatus.PENDING)
-                .orElseThrow(() -> new IllegalStateException("No pending installments found"));
+                .findFirstByLoanIdAndStatusInOrderByInstallmentNumber(
+                        loanId, List.of(RepaymentStatus.PENDING, RepaymentStatus.OVERDUE))
+                .orElseThrow(() -> new IllegalStateException("No pending or overdue installments found"));
 
         // Списать платёж со счёта заёмщика
         var account = accountService.getById(loan.getAccountId());
@@ -154,8 +155,11 @@ public class LoanService {
         scheduleRepo.save(entry);
 
         // Если больше нет незакрытых взносов — закрыть кредит
-        int remaining = (int) scheduleRepo.findByLoanIdOrderByInstallmentNumber(loanId)
-                .stream().filter(e2 -> e2.getStatus() == RepaymentStatus.PENDING).count();
+        long remaining = scheduleRepo.findByLoanIdOrderByInstallmentNumber(loanId)
+                .stream()
+                .filter(e2 -> e2.getStatus() == RepaymentStatus.PENDING
+                           || e2.getStatus() == RepaymentStatus.OVERDUE)
+                .count();
         if (remaining == 0) {
             loan.setStatus(LoanStatus.CLOSED);
             loanRepo.save(loan);
@@ -163,7 +167,7 @@ public class LoanService {
 
         userRepo.findById(loan.getBorrowerId()).ifPresent(u ->
                 eventPublisher.publishEvent(new LoanRepaymentEvent(
-                        u.getEmail(), entry.getInstallmentNumber(), entry.getTotalPayment(), remaining)));
+                        u.getEmail(), entry.getInstallmentNumber(), entry.getTotalPayment(), (int) remaining)));
 
         return entry;
     }

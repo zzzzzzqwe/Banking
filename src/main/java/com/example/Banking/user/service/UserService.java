@@ -69,8 +69,9 @@ public class UserService {
                 user.getRole().name()
         );
 
-        return new LoginResult(token, user.getId().toString(), user.getRole().name());
+        return new LoginResult(token, user.getId().toString(), user.getRole().name(),
+                user.getFirstName(), user.getLastName());
     }
 
-    public record LoginResult(String token, String userId, String role) {}
+    public record LoginResult(String token, String userId, String role, String firstName, String lastName) {}
 }

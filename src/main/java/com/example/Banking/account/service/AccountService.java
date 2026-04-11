@@ -13,8 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.TreeMap;
 import java.util.UUID;
 
 @Service
@@ -111,6 +116,44 @@ public class AccountService {
 
         account.setStatus(AccountStatus.CLOSED);
         return accountRepo.save(account);
+    }
+
+    public record DailyBalance(String date, BigDecimal balance) {}
+
+    public List<AccountTransaction> getTransactionsForExport(UUID accountId, Instant from, Instant to) {
+        return txRepo.findByAccountIdAndCreatedAtBetweenOrderByCreatedAtAsc(accountId, from, to);
+    }
+
+    public List<DailyBalance> getBalanceHistory(UUID accountId, int days) {
+        var account = accountRepo.findById(accountId)
+                .orElseThrow(() -> new AccountNotFoundException(accountId));
+
+        Instant since = Instant.now().minus(days, ChronoUnit.DAYS);
+        var txs = txRepo.findByAccountIdAndCreatedAtGreaterThanEqualOrderByCreatedAtAsc(accountId, since);
+
+        // Нетто-дельта за каждый день (UTC)
+        TreeMap<String, BigDecimal> dailyDelta = new TreeMap<>();
+        for (var tx : txs) {
+            String day = tx.getCreatedAt().atZone(ZoneOffset.UTC).toLocalDate().toString();
+            BigDecimal delta = "DEPOSIT".equals(tx.getType()) ? tx.getAmount() : tx.getAmount().negate();
+            dailyDelta.merge(day, delta, BigDecimal::add);
+        }
+
+        // Баланс на начало окна = текущий баланс − сумма всех дельт за период
+        BigDecimal sumOfDeltas = dailyDelta.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal running = account.getBalance().subtract(sumOfDeltas).setScale(2, RoundingMode.HALF_UP);
+
+        List<DailyBalance> result = new ArrayList<>();
+        LocalDate startDate = LocalDate.now(ZoneOffset.UTC).minusDays(days);
+        LocalDate endDate   = LocalDate.now(ZoneOffset.UTC);
+
+        for (LocalDate d = startDate; !d.isAfter(endDate); d = d.plusDays(1)) {
+            String key = d.toString();
+            running = running.add(dailyDelta.getOrDefault(key, BigDecimal.ZERO))
+                             .setScale(2, RoundingMode.HALF_UP);
+            result.add(new DailyBalance(key, running));
+        }
+        return result;
     }
 
     private void requireActive(Account account) {

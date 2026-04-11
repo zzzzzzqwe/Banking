@@ -59,4 +59,7 @@ public class User {
     public LocalDateTime getCreatedAt() { return createdAt; }
 
     public void setActive(boolean active) { this.active = active; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
+    public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
 }

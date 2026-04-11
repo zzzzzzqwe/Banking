@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Wallet, ArrowUp, ArrowDown, X, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react'
 import { getAccounts, createAccount, deposit, withdraw, closeAccount } from '../api/accounts'
@@ -175,9 +175,18 @@ export function AccountsPage() {
   const [currency, setCurrency]   = useState('USD')
   const [initBal, setInitBal]     = useState('0')
 
+  const mountedRef = useRef(true)
+  useEffect(() => {
+    mountedRef.current = true
+    return () => { mountedRef.current = false }
+  }, [])
+
   const load = () => {
     setLoading(true)
-    getAccounts().then(setAccounts).catch(() => push('Failed to load accounts', 'error')).finally(() => setLoading(false))
+    getAccounts()
+      .then((data) => { if (mountedRef.current) setAccounts(data) })
+      .catch(() => { if (mountedRef.current) push('Failed to load accounts', 'error') })
+      .finally(() => { if (mountedRef.current) setLoading(false) })
   }
 
   useEffect(load, [])

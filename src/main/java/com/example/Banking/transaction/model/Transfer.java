@@ -25,18 +25,32 @@ public class Transfer {
     @Column(nullable = false, length = 3)
     private String currency;
 
+    @Column(name = "to_credit_amount", nullable = false, precision = 19, scale = 2)
+    private BigDecimal toCreditAmount;
+
+    @Column(name = "to_currency", nullable = false, length = 3)
+    private String toCurrency;
+
+    @Column(name = "exchange_rate", precision = 19, scale = 6)
+    private BigDecimal exchangeRate;
+
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
     protected Transfer() {}
 
     public Transfer(UUID id, UUID fromAccountId, UUID toAccountId,
-                    BigDecimal amount, String currency, Instant createdAt) {
+                    BigDecimal amount, String currency,
+                    BigDecimal toCreditAmount, String toCurrency,
+                    BigDecimal exchangeRate, Instant createdAt) {
         this.id = id;
         this.fromAccountId = fromAccountId;
         this.toAccountId = toAccountId;
         this.amount = amount;
         this.currency = currency;
+        this.toCreditAmount = toCreditAmount;
+        this.toCurrency = toCurrency;
+        this.exchangeRate = exchangeRate;
         this.createdAt = createdAt;
     }
 
@@ -45,5 +59,8 @@ public class Transfer {
     public UUID getToAccountId() { return toAccountId; }
     public BigDecimal getAmount() { return amount; }
     public String getCurrency() { return currency; }
+    public BigDecimal getToCreditAmount() { return toCreditAmount; }
+    public String getToCurrency() { return toCurrency; }
+    public BigDecimal getExchangeRate() { return exchangeRate; }
     public Instant getCreatedAt() { return createdAt; }
 }

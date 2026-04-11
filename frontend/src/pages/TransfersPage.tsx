@@ -1,17 +1,32 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowLeftRight, RefreshCw, CheckCircle2, Copy } from 'lucide-react'
+import { ArrowLeftRight, RefreshCw, CheckCircle2, Copy, TrendingUp } from 'lucide-react'
 import { transfer } from '../api/transfers'
+import { getExchangeRates, getSupportedCurrencies } from '../api/exchange'
 import { GlassCard } from '../components/GlassCard'
+import { ExchangeRateBanner } from '../components/ExchangeRateBanner'
 import { useToastStore } from '../store/useToastStore'
+
+const FALLBACK_CURRENCIES = ['USD', 'EUR', 'GBP', 'RUB']
 
 export function TransfersPage() {
   const push = useToastStore((s) => s.push)
 
-  const [form, setForm] = useState({ fromAccountId: '', toAccountId: '', currency: 'USD', amount: '' })
-  const [idempKey, setIdempKey]   = useState(crypto.randomUUID())
+  const [form, setForm] = useState({ fromAccountId: '', toAccountId: '', currency: 'USD', toCurrency: 'USD', amount: '' })
+  const [idempKey, setIdempKey]   = useState<string>(crypto.randomUUID())
   const [loading, setLoading]     = useState(false)
   const [lastTxId, setLastTxId]   = useState<string | null>(null)
+  const [currencies, setCurrencies] = useState<string[]>(FALLBACK_CURRENCIES)
+  const [rates, setRates]           = useState<Record<string, number>>({})
+
+  useEffect(() => {
+    getSupportedCurrencies()
+      .then((c) => setCurrencies([...c].sort()))
+      .catch(() => {})
+    getExchangeRates()
+      .then(setRates)
+      .catch(() => {})
+  }, [])
 
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }))
@@ -76,17 +91,26 @@ export function TransfersPage() {
               <input value={form.toAccountId} onChange={set('toAccountId')} className="input font-mono text-sm" placeholder="UUID of destination account" required />
             </div>
 
+            <ExchangeRateBanner fromCurrency={form.currency} toCurrency={form.toCurrency} />
+
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="label">Currency</label>
+                <label className="label">From Currency</label>
                 <select value={form.currency} onChange={(e) => setForm((f) => ({ ...f, currency: e.target.value }))} className="input">
-                  {['USD', 'EUR', 'GBP', 'RUB', 'JPY'].map((c) => <option key={c}>{c}</option>)}
+                  {currencies.map((c) => <option key={c}>{c}</option>)}
                 </select>
               </div>
               <div>
-                <label className="label">Amount</label>
-                <input type="number" value={form.amount} onChange={set('amount')} className="input num" placeholder="0.00" min="0.01" step="0.01" required />
+                <label className="label">To Currency (recipient)</label>
+                <select value={form.toCurrency} onChange={(e) => setForm((f) => ({ ...f, toCurrency: e.target.value }))} className="input">
+                  {currencies.map((c) => <option key={c}>{c}</option>)}
+                </select>
               </div>
+            </div>
+
+            <div>
+              <label className="label">Amount</label>
+              <input type="number" value={form.amount} onChange={set('amount')} className="input num" placeholder="0.00" min="0.01" step="0.01" required />
             </div>
 
             {/* Idempotency key */}
@@ -116,6 +140,45 @@ export function TransfersPage() {
           </form>
         </GlassCard>
       </motion.div>
+
+      {/* Exchange rates table */}
+      {Object.keys(rates).length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+          <GlassCard>
+            <div className="flex items-center gap-2 mb-4">
+              <TrendingUp size={14} className="text-cyan-400" />
+              <p className="text-xs text-slate-500 uppercase tracking-wider">Exchange Rates</p>
+              <span className="text-xs text-slate-600 ml-auto">relative to 1 unit</span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>From \ To</th>
+                    {currencies.map((c) => <th key={c}>{c}</th>)}
+                  </tr>
+                </thead>
+                <tbody>
+                  {currencies.map((from) => (
+                    <tr key={from}>
+                      <td className="font-semibold text-slate-300">{from}</td>
+                      {currencies.map((to) => {
+                        const key = `${from}_${to}`
+                        const rate = rates[key]
+                        return (
+                          <td key={to} className={`num text-xs ${from === to ? 'text-slate-600' : 'text-slate-300'}`}>
+                            {rate != null ? Number(rate).toFixed(4) : '—'}
+                          </td>
+                        )
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </GlassCard>
+        </motion.div>
+      )}
 
       {/* Last transaction */}
       {lastTxId && (

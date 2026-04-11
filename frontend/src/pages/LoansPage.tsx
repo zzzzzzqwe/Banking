@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CreditCard, Plus, ChevronDown, ChevronUp, Calendar, TrendingDown, RefreshCw } from 'lucide-react'
 import { getMyLoans, applyForLoan, makeRepayment, getSchedule } from '../api/loans'
@@ -186,9 +186,18 @@ export function LoansPage() {
 
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, [k]: e.target.value }))
 
+  const mountedRef = useRef(true)
+  useEffect(() => {
+    mountedRef.current = true
+    return () => { mountedRef.current = false }
+  }, [])
+
   const load = () => {
     setLoading(true)
-    getMyLoans().then(setLoans).catch(() => push('Failed to load loans', 'error')).finally(() => setLoading(false))
+    getMyLoans()
+      .then((data) => { if (mountedRef.current) setLoans(data) })
+      .catch(() => { if (mountedRef.current) push('Failed to load loans', 'error') })
+      .finally(() => { if (mountedRef.current) setLoading(false) })
   }
 
   useEffect(load, [])

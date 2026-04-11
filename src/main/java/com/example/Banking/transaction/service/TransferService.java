@@ -3,6 +3,7 @@ package com.example.Banking.transaction.service;
 import com.example.Banking.account.model.Account;
 import com.example.Banking.account.model.AccountStatus;
 import com.example.Banking.account.repository.AccountRepository;
+import com.example.Banking.currency.ExchangeRateService;
 import com.example.Banking.notification.event.TransferCompletedEvent;
 import com.example.Banking.transaction.model.IdempotencyRecord;
 import com.example.Banking.transaction.model.Transfer;
@@ -26,17 +27,20 @@ public class TransferService {
     private final TransferRepository transferRepo;
     private final IdempotencyRepository idempotencyRepo;
     private final UserRepository userRepo;
+    private final ExchangeRateService exchangeRateService;
     private final ApplicationEventPublisher eventPublisher;
 
     public TransferService(AccountRepository accountRepo,
                            TransferRepository transferRepo,
                            IdempotencyRepository idempotencyRepo,
                            UserRepository userRepo,
+                           ExchangeRateService exchangeRateService,
                            ApplicationEventPublisher eventPublisher) {
         this.accountRepo = accountRepo;
         this.transferRepo = transferRepo;
         this.idempotencyRepo = idempotencyRepo;
         this.userRepo = userRepo;
+        this.exchangeRateService = exchangeRateService;
         this.eventPublisher = eventPublisher;
     }
 
@@ -76,20 +80,34 @@ public class TransferService {
             throw new IllegalArgumentException("amount must be > 0");
         }
 
-        // 5) debit / credit
+        // 5) debit / credit with optional currency conversion
         if (from.getBalance().compareTo(transferAmount) < 0) {
             throw new IllegalArgumentException("insufficient funds");
         }
 
-        from.setBalance(from.getBalance().subtract(transferAmount));
-        to.setBalance(to.getBalance().add(transferAmount));
+        BigDecimal creditAmount;
+        BigDecimal appliedRate;
+
+        if (from.getCurrency().equalsIgnoreCase(to.getCurrency())) {
+            creditAmount = transferAmount;
+            appliedRate  = null;
+        } else {
+            appliedRate  = exchangeRateService.getRate(from.getCurrency(), to.getCurrency());
+            creditAmount = transferAmount.multiply(appliedRate).setScale(2, RoundingMode.HALF_UP);
+        }
+
+        from.setBalance(from.getBalance().subtract(transferAmount).setScale(2, RoundingMode.HALF_UP));
+        to.setBalance(to.getBalance().add(creditAmount).setScale(2, RoundingMode.HALF_UP));
 
         accountRepo.save(from);
         accountRepo.save(to);
 
         // 6) save transfer record
         UUID txId = UUID.randomUUID();
-        transferRepo.save(new Transfer(txId, fromId, toId, transferAmount, currency, Instant.now()));
+        transferRepo.save(new Transfer(txId, fromId, toId,
+                transferAmount, from.getCurrency(),
+                creditAmount, to.getCurrency(),
+                appliedRate, Instant.now()));
 
         // 7) store idempotency
         idempotencyRepo.save(new IdempotencyRecord(idempotencyKey, txId, Instant.now()));

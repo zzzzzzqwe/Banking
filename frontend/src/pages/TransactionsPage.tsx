@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Search, ClipboardList, ArrowUpRight, ArrowDownLeft, ChevronLeft, ChevronRight } from 'lucide-react'
-import { getTransactions } from '../api/accounts'
+import { Search, ClipboardList, ArrowUpRight, ArrowDownLeft, ChevronLeft, ChevronRight, Download } from 'lucide-react'
+import { getTransactions, exportTransactions } from '../api/accounts'
 import { GlassCard } from '../components/GlassCard'
 import { PageLoader } from '../components/LoadingSpinner'
 import { useToastStore } from '../store/useToastStore'
@@ -15,9 +15,12 @@ const txColor = (type: string) => {
 export function TransactionsPage() {
   const push = useToastStore((s) => s.push)
   const [accountId, setAccountId] = useState('')
+  const [fromDate, setFromDate]   = useState('')
+  const [toDate, setToDate]       = useState('')
   const [data, setData]           = useState<Page<Transaction> | null>(null)
   const [page, setPage]           = useState(0)
   const [loading, setLoading]     = useState(false)
+  const [exporting, setExporting] = useState(false)
 
   const load = async (p = 0) => {
     if (!accountId.trim()) { push('Enter an account ID', 'warning'); return }
@@ -33,6 +36,25 @@ export function TransactionsPage() {
     }
   }
 
+  const handleExport = async () => {
+    if (!accountId.trim()) { push('Enter an account ID first', 'warning'); return }
+    setExporting(true)
+    try {
+      const blob = await exportTransactions(accountId.trim(), fromDate || undefined, toDate || undefined)
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = `statement-${accountId.trim()}.csv`
+      a.click()
+      URL.revokeObjectURL(url)
+      push('Statement exported', 'success')
+    } catch {
+      push('Export failed', 'error')
+    } finally {
+      setExporting(false)
+    }
+  }
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
@@ -41,7 +63,7 @@ export function TransactionsPage() {
       </div>
 
       <GlassCard>
-        <div className="flex gap-3">
+        <div className="flex gap-3 mb-3">
           <div className="relative flex-1">
             <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
             <input
@@ -55,6 +77,25 @@ export function TransactionsPage() {
           <button onClick={() => load(0)} disabled={loading} className="btn-primary flex items-center gap-2 whitespace-nowrap">
             {loading ? <div className="w-4 h-4 spin rounded-full" style={{ border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white' }} /> : <Search size={16} />}
             <span>Search</span>
+          </button>
+        </div>
+        <div className="flex gap-3 items-center flex-wrap">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <label className="text-xs text-slate-500 whitespace-nowrap">From</label>
+            <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="input text-xs flex-1" />
+            <label className="text-xs text-slate-500 whitespace-nowrap">To</label>
+            <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="input text-xs flex-1" />
+          </div>
+          <button
+            onClick={handleExport}
+            disabled={exporting || !accountId.trim()}
+            className="btn-ghost flex items-center gap-2 text-xs whitespace-nowrap"
+            title="Export CSV"
+          >
+            {exporting
+              ? <div className="w-3 h-3 spin rounded-full" style={{ border: '1px solid rgba(255,255,255,0.3)', borderTopColor: 'white' }} />
+              : <Download size={14} />}
+            Export CSV
           </button>
         </div>
       </GlassCard>

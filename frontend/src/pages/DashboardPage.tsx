@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { Wallet, TrendingUp, CreditCard, Clock, ArrowUpRight, ArrowDownLeft, Plus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { AreaChart, Area, ResponsiveContainer, Tooltip } from 'recharts'
-import { getAccounts } from '../api/accounts'
+import { getAccounts, getBalanceSummary } from '../api/accounts'
 import { getMyLoans } from '../api/loans'
 import { StatCard } from '../components/StatCard'
 import { GlassCard } from '../components/GlassCard'
@@ -21,26 +21,34 @@ function LoanStatusBadge({ status }: { status: string }) {
   return <span className={map[status] || 'badge'}>{status}</span>
 }
 
-// Mock chart data based on balance
-function generateChartData(balance: number) {
-  const points = 12
-  return Array.from({ length: points }, (_, i) => ({
-    name: `${i + 1}`,
-    value: Math.max(0, balance * (0.6 + 0.4 * Math.sin(i * 0.8) + i * 0.03)),
-  }))
-}
-
 export function DashboardPage() {
   const { userId, role } = useAuthStore()
   const [accounts, setAccounts] = useState<Account[]>([])
   const [loans, setLoans]       = useState<Loan[]>([])
   const [loading, setLoading]   = useState(true)
+  const [chartData, setChartData] = useState<{ name: string; value: number }[]>([])
 
+  const mounted = useRef(true)
   useEffect(() => {
+    mounted.current = true
     Promise.all([getAccounts(), getMyLoans()])
-      .then(([accs, lns]) => { setAccounts(accs); setLoans(lns) })
+      .then(async ([accs, lns]) => {
+        if (!mounted.current) return
+        setAccounts(accs)
+        setLoans(lns)
+        const primary = accs.find((a) => a.status === 'ACTIVE') ?? accs[0]
+        if (primary) {
+          try {
+            const summary = await getBalanceSummary(primary.id, 30)
+            if (mounted.current) setChartData(summary.map((d) => ({ name: d.date.slice(5), value: d.balance })))
+          } catch {
+            // нет истории — оставляем пустой граф
+          }
+        }
+      })
       .catch(() => {})
-      .finally(() => setLoading(false))
+      .finally(() => { if (mounted.current) setLoading(false) })
+    return () => { mounted.current = false }
   }, [])
 
   if (loading) return <PageLoader />
@@ -49,7 +57,7 @@ export function DashboardPage() {
   const activeAccs    = accounts.filter((a) => a.status === 'ACTIVE').length
   const activeLoans   = loans.filter((l) => l.status === 'ACTIVE').length
   const pendingLoans  = loans.filter((l) => l.status === 'PENDING').length
-  const chartData     = generateChartData(totalBalance || 10000)
+  const primaryCurrency = (accounts.find((a) => a.status === 'ACTIVE') ?? accounts[0])?.currency ?? 'USD'
 
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
@@ -104,7 +112,12 @@ export function DashboardPage() {
               </div>
             </div>
 
-            <ResponsiveContainer width="100%" height={120}>
+            {chartData.length === 0 ? (
+              <div className="flex items-center justify-center h-[120px] text-xs text-slate-600">
+                No transaction history yet
+              </div>
+            ) : null}
+            <ResponsiveContainer width="100%" height={chartData.length === 0 ? 0 : 120}>
               <AreaChart data={chartData}>
                 <defs>
                   <linearGradient id="balGrad" x1="0" y1="0" x2="0" y2="1">
@@ -115,7 +128,7 @@ export function DashboardPage() {
                 <Tooltip
                   contentStyle={{ background: 'rgba(4,4,16,0.9)', border: '1px solid rgba(6,182,212,0.2)', borderRadius: 8, fontSize: 12 }}
                   labelStyle={{ color: '#94a3b8' }}
-                  formatter={(v: number) => [`$${v.toFixed(2)}`, 'Balance']}
+                  formatter={(v: number) => [`${v.toFixed(2)} ${primaryCurrency}`, 'Balance']}
                 />
                 <Area type="monotone" dataKey="value" stroke="#06b6d4" strokeWidth={2} fill="url(#balGrad)" />
               </AreaChart>

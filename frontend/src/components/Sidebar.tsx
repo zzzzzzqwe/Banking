@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import {
   LayoutDashboard, Wallet, ArrowLeftRight, ClipboardList,
   CreditCard, Users, ShieldCheck, LogOut, ChevronRight,
-  Hexagon
+  Hexagon, UserCircle
 } from 'lucide-react'
 import clsx from 'clsx'
 import { useAuthStore } from '../store/useAuthStore'
@@ -21,6 +21,7 @@ const userNav: NavItem[] = [
   { to: '/transfers',    icon: ArrowLeftRight,  label: 'Transfers' },
   { to: '/transactions', icon: ClipboardList,   label: 'Transactions' },
   { to: '/loans',        icon: CreditCard,      label: 'Loans' },
+  { to: '/profile',      icon: UserCircle,      label: 'Profile' },
 ]
 
 const adminNav: NavItem[] = [
@@ -30,7 +31,7 @@ const adminNav: NavItem[] = [
 ]
 
 export function Sidebar() {
-  const { userId, role, logout } = useAuthStore()
+  const { userId, role, firstName, lastName, logout } = useAuthStore()
   const navigate = useNavigate()
   const isAdmin = role === 'ADMIN'
 
@@ -147,17 +148,22 @@ export function Sidebar() {
 
       {/* User footer */}
       <div className="px-3 py-4 border-t border-white/[0.05]">
-        <div className="glass rounded-xl px-3 py-2.5 mb-2">
+        <NavLink to="/profile" className={({ isActive }) => clsx(
+          'glass rounded-xl px-3 py-2.5 mb-2 block transition-all duration-200',
+          isActive ? 'border-cyan-500/25' : 'hover:bg-white/[0.03]'
+        )}>
           <div className="flex items-center gap-2">
             <div
-              className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold"
-              style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(168,85,247,0.2))' }}
+              className="w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0"
+              style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(168,85,247,0.2))', border: '1px solid rgba(6,182,212,0.2)' }}
             >
-              {isAdmin ? '⬡' : '◇'}
+              <span style={{ background: 'linear-gradient(135deg, #06b6d4, #a855f7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                {firstName && lastName ? `${firstName[0]}${lastName[0]}`.toUpperCase() : (isAdmin ? '⬡' : '◇')}
+              </span>
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-xs text-slate-300 font-medium truncate">
-                {userId ? userId.slice(0, 8) + '…' : 'User'}
+                {firstName && lastName ? `${firstName} ${lastName}` : (userId ? userId.slice(0, 8) + '…' : 'User')}
               </p>
               <p className={clsx(
                 'text-[10px] font-medium',
@@ -167,7 +173,7 @@ export function Sidebar() {
               </p>
             </div>
           </div>
-        </div>
+        </NavLink>
 
         <button
           onClick={handleLogout}

@@ -4,6 +4,8 @@ export interface AuthResponse {
   token: string | null
   userId: string
   role: Role
+  firstName: string
+  lastName: string
 }
 
 export interface Account {

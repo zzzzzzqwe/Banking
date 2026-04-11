@@ -44,6 +44,7 @@ class AccountServiceTest {
         assertThat(account.getBalance()).isEqualByComparingTo("100.00");
         assertThat(account.getStatus()).isEqualTo(AccountStatus.ACTIVE);
         assertThat(account.getOwnerId()).isEqualTo(ownerId);
+
     }
 
     @Test

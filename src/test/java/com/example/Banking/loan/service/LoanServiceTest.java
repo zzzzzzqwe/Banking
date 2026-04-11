@@ -163,7 +163,7 @@ class LoanServiceTest {
                 RepaymentStatus.PENDING, null);
 
         when(loanRepo.findById(loanId)).thenReturn(Optional.of(loan));
-        when(scheduleRepo.findFirstByLoanIdAndStatusOrderByInstallmentNumber(loanId, RepaymentStatus.PENDING))
+        when(scheduleRepo.findFirstByLoanIdAndStatusInOrderByInstallmentNumber(eq(loanId), anyList()))
                 .thenReturn(Optional.of(entry));
         when(accountService.getById(accountId)).thenReturn(account);
         when(accountService.withdraw(eq(accountId), eq("USD"), eq(new BigDecimal("900"))))
@@ -195,7 +195,7 @@ class LoanServiceTest {
                 RepaymentStatus.PENDING, null);
 
         when(loanRepo.findById(loanId)).thenReturn(Optional.of(loan));
-        when(scheduleRepo.findFirstByLoanIdAndStatusOrderByInstallmentNumber(loanId, RepaymentStatus.PENDING))
+        when(scheduleRepo.findFirstByLoanIdAndStatusInOrderByInstallmentNumber(eq(loanId), anyList()))
                 .thenReturn(Optional.of(entry));
         when(accountService.getById(accountId)).thenReturn(account);
         when(accountService.withdraw(any(), any(), any())).thenReturn(account);

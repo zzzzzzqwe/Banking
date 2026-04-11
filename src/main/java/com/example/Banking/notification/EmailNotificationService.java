@@ -1,5 +1,6 @@
 package com.example.Banking.notification;
 
+import com.example.Banking.notification.event.InstallmentOverdueEvent;
 import com.example.Banking.notification.event.LoanRepaymentEvent;
 import com.example.Banking.notification.event.LoanStatusChangedEvent;
 import com.example.Banking.notification.event.TransferCompletedEvent;
@@ -73,6 +74,18 @@ public class EmailNotificationService {
         }
 
         send(event.borrowerEmail(), subject, body);
+    }
+
+    @Async
+    @EventListener
+    public void onInstallmentOverdue(InstallmentOverdueEvent event) {
+        send(event.borrowerEmail(),
+                "Overdue Loan Installment — Action Required",
+                "Hello, " + event.firstName() + "!\n\n" +
+                "Installment #" + event.installmentNumber() + " for loan " + event.loanId() +
+                " was due on " + event.dueDate() + " and is now OVERDUE.\n" +
+                "Amount due: " + event.amount() + "\n\n" +
+                "Please make your repayment as soon as possible to avoid further penalties.");
     }
 
     @Async

@@ -3,6 +3,7 @@ package com.example.Banking.transaction.service;
 import com.example.Banking.account.model.Account;
 import com.example.Banking.account.model.AccountStatus;
 import com.example.Banking.account.repository.AccountRepository;
+import com.example.Banking.currency.ExchangeRateService;
 import com.example.Banking.transaction.model.IdempotencyRecord;
 import com.example.Banking.transaction.repository.IdempotencyRepository;
 import com.example.Banking.transaction.repository.TransferRepository;
@@ -32,6 +33,7 @@ class TransferServiceTest {
     @Mock TransferRepository transferRepo;
     @Mock IdempotencyRepository idempotencyRepo;
     @Mock UserRepository userRepo;
+    @Mock ExchangeRateService exchangeRateService;
     @Mock ApplicationEventPublisher eventPublisher;
 
     @InjectMocks TransferService transferService;
@@ -42,6 +44,10 @@ class TransferServiceTest {
 
     private Account account(UUID id, UUID owner, BigDecimal balance, AccountStatus status) {
         return new Account(id, owner, balance, "USD", status, LocalDateTime.now());
+    }
+
+    private Account account(UUID id, UUID owner, BigDecimal balance, String currency, AccountStatus status) {
+        return new Account(id, owner, balance, currency, status, LocalDateTime.now());
     }
 
     @Test
@@ -120,6 +126,26 @@ class TransferServiceTest {
                 ownerId.toString(), fromId.toString(), toId.toString(), "USD", "200", "key-4"))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("insufficient funds");
+    }
+
+    @Test
+    void transfer_crossCurrency_appliesExchangeRate() {
+        UUID otherOwner = UUID.randomUUID();
+        Account from = account(fromId, ownerId, new BigDecimal("500.00"), "USD", AccountStatus.ACTIVE);
+        Account to   = account(toId, otherOwner, new BigDecimal("0.00"), "EUR", AccountStatus.ACTIVE);
+
+        when(idempotencyRepo.findByIdemKey("key-x")).thenReturn(Optional.empty());
+        when(accountRepo.findById(fromId)).thenReturn(Optional.of(from));
+        when(accountRepo.findById(toId)).thenReturn(Optional.of(to));
+        when(exchangeRateService.getRate("USD", "EUR")).thenReturn(new BigDecimal("0.925926"));
+
+        transferService.transfer(
+                ownerId.toString(), fromId.toString(), toId.toString(), "USD", "100", "key-x");
+
+        // from должен уменьшиться на 100 USD
+        assertThat(from.getBalance()).isEqualByComparingTo("400.00");
+        // to должен получить 100 * 0.925926 = 92.59 EUR
+        assertThat(to.getBalance()).isEqualByComparingTo("92.59");
     }
 
     @Test

@@ -6,7 +6,10 @@ interface AuthState {
   token: string | null
   userId: string | null
   role: Role | null
-  setAuth: (token: string, userId: string, role: Role) => void
+  firstName: string | null
+  lastName: string | null
+  setAuth: (token: string, userId: string, role: Role, firstName?: string, lastName?: string) => void
+  setName: (firstName: string, lastName: string) => void
   logout: () => void
   isAdmin: () => boolean
 }
@@ -17,8 +20,12 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       userId: null,
       role: null,
-      setAuth: (token, userId, role) => set({ token, userId, role }),
-      logout: () => set({ token: null, userId: null, role: null }),
+      firstName: null,
+      lastName: null,
+      setAuth: (token, userId, role, firstName, lastName) =>
+        set({ token, userId, role, firstName: firstName ?? null, lastName: lastName ?? null }),
+      setName: (firstName, lastName) => set({ firstName, lastName }),
+      logout: () => set({ token: null, userId: null, role: null, firstName: null, lastName: null }),
       isAdmin: () => get().role === 'ADMIN',
     }),
     { name: 'nexus-auth' }
