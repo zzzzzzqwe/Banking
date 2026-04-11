@@ -11,7 +11,7 @@ import { getMyLoans } from '../api/loans'
 import { useAuthStore } from '../store/useAuthStore'
 import { useToastStore } from '../store/useToastStore'
 import { GlassCard } from '../components/GlassCard'
-import { PageLoader } from '../components/LoadingSpinner'
+import { ProfileSkeleton } from '../components/Skeleton'
 import type { User as UserType } from '../types'
 
 /* ─── Password strength ─────────────────────────────────── */
@@ -168,7 +168,7 @@ export function ProfilePage() {
     }
   }
 
-  if (loading) return <PageLoader />
+  if (loading) return <ProfileSkeleton />
   if (!profile) return null
 
   const strength = passwordStrength(newPass)

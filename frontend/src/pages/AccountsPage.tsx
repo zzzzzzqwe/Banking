@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Wallet, ArrowUp, ArrowDown, X, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react'
 import { getAccounts, createAccount, deposit, withdraw, closeAccount } from '../api/accounts'
 import { GlassCard } from '../components/GlassCard'
-import { PageLoader } from '../components/LoadingSpinner'
+import { AccountsSkeleton } from '../components/Skeleton'
 import { Modal } from '../components/Modal'
 import { useToastStore } from '../store/useToastStore'
 import type { Account } from '../types'
@@ -208,7 +208,7 @@ export function AccountsPage() {
     }
   }
 
-  if (loading) return <PageLoader />
+  if (loading) return <AccountsSkeleton />
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">

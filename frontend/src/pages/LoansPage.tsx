@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { CreditCard, Plus, ChevronDown, ChevronUp, Calendar, TrendingDown, RefreshCw } from 'lucide-react'
 import { getMyLoans, applyForLoan, makeRepayment, getSchedule } from '../api/loans'
 import { GlassCard } from '../components/GlassCard'
-import { PageLoader } from '../components/LoadingSpinner'
+import { LoansSkeleton } from '../components/Skeleton'
 import { Modal } from '../components/Modal'
 import { useToastStore } from '../store/useToastStore'
 import type { Loan, RepaymentEntry } from '../types'
@@ -232,7 +232,7 @@ export function LoansPage() {
     return m.toFixed(2)
   })()
 
-  if (loading) return <PageLoader />
+  if (loading) return <LoansSkeleton />
 
   return (
     <div className="max-w-5xl mx-auto space-y-6">

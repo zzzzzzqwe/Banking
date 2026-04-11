@@ -7,7 +7,7 @@ import { getAccounts, getBalanceSummary } from '../api/accounts'
 import { getMyLoans } from '../api/loans'
 import { StatCard } from '../components/StatCard'
 import { GlassCard } from '../components/GlassCard'
-import { PageLoader } from '../components/LoadingSpinner'
+import { DashboardSkeleton } from '../components/Skeleton'
 import { useAuthStore } from '../store/useAuthStore'
 import type { Account, Loan } from '../types'
 
@@ -51,7 +51,7 @@ export function DashboardPage() {
     return () => { mounted.current = false }
   }, [])
 
-  if (loading) return <PageLoader />
+  if (loading) return <DashboardSkeleton />
 
   const totalBalance  = accounts.reduce((s, a) => s + a.balance, 0)
   const activeAccs    = accounts.filter((a) => a.status === 'ACTIVE').length
