@@ -768,6 +768,338 @@ Hibernate DDL auto=update создаёт все таблицы при перво
 
 ---
 
+## Phase 8 — Swagger/OpenAPI Documentation
+
+Интерактивная документация API — необходима для презентации и удобства фронтенд-разработки.
+
+### pom.xml addition
+```xml
+<dependency>
+    <groupId>org.springdoc</groupId>
+    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+    <version>2.8.6</version>
+</dependency>
+```
+
+### Modify `BankingApplication.java`
+```java
+@OpenAPIDefinition(
+    info = @Info(
+        title = "NEXUS Banking API",
+        version = "1.0",
+        description = "REST API для банковского приложения: счета, переводы, кредиты"
+    )
+)
+```
+
+### Modify all controllers
+Добавить аннотации `@Tag(name = "...")` на каждый контроллер и `@Operation(summary = "...")` на каждый эндпоинт:
+
+| Controller | Tag |
+|------------|-----|
+| `AuthController` | `Authentication` |
+| `AccountController` | `Accounts` |
+| `TransferController` | `Transfers` |
+| `LoanController` | `Loans` |
+| `UserAdminController` | `Admin — Users` |
+| `AccountAdminController` | `Admin — Accounts` |
+| `LoanController` (admin methods) | `Admin — Loans` |
+| `TransactionController` | `Transactions` |
+
+### Modify `SecurityConfig.java`
+Разрешить доступ к Swagger UI без авторизации:
+```java
+.requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+```
+
+### Результат
+- Swagger UI: `http://localhost:8080/swagger-ui.html`
+- OpenAPI JSON: `http://localhost:8080/v3/api-docs`
+- Все эндпоинты документированы с описаниями, параметрами, примерами ответов
+
+---
+
+## Phase 9 — Monitoring & Observability (Actuator + Logging)
+
+Мониторинг состояния приложения и структурированное логирование.
+
+### pom.xml addition
+```xml
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-actuator</artifactId>
+</dependency>
+```
+
+### Modify `application.properties`
+```properties
+management.endpoints.web.exposure.include=health,info,metrics
+management.endpoint.health.show-details=when_authorized
+management.info.env.enabled=true
+info.app.name=NEXUS Banking API
+info.app.version=1.0
+```
+
+### Modify `SecurityConfig.java`
+Разрешить доступ к health:
+```java
+.requestMatchers("/actuator/health").permitAll()
+.requestMatchers("/actuator/**").hasRole("ADMIN")
+```
+
+### Modify `JwtAuthenticationFilter.java`
+Заменить `System.err.println("JWT validation error: ...")` на:
+```java
+private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+// ...
+log.debug("JWT validation failed: {}", e.getMessage());
+```
+
+### Добавить логирование в сервисы
+Все сервисы (`UserService`, `AccountService`, `TransferService`, `LoanService`) получают `Logger` и логируют:
+- `UserService`: login success/failure (email, без пароля)
+- `AccountService`: deposit/withdraw (accountId, amount)
+- `TransferService`: transfer (fromId → toId, amount)
+- `LoanService`: approve/reject (loanId, borrowerId)
+
+### New `config/RequestLoggingConfig.java`
+Фильтр для логирования HTTP-запросов с correlation ID:
+```java
+@Bean
+CommonsRequestLoggingFilter requestLoggingFilter() {
+    var filter = new CommonsRequestLoggingFilter();
+    filter.setIncludeQueryString(true);
+    filter.setIncludeHeaders(true);
+    filter.setHeaderPredicate(h -> !"Authorization".equalsIgnoreCase(h));
+    return filter;
+}
+```
+
+### Результат
+- `GET /actuator/health` → `{"status": "UP"}` (без авторизации)
+- `GET /actuator/metrics` → метрики JVM, HTTP, DB (только ADMIN)
+- Все критические операции логируются с контекстом
+
+---
+
+## Phase 10 — Security Hardening
+
+Устранение уязвимостей: race conditions, слабые пароли.
+
+### Modify `Account.java` — Optimistic Locking
+```java
+@Version
+private Long version;
+```
+Предотвращает race condition при параллельных переводах с одного счёта: второй concurrent запрос получит `OptimisticLockException` → retry или ошибка.
+
+### Modify `ApiExceptionHandler.java`
+Добавить обработчики:
+```java
+@ExceptionHandler(MethodArgumentNotValidException.class)
+public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
+    Map<String, String> fieldErrors = new LinkedHashMap<>();
+    ex.getBindingResult().getFieldErrors()
+        .forEach(e -> fieldErrors.put(e.getField(), e.getDefaultMessage()));
+    return ResponseEntity.badRequest().body(Map.of(
+        "timestamp", Instant.now(), "status", 400,
+        "error", "Validation Failed", "fieldErrors", fieldErrors
+    ));
+}
+
+@ExceptionHandler(OptimisticLockingFailureException.class)
+public ResponseEntity<Map<String, Object>> handleConflict(OptimisticLockingFailureException ex) {
+    return ResponseEntity.status(409).body(Map.of(
+        "timestamp", Instant.now(), "status", 409,
+        "error", "Conflict", "message", "Concurrent modification detected, please retry"
+    ));
+}
+```
+
+### Modify `RegisterRequest.java` — Password Complexity
+```java
+@NotBlank
+@Size(min = 8, message = "password must be at least 8 characters")
+@Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).*$",
+         message = "password must contain uppercase, lowercase, and digit")
+String password
+```
+
+### Modify `DataInitializer.java`
+Пароль admin читается из env-переменной:
+```java
+String adminPassword = System.getenv("ADMIN_PASSWORD");
+if (adminPassword == null) adminPassword = "admin123"; // fallback для dev
+```
+
+### Результат
+- Параллельные переводы безопасны (optimistic lock)
+- Пароли требуют сложность (8+ символов, uppercase, digit)
+- Валидация DTO возвращает человекочитаемые ошибки по полям
+
+---
+
+## Phase 11 — Audit Logging
+
+Аудит критических операций: кто, что, когда, откуда.
+
+### New module `audit/`
+
+**`audit/model/AuditLog.java`** (`@Table("audit_log")`):
+| Field | Type | Notes |
+|-------|------|-------|
+| id | UUID | PK |
+| userId | UUID | кто выполнил действие |
+| action | String | `TRANSFER`, `LOAN_APPROVE`, `LOAN_REJECT`, `USER_DEACTIVATE` |
+| entityType | String | `Account`, `Loan`, `User` |
+| entityId | UUID | id затронутой сущности |
+| details | String | JSON с подробностями (сумма, статус) |
+| ipAddress | String | IP клиента из `HttpServletRequest` |
+| createdAt | LocalDateTime | |
+
+**`audit/repository/AuditLogRepository.java`**:
+```java
+Page<AuditLog> findAllByOrderByCreatedAtDesc(Pageable pageable);
+Page<AuditLog> findByUserIdOrderByCreatedAtDesc(UUID userId, Pageable pageable);
+```
+
+**`audit/service/AuditService.java`**:
+```java
+public void log(UUID userId, String action, String entityType, UUID entityId, String details, String ip)
+```
+
+**`audit/annotation/Auditable.java`**:
+```java
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface Auditable {
+    String action();
+    String entityType();
+}
+```
+
+**`audit/aspect/AuditAspect.java`**:
+AOP `@Around` advice — перехватывает методы с `@Auditable`, извлекает userId из `SecurityContextHolder`, IP из `RequestContextHolder`, сохраняет лог через `AuditService`.
+
+**`audit/controller/AuditController.java`**:
+```
+GET /api/admin/audit            — все записи (пагинация)
+GET /api/admin/audit?userId=... — фильтр по пользователю
+```
+Защищён `@PreAuthorize("hasRole('ADMIN')")`.
+
+### Аннотировать методы
+| Метод | action | entityType |
+|-------|--------|-----------|
+| `TransferService.transfer()` | `TRANSFER` | `Account` |
+| `LoanService.approveLoan()` | `LOAN_APPROVE` | `Loan` |
+| `LoanService.rejectLoan()` | `LOAN_REJECT` | `Loan` |
+| `UserAdminController.deactivate()` | `USER_DEACTIVATE` | `User` |
+
+### Результат
+- Каждый перевод, одобрение/отклонение кредита, деактивация пользователя записывается в audit_log
+- Admin видит полный аудит-трейл через API
+- IP-адрес фиксируется для каждого действия
+
+---
+
+## Phase 12 — CI/CD Pipeline (GitHub Actions)
+
+Автоматизация сборки, тестирования и деплоя.
+
+### New `.github/workflows/ci.yml`
+```yaml
+name: CI
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: banking
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'maven'
+      - name: Run tests
+        run: ./mvnw test -B
+        env:
+          SPRING_DATASOURCE_URL: jdbc:postgresql://localhost:5432/banking
+          SPRING_DATASOURCE_USERNAME: postgres
+          SPRING_DATASOURCE_PASSWORD: test
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: target/surefire-reports/
+```
+
+### New `.github/workflows/docker.yml`
+```yaml
+name: Docker Build
+on:
+  push:
+    tags: ['v*']
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: ghcr.io/${{ github.repository }}/backend:${{ github.ref_name }}
+      - uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: ghcr.io/${{ github.repository }}/frontend:${{ github.ref_name }}
+```
+
+### New `README.md`
+Содержание:
+- Название проекта, описание
+- Архитектура (ASCII-диаграмма: Browser → nginx → Spring Boot → PostgreSQL)
+- Tech stack
+- Быстрый старт (docker compose up)
+- Локальная разработка (mvnw, npm run dev)
+- API документация (ссылка на Swagger)
+- Запуск тестов
+- CI/CD badge
+
+### Результат
+- Каждый push/PR автоматически запускает тесты
+- Тег `v1.0.0` собирает и публикует Docker-образы в GitHub Container Registry
+- README — точка входа для понимания проекта
+
+---
+
 ## Files to Create/Modify
 
 ### Backend — Modify
