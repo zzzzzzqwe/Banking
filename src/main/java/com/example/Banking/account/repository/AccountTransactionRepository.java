@@ -15,4 +15,5 @@ public interface AccountTransactionRepository extends JpaRepository<AccountTrans
             UUID accountId, Instant from, Instant to);
     List<AccountTransaction> findByAccountIdAndCreatedAtGreaterThanEqualOrderByCreatedAtAsc(
             UUID accountId, Instant since);
+    List<AccountTransaction> findByCreatedAtGreaterThanEqualOrderByCreatedAtAsc(Instant since);
 }

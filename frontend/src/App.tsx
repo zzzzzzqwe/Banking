@@ -11,6 +11,7 @@ import { LoansPage }       from './pages/LoansPage'
 import { AdminUsersPage }    from './pages/admin/AdminUsersPage'
 import { AdminAccountsPage } from './pages/admin/AdminAccountsPage'
 import { AdminLoansPage }    from './pages/admin/AdminLoansPage'
+import { AdminStatsPage }    from './pages/admin/AdminStatsPage'
 import { ProfilePage }       from './pages/ProfilePage'
 
 export default function App() {
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/profile"      element={<ProfilePage />} />
 
           {/* Admin only */}
+          <Route path="/admin/stats"    element={<ProtectedRoute adminOnly><AdminStatsPage /></ProtectedRoute>} />
           <Route path="/admin/users"    element={<ProtectedRoute adminOnly><AdminUsersPage /></ProtectedRoute>} />
           <Route path="/admin/accounts" element={<ProtectedRoute adminOnly><AdminAccountsPage /></ProtectedRoute>} />
           <Route path="/admin/loans"    element={<ProtectedRoute adminOnly><AdminLoansPage /></ProtectedRoute>} />

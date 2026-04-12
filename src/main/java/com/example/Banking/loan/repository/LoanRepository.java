@@ -11,4 +11,5 @@ import java.util.UUID;
 public interface LoanRepository extends JpaRepository<Loan, UUID> {
     List<Loan> findByBorrowerIdOrderByCreatedAtDesc(UUID borrowerId);
     Page<Loan> findAllByOrderByCreatedAtDesc(Pageable pageable);
+    long countByStatus(com.example.Banking.loan.model.LoanStatus status);
 }

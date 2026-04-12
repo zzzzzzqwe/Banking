@@ -8,4 +8,6 @@ import java.util.UUID;
 
 public interface AccountRepository extends JpaRepository<Account, UUID> {
     List<Account> findByOwnerId(UUID ownerId);
+    long countByStatus(com.example.Banking.account.model.AccountStatus status);
+    List<Account> findByStatus(com.example.Banking.account.model.AccountStatus status);
 }

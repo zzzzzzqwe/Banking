@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import {
   LayoutDashboard, Wallet, ArrowLeftRight, ClipboardList,
   CreditCard, Users, ShieldCheck, LogOut, ChevronRight,
-  Hexagon, UserCircle
+  Hexagon, UserCircle, BarChart3
 } from 'lucide-react'
 import clsx from 'clsx'
 import { useAuthStore } from '../store/useAuthStore'
@@ -25,6 +25,7 @@ const userNav: NavItem[] = [
 ]
 
 const adminNav: NavItem[] = [
+  { to: '/admin/stats',    icon: BarChart3,   label: 'Analytics', adminOnly: true },
   { to: '/admin/users',    icon: Users,       label: 'Users',     adminOnly: true },
   { to: '/admin/accounts', icon: Wallet,      label: 'Accounts',  adminOnly: true },
   { to: '/admin/loans',    icon: ShieldCheck, label: 'Loans',     adminOnly: true },
