@@ -14,5 +14,7 @@ public record DepositRequest(
 
         @NotNull
         @Positive(message = "amount must be > 0")
-        BigDecimal amount
+        BigDecimal amount,
+
+        String category
 ) {}

@@ -1,14 +1,21 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Search, ClipboardList, ArrowUpRight, ArrowDownLeft, ChevronLeft, ChevronRight, Download } from 'lucide-react'
-import { getTransactions, exportTransactions } from '../api/accounts'
+import { Search, ClipboardList, ArrowUpRight, ArrowDownLeft, ChevronLeft, ChevronRight, Download, Tag } from 'lucide-react'
+import { getTransactions, exportTransactions, updateTransactionCategory } from '../api/accounts'
 import { GlassCard } from '../components/GlassCard'
 import { PageLoader } from '../components/LoadingSpinner'
 import { useToastStore } from '../store/useToastStore'
 import type { Transaction, Page } from '../types'
 
+const CATEGORIES = [
+  'SALARY', 'GROCERIES', 'TRANSPORT', 'ENTERTAINMENT', 'UTILITIES',
+  'HEALTHCARE', 'EDUCATION', 'SHOPPING', 'RESTAURANT', 'TRANSFER',
+  'EXCHANGE', 'LOAN', 'OTHER',
+]
+
 const txColor = (type: string) => {
-  if (type.includes('DEPOSIT') || type.includes('CREDIT') || type.includes('LOAN')) return { color: 'text-emerald-400', bg: 'rgba(52,211,153,0.08)', icon: ArrowDownLeft }
+  if (type.includes('DEPOSIT') || type.includes('CREDIT') || type.includes('LOAN') || type === 'EXCHANGE_IN')
+    return { color: 'text-emerald-400', bg: 'rgba(52,211,153,0.08)', icon: ArrowDownLeft }
   return { color: 'text-red-400', bg: 'rgba(248,113,113,0.08)', icon: ArrowUpRight }
 }
 
@@ -138,7 +145,28 @@ export function TransactionsPage() {
                         <TxIcon size={14} className={color} />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs text-slate-400 font-medium">{tx.type.replace(/_/g, ' ')}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs text-slate-400 font-medium">{tx.type.replace(/_/g, ' ')}</p>
+                          {tx.category ? (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.06] text-slate-400">{tx.category}</span>
+                          ) : (
+                            <select
+                              className="text-[10px] bg-transparent border border-white/[0.08] rounded px-1 py-0.5 text-slate-500 cursor-pointer hover:border-cyan-500/30"
+                              value=""
+                              onChange={async (e) => {
+                                try {
+                                  await updateTransactionCategory(tx.id, e.target.value)
+                                  tx.category = e.target.value
+                                  setData({ ...data! })
+                                  push('Category updated', 'success')
+                                } catch { push('Failed to update category', 'error') }
+                              }}
+                            >
+                              <option value="" disabled>+ category</option>
+                              {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                            </select>
+                          )}
+                        </div>
                         <p className="text-xs text-slate-600 font-mono truncate">{tx.id}</p>
                       </div>
                       <div className="text-right flex-shrink-0">

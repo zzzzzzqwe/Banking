@@ -1,5 +1,5 @@
 import api from './axios'
-import type { Account, Transaction, Page } from '../types'
+import type { Account, Transaction, Page, AnalyticsResponse } from '../types'
 
 export interface DailyBalance {
   date: string
@@ -12,14 +12,14 @@ export const getAccounts = () =>
 export const getAccount = (id: string) =>
   api.get<Account>(`/api/accounts/${id}`).then((r) => r.data)
 
-export const createAccount = (currency: string, initialBalance: number) =>
-  api.post<Account>('/api/accounts', { currency, initialBalance }).then((r) => r.data)
+export const createAccount = (currency: string, initialBalance: number, cardNetwork?: string, cardTier?: string) =>
+  api.post<Account>('/api/accounts', { currency, initialBalance, cardNetwork: cardNetwork || null, cardTier: cardTier || null }).then((r) => r.data)
 
-export const deposit = (id: string, currency: string, amount: number) =>
-  api.post<Account>(`/api/accounts/${id}/deposit`, { currency, amount }).then((r) => r.data)
+export const deposit = (id: string, currency: string, amount: number, category?: string) =>
+  api.post<Account>(`/api/accounts/${id}/deposit`, { currency, amount, category: category || null }).then((r) => r.data)
 
-export const withdraw = (id: string, currency: string, amount: number) =>
-  api.post<Account>(`/api/accounts/${id}/withdraw`, { currency, amount }).then((r) => r.data)
+export const withdraw = (id: string, currency: string, amount: number, category?: string) =>
+  api.post<Account>(`/api/accounts/${id}/withdraw`, { currency, amount, category: category || null }).then((r) => r.data)
 
 export const closeAccount = (id: string) =>
   api.post<Account>(`/api/accounts/${id}/close`).then((r) => r.data)
@@ -38,3 +38,9 @@ export const exportTransactions = (id: string, from?: string, to?: string) => {
 
 export const getBalanceSummary = (id: string, days = 30) =>
   api.get<DailyBalance[]>(`/api/accounts/${id}/transactions/summary?days=${days}`).then((r) => r.data)
+
+export const getAnalytics = (id: string, days = 30) =>
+  api.get<AnalyticsResponse>(`/api/accounts/${id}/analytics?days=${days}`).then((r) => r.data)
+
+export const updateTransactionCategory = (txId: string, category: string) =>
+  api.patch<Transaction>(`/api/transactions/${txId}/category`, { category }).then((r) => r.data)

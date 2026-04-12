@@ -34,6 +34,10 @@ public class AccountService {
     }
 
     public Account create(String ownerId, String currency, BigDecimal initialBalance) {
+        return create(ownerId, currency, initialBalance, null, null);
+    }
+
+    public Account create(String ownerId, String currency, BigDecimal initialBalance, String cardNetwork, String cardTier) {
         if (initialBalance.signum() < 0) {
             throw new IllegalArgumentException("initialBalance must be >= 0");
         }
@@ -44,7 +48,9 @@ public class AccountService {
                 initialBalance.setScale(2, RoundingMode.HALF_UP),
                 currency,
                 AccountStatus.ACTIVE,
-                LocalDateTime.now()
+                LocalDateTime.now(),
+                cardNetwork,
+                cardTier
         );
         return accountRepo.save(account);
     }
@@ -56,6 +62,11 @@ public class AccountService {
 
     @Transactional
     public Account deposit(UUID id, String currency, BigDecimal amount) {
+        return deposit(id, currency, amount, null);
+    }
+
+    @Transactional
+    public Account deposit(UUID id, String currency, BigDecimal amount, String category) {
         var account = accountRepo.findById(id)
                 .orElseThrow(() -> new AccountNotFoundException(id));
 
@@ -68,12 +79,17 @@ public class AccountService {
 
         account.setBalance(account.getBalance().add(amount).setScale(2, RoundingMode.HALF_UP));
         accountRepo.save(account);
-        saveTransaction(id, "DEPOSIT", currency, amount);
+        saveTransaction(id, "DEPOSIT", currency, amount, category);
         return account;
     }
 
     @Transactional
     public Account withdraw(UUID id, String currency, BigDecimal amount) {
+        return withdraw(id, currency, amount, null);
+    }
+
+    @Transactional
+    public Account withdraw(UUID id, String currency, BigDecimal amount, String category) {
         var account = accountRepo.findById(id)
                 .orElseThrow(() -> new AccountNotFoundException(id));
 
@@ -95,7 +111,7 @@ public class AccountService {
 
         account.setBalance(account.getBalance().subtract(amount).setScale(2, RoundingMode.HALF_UP));
         accountRepo.save(account);
-        saveTransaction(id, "WITHDRAW", currency, amount);
+        saveTransaction(id, "WITHDRAW", currency, amount, category);
         return account;
     }
 
@@ -135,7 +151,8 @@ public class AccountService {
         TreeMap<String, BigDecimal> dailyDelta = new TreeMap<>();
         for (var tx : txs) {
             String day = tx.getCreatedAt().atZone(ZoneOffset.UTC).toLocalDate().toString();
-            BigDecimal delta = "DEPOSIT".equals(tx.getType()) ? tx.getAmount() : tx.getAmount().negate();
+            String t = tx.getType();
+            BigDecimal delta = ("DEPOSIT".equals(t) || "EXCHANGE_IN".equals(t)) ? tx.getAmount() : tx.getAmount().negate();
             dailyDelta.merge(day, delta, BigDecimal::add);
         }
 
@@ -162,9 +179,9 @@ public class AccountService {
         }
     }
 
-    private void saveTransaction(UUID accountId, String type, String currency, BigDecimal amount) {
+    public void saveTransaction(UUID accountId, String type, String currency, BigDecimal amount, String category) {
         txRepo.save(new AccountTransaction(
-                UUID.randomUUID(), accountId, type, currency, amount, Instant.now()
+                UUID.randomUUID(), accountId, type, currency, amount, Instant.now(), category
         ));
     }
 }

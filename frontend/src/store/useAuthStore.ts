@@ -28,6 +28,6 @@ export const useAuthStore = create<AuthState>()(
       logout: () => set({ token: null, userId: null, role: null, firstName: null, lastName: null }),
       isAdmin: () => get().role === 'ADMIN',
     }),
-    { name: 'nexus-auth' }
+    { name: 'vertex-auth' }
   )
 )

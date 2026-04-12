@@ -28,6 +28,9 @@ public class AccountTransaction {
     @Column(name = "created_at", nullable = false)
     private Instant createdAt;
 
+    @Column(length = 32)
+    private String category;
+
     protected AccountTransaction() {}
 
     public AccountTransaction(UUID id, UUID accountId, String type, String currency, BigDecimal amount, Instant createdAt) {
@@ -39,10 +42,17 @@ public class AccountTransaction {
         this.createdAt = createdAt;
     }
 
+    public AccountTransaction(UUID id, UUID accountId, String type, String currency, BigDecimal amount, Instant createdAt, String category) {
+        this(id, accountId, type, currency, amount, createdAt);
+        this.category = category;
+    }
+
     public UUID getId() { return id; }
     public UUID getAccountId() { return accountId; }
     public String getType() { return type; }
     public String getCurrency() { return currency; }
     public BigDecimal getAmount() { return amount; }
     public Instant getCreatedAt() { return createdAt; }
+    public String getCategory() { return category; }
+    public void setCategory(String category) { this.category = category; }
 }

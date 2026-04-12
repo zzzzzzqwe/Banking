@@ -3,18 +3,23 @@ import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { UserPlus, Eye, EyeOff, Hexagon } from 'lucide-react'
 import { register } from '../api/auth'
+import { useAuthStore } from '../store/useAuthStore'
 import { AnimatedBackground } from '../components/AnimatedBackground'
 import { ToastContainer } from '../components/Toast'
 import { useToastStore } from '../store/useToastStore'
+import { WelcomeSplash } from '../components/WelcomeSplash'
+import type { Role } from '../types'
 
 export function RegisterPage() {
   const navigate = useNavigate()
+  const setAuth = useAuthStore((s) => s.setAuth)
   const push = useToastStore((s) => s.push)
 
   const [form, setForm] = useState({ email: '', password: '', firstName: '', lastName: '' })
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading]   = useState(false)
   const [error, setError]       = useState('')
+  const [splashName, setSplashName] = useState<string | null>(null)
 
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((f) => ({ ...f, [k]: e.target.value }))
@@ -25,14 +30,18 @@ export function RegisterPage() {
     if (form.password.length < 6) { setError('Password must be at least 6 characters'); return }
     setLoading(true)
     try {
-      await register(form)
-      push('Account created! Please log in.', 'success')
-      navigate('/login')
+      const data = await register(form)
+      setAuth(data.token!, data.userId, data.role as Role, data.firstName, data.lastName)
+      setSplashName(data.firstName || 'User')
     } catch (err: any) {
       setError(err.response?.data?.message || 'Registration failed')
     } finally {
       setLoading(false)
     }
+  }
+
+  if (splashName) {
+    return <WelcomeSplash firstName={splashName} onComplete={() => navigate('/dashboard')} />
   }
 
   return (
@@ -88,7 +97,7 @@ export function RegisterPage() {
 
               <div>
                 <label className="label">Email Address</label>
-                <input type="email" value={form.email} onChange={set('email')} className="input" placeholder="you@nexusbank.io" required />
+                <input type="email" value={form.email} onChange={set('email')} className="input" placeholder="you@vertexbank.io" required />
               </div>
 
               <div>

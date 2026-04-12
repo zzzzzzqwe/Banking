@@ -31,7 +31,9 @@ public class AccountAdminController {
                         a.getBalance(),
                         a.getCurrency(),
                         a.getStatus().name(),
-                        a.getCreatedAt()
+                        a.getCreatedAt(),
+                        a.getCardNetwork(),
+                        a.getCardTier()
                 ));
     }
 
@@ -45,7 +47,9 @@ public class AccountAdminController {
                 account.getBalance(),
                 account.getCurrency(),
                 account.getStatus().name(),
-                account.getCreatedAt()
+                account.getCreatedAt(),
+                account.getCardNetwork(),
+                account.getCardTier()
         );
     }
 }

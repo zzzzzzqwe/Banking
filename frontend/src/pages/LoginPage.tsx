@@ -7,6 +7,7 @@ import { useAuthStore } from '../store/useAuthStore'
 import { AnimatedBackground } from '../components/AnimatedBackground'
 import { ToastContainer } from '../components/Toast'
 import { useToastStore } from '../store/useToastStore'
+import { WelcomeSplash } from '../components/WelcomeSplash'
 import type { Role } from '../types'
 
 export function LoginPage() {
@@ -19,6 +20,7 @@ export function LoginPage() {
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading]   = useState(false)
   const [error, setError]       = useState('')
+  const [splashName, setSplashName] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -27,14 +29,17 @@ export function LoginPage() {
     try {
       const data = await login({ email, password })
       setAuth(data.token!, data.userId, data.role as Role, data.firstName, data.lastName)
-      push('Welcome back!', 'success')
-      navigate('/dashboard')
+      setSplashName(data.firstName || 'User')
     } catch (err: any) {
       const msg = err.response?.data?.message || 'Invalid credentials'
       setError(msg)
     } finally {
       setLoading(false)
     }
+  }
+
+  if (splashName) {
+    return <WelcomeSplash firstName={splashName} onComplete={() => navigate('/dashboard')} />
   }
 
   return (
@@ -82,7 +87,7 @@ export function LoginPage() {
                   <Zap size={10} className="text-cyan-400" />
                 </div>
               </div>
-              <h1 className="text-2xl font-bold tracking-widest gradient-text">NEXUS BANK</h1>
+              <h1 className="text-2xl font-bold tracking-widest gradient-text">VERTEX BANK</h1>
               <p className="text-xs text-slate-500 mt-1 tracking-wider">Next-Generation Banking</p>
             </motion.div>
 
@@ -100,7 +105,7 @@ export function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="input"
-                  placeholder="you@nexusbank.io"
+                  placeholder="you@vertexbank.io"
                   required
                   autoComplete="email"
                 />

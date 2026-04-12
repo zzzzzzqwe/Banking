@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 import {
   LayoutDashboard, Wallet, ArrowLeftRight, ClipboardList,
   CreditCard, Users, ShieldCheck, LogOut, ChevronRight,
-  Hexagon, UserCircle, BarChart3
+  Hexagon, UserCircle, BarChart3, RefreshCw, PieChart
 } from 'lucide-react'
 import clsx from 'clsx'
 import { useAuthStore } from '../store/useAuthStore'
@@ -17,9 +17,11 @@ interface NavItem {
 
 const userNav: NavItem[] = [
   { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/accounts',     icon: Wallet,          label: 'Accounts' },
+  { to: '/accounts',     icon: CreditCard,      label: 'Cards' },
   { to: '/transfers',    icon: ArrowLeftRight,  label: 'Transfers' },
+  { to: '/exchange',     icon: RefreshCw,       label: 'Exchange' },
   { to: '/transactions', icon: ClipboardList,   label: 'Transactions' },
+  { to: '/analytics',    icon: PieChart,        label: 'Analytics' },
   { to: '/loans',        icon: CreditCard,      label: 'Loans' },
   { to: '/profile',      icon: UserCircle,      label: 'Profile' },
 ]
@@ -63,7 +65,7 @@ export function Sidebar() {
           />
         </div>
         <div>
-          <span className="text-sm font-bold tracking-widest gradient-text">NEXUS</span>
+          <span className="text-sm font-bold tracking-widest gradient-text">VERTEX</span>
           <p className="text-[10px] text-slate-600 tracking-wider uppercase">Banking</p>
         </div>
       </div>

@@ -9,5 +9,6 @@ public record TransactionResponse(
         String type,
         String currency,
         BigDecimal amount,
-        Instant createdAt
+        Instant createdAt,
+        String category
 ) {}

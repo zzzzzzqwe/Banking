@@ -12,5 +12,7 @@ public record WithdrawRequest(
         String currency,
 
         @NotNull
-        BigDecimal amount
+        BigDecimal amount,
+
+        String category
 ) {}

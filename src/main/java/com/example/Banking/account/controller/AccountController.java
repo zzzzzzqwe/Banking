@@ -41,7 +41,7 @@ public class AccountController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CreateAccountResponse create(@RequestBody @Valid CreateAccountRequest req, Authentication auth) {
-        var account = accountService.create(auth.getName(), req.currency(), req.initialBalance());
+        var account = accountService.create(auth.getName(), req.currency(), req.initialBalance(), req.cardNetwork(), req.cardTier());
         return new CreateAccountResponse(account.getId().toString());
     }
 
@@ -50,7 +50,7 @@ public class AccountController {
                                    @RequestBody @Valid DepositRequest req,
                                    Authentication auth) {
         verifyOwnership(accountService.getById(id), auth);
-        var account = accountService.deposit(id, req.currency(), req.amount());
+        var account = accountService.deposit(id, req.currency(), req.amount(), req.category());
         return toResponse(account);
     }
 
@@ -59,7 +59,7 @@ public class AccountController {
                                     @RequestBody @Valid WithdrawRequest req,
                                     Authentication auth) {
         verifyOwnership(accountService.getById(id), auth);
-        var account = accountService.withdraw(id, req.currency(), req.amount());
+        var account = accountService.withdraw(id, req.currency(), req.amount(), req.category());
         return toResponse(account);
     }
 
@@ -83,7 +83,9 @@ public class AccountController {
                 account.getBalance(),
                 account.getCurrency(),
                 account.getStatus().name(),
-                account.getCreatedAt()
+                account.getCreatedAt(),
+                account.getCardNetwork(),
+                account.getCardTier()
         );
     }
 }

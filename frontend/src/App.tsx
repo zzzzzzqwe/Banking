@@ -13,6 +13,8 @@ import { AdminAccountsPage } from './pages/admin/AdminAccountsPage'
 import { AdminLoansPage }    from './pages/admin/AdminLoansPage'
 import { AdminStatsPage }    from './pages/admin/AdminStatsPage'
 import { ProfilePage }       from './pages/ProfilePage'
+import { ExchangePage }      from './pages/ExchangePage'
+import { AnalyticsPage }     from './pages/AnalyticsPage'
 
 export default function App() {
   return (
@@ -29,6 +31,8 @@ export default function App() {
           <Route path="/accounts"     element={<AccountsPage />} />
           <Route path="/transfers"    element={<TransfersPage />} />
           <Route path="/transactions" element={<TransactionsPage />} />
+          <Route path="/exchange"     element={<ExchangePage />} />
+          <Route path="/analytics"    element={<AnalyticsPage />} />
           <Route path="/loans"        element={<LoansPage />} />
           <Route path="/profile"      element={<ProfilePage />} />
 

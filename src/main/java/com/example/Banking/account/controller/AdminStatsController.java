@@ -101,7 +101,7 @@ public class AdminStatsController {
         for (var tx : recentTx) {
             String month = YearMonth.from(tx.getCreatedAt().atZone(ZoneOffset.UTC)).toString();
             if (volumeMap.containsKey(month)) {
-                if (tx.getType().contains("DEPOSIT") || tx.getType().contains("CREDIT") || tx.getType().contains("LOAN")) {
+                if (tx.getType().contains("DEPOSIT") || tx.getType().contains("CREDIT") || tx.getType().contains("LOAN") || tx.getType().equals("EXCHANGE_IN")) {
                     volumeMap.get(month)[0]++;
                 } else {
                     volumeMap.get(month)[1]++;

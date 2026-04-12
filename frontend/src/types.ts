@@ -8,6 +8,9 @@ export interface AuthResponse {
   lastName: string
 }
 
+export type CardNetwork = 'VISA' | 'MASTERCARD'
+export type CardTier = 'STANDARD' | 'PREMIUM' | 'DELUXE'
+
 export interface Account {
   id: string
   ownerId: string
@@ -15,6 +18,8 @@ export interface Account {
   currency: string
   status: 'ACTIVE' | 'CLOSED'
   createdAt: string
+  cardNetwork: CardNetwork | null
+  cardTier: CardTier | null
 }
 
 export interface Transaction {
@@ -23,6 +28,39 @@ export interface Transaction {
   currency: string
   amount: number
   createdAt: string
+  category?: string
+}
+
+export interface ExchangeRecord {
+  id: string
+  fromAccountId: string
+  toAccountId: string
+  fromAmount: number
+  toAmount: number
+  fromCurrency: string
+  toCurrency: string
+  exchangeRate: number
+  createdAt: string
+}
+
+export interface CategoryBreakdown {
+  category: string
+  amount: number
+  percentage: number
+}
+
+export interface DailyAggregate {
+  date: string
+  income: number
+  expense: number
+}
+
+export interface AnalyticsResponse {
+  totalIncome: number
+  totalExpense: number
+  net: number
+  categoryBreakdown: CategoryBreakdown[]
+  dailyAggregates: DailyAggregate[]
 }
 
 export interface Page<T> {

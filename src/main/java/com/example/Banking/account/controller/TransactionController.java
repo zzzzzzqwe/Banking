@@ -1,8 +1,11 @@
 package com.example.Banking.account.controller;
 
+import com.example.Banking.account.model.AccountTransaction;
 import com.example.Banking.account.repository.AccountTransactionRepository;
 import com.example.Banking.account.service.AccountService;
+import com.example.Banking.account.service.AnalyticsService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -20,18 +23,22 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping(path = "/api/accounts", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(produces = MediaType.APPLICATION_JSON_VALUE)
 public class TransactionController {
 
     private final AccountTransactionRepository txRepo;
     private final AccountService accountService;
+    private final AnalyticsService analyticsService;
 
-    public TransactionController(AccountTransactionRepository txRepo, AccountService accountService) {
+    public TransactionController(AccountTransactionRepository txRepo,
+                                 AccountService accountService,
+                                 AnalyticsService analyticsService) {
         this.txRepo = txRepo;
         this.accountService = accountService;
+        this.analyticsService = analyticsService;
     }
 
-    @GetMapping("/{id}/transactions")
+    @GetMapping("/api/accounts/{id}/transactions")
     public Page<TransactionResponse> getTransactions(
             @PathVariable("id") UUID id,
             @PageableDefault(size = 20) Pageable pageable,
@@ -49,11 +56,12 @@ public class TransactionController {
                         e.getType(),
                         e.getCurrency(),
                         e.getAmount(),
-                        e.getCreatedAt()
+                        e.getCreatedAt(),
+                        e.getCategory()
                 ));
     }
 
-    @GetMapping("/{id}/transactions/export")
+    @GetMapping("/api/accounts/{id}/transactions/export")
     public void exportTransactions(
             @PathVariable("id") UUID id,
             @RequestParam(required = false) String from,
@@ -80,20 +88,21 @@ public class TransactionController {
         response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + "\"");
 
         PrintWriter writer = response.getWriter();
-        writer.println("id,type,currency,amount,createdAt");
+        writer.println("id,type,currency,amount,category,createdAt");
         for (var tx : transactions) {
-            writer.printf("%s,%s,%s,%s,%s%n",
+            writer.printf("%s,%s,%s,%s,%s,%s%n",
                     tx.getId(),
                     tx.getType(),
                     tx.getCurrency(),
                     tx.getAmount().toPlainString(),
+                    tx.getCategory() != null ? tx.getCategory() : "",
                     tx.getCreatedAt()
             );
         }
         writer.flush();
     }
 
-    @GetMapping("/{id}/transactions/summary")
+    @GetMapping("/api/accounts/{id}/transactions/summary")
     public List<AccountService.DailyBalance> getBalanceSummary(
             @PathVariable("id") UUID id,
             @RequestParam(defaultValue = "30") int days,
@@ -110,5 +119,47 @@ public class TransactionController {
         }
 
         return accountService.getBalanceHistory(id, days);
+    }
+
+    @GetMapping("/api/accounts/{id}/analytics")
+    public AnalyticsService.AnalyticsResponse getAnalytics(
+            @PathVariable("id") UUID id,
+            @RequestParam(defaultValue = "30") int days,
+            Authentication auth
+    ) {
+        var account = accountService.getById(id);
+
+        if (!account.getOwnerId().toString().equals(auth.getName())) {
+            throw new AccessDeniedException("Access denied");
+        }
+
+        if (days < 1 || days > 365) {
+            throw new IllegalArgumentException("days must be between 1 and 365");
+        }
+
+        return analyticsService.getAnalytics(id, days);
+    }
+
+    @PatchMapping("/api/transactions/{txId}/category")
+    public TransactionResponse updateCategory(
+            @PathVariable("txId") UUID txId,
+            @RequestBody @Valid UpdateCategoryRequest req,
+            Authentication auth
+    ) {
+        AccountTransaction tx = txRepo.findById(txId)
+                .orElseThrow(() -> new IllegalArgumentException("Transaction not found: " + txId));
+
+        var account = accountService.getById(tx.getAccountId());
+        if (!account.getOwnerId().toString().equals(auth.getName())) {
+            throw new AccessDeniedException("Access denied");
+        }
+
+        tx.setCategory(req.category());
+        txRepo.save(tx);
+
+        return new TransactionResponse(
+                tx.getId(), tx.getType(), tx.getCurrency(),
+                tx.getAmount(), tx.getCreatedAt(), tx.getCategory()
+        );
     }
 }

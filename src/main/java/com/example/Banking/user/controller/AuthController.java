@@ -1,5 +1,6 @@
 package com.example.Banking.user.controller;
 
+import com.example.Banking.config.security.JwtTokenProvider;
 import com.example.Banking.user.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -11,16 +12,20 @@ import org.springframework.web.bind.annotation.*;
 public class AuthController {
 
     private final UserService userService;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, JwtTokenProvider jwtTokenProvider) {
         this.userService = userService;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
     public AuthResponse register(@RequestBody @Valid RegisterRequest req) {
         var user = userService.register(req.email(), req.password(), req.firstName(), req.lastName());
-        return new AuthResponse(null, user.getId().toString(), user.getRole().name(),
+        String token = jwtTokenProvider.generateToken(
+                user.getId().toString(), user.getEmail(), user.getRole().name());
+        return new AuthResponse(token, user.getId().toString(), user.getRole().name(),
                 user.getFirstName(), user.getLastName());
     }
 
