@@ -25,7 +25,13 @@ export const useAuthStore = create<AuthState>()(
       setAuth: (token, userId, role, firstName, lastName) =>
         set({ token, userId, role, firstName: firstName ?? null, lastName: lastName ?? null }),
       setName: (firstName, lastName) => set({ firstName, lastName }),
-      logout: () => set({ token: null, userId: null, role: null, firstName: null, lastName: null }),
+      logout: () => {
+        // Disconnect SSE notifications on logout
+        import('../store/useNotificationStore')
+          .then(({ useNotificationStore }) => useNotificationStore.getState().disconnect())
+          .catch(() => {})
+        set({ token: null, userId: null, role: null, firstName: null, lastName: null })
+      },
       isAdmin: () => get().role === 'ADMIN',
     }),
     { name: 'vertex-auth' }

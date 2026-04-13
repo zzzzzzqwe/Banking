@@ -150,7 +150,7 @@ export function AnalyticsPage() {
       ) : data ? (
         <>
           {/* Summary cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0 }}>
               <GlassCard>
                 <div className="flex items-center gap-3">
@@ -293,7 +293,7 @@ export function AnalyticsPage() {
           {data.categoryBreakdown.length > 0 && (
             <GlassCard>
               <h3 className="text-sm font-semibold text-slate-300 mb-3">Category Breakdown</h3>
-              <table className="data-table w-full">
+              <div className="overflow-x-auto"><table className="data-table w-full">
                 <thead>
                   <tr>
                     <th className="text-left text-xs text-slate-500 pb-2">Category</th>
@@ -333,7 +333,7 @@ export function AnalyticsPage() {
                     </tr>
                   ))}
                 </tbody>
-              </table>
+              </table></div>
             </GlassCard>
           )}
         </>

@@ -144,7 +144,7 @@ export function AdminStatsPage() {
       </motion.div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard icon={Users}         label="Total Users"    value={stats?.totalUsers ?? 0}     sub={`${stats?.activeUsers ?? 0} active`}    color="#06b6d4" delay={0}    />
         <StatCard icon={Wallet}        label="Accounts"       value={stats?.totalAccounts ?? 0}  sub={`${stats?.activeAccounts ?? 0} active`} color="#a855f7" delay={0.06} />
         <StatCard icon={CreditCard}    label="Loans Issued"   value={stats?.totalLoans ?? 0}     sub={`${stats?.activeLoans ?? 0} active`}    color="#10b981" delay={0.12} />

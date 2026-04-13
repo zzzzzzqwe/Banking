@@ -48,7 +48,7 @@ export function AdminAccountsPage() {
 
       {/* Quick stats */}
       {data && (
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             { label: 'This Page Balance', value: `$${totalBalance.toFixed(2)}`, color: 'text-cyan-400' },
             { label: 'Active on Page', value: activeCount.toString(), color: 'text-emerald-400' },

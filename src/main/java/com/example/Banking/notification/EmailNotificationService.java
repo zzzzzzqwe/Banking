@@ -1,10 +1,6 @@
 package com.example.Banking.notification;
 
-import com.example.Banking.notification.event.InstallmentOverdueEvent;
-import com.example.Banking.notification.event.LoanRepaymentEvent;
-import com.example.Banking.notification.event.LoanStatusChangedEvent;
-import com.example.Banking.notification.event.TransferCompletedEvent;
-import com.example.Banking.notification.event.UserRegisteredEvent;
+import com.example.Banking.notification.event.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -99,6 +95,17 @@ public class EmailNotificationService {
             body += "Congratulations! Your loan has been fully repaid.";
         }
         send(event.borrowerEmail(), "Loan Payment Confirmation", body);
+    }
+
+    @Async
+    @EventListener
+    public void onSavingsGoalCompleted(SavingsGoalCompletedEvent event) {
+        send(event.email(),
+                "Savings Goal Reached!",
+                "Hello, " + event.firstName() + "!\n\n" +
+                "Congratulations! You've reached your savings goal \"" + event.goalName() +
+                "\" of " + event.targetAmount() + " " + event.currency() + ".\n\n" +
+                "Keep up the great saving habits!");
     }
 
     private void send(String to, String subject, String text) {

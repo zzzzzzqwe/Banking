@@ -102,7 +102,7 @@ function LoanCard({ loan, onRefresh }: { loan: Loan; onRefresh: () => void }) {
           </div>
         </div>
 
-        <div className="grid grid-cols-3 gap-3 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
           {[
             { label: 'Term', value: `${loan.termMonths} mo.` },
             { label: 'Monthly', value: loan.monthlyPayment ? `$${Number(loan.monthlyPayment).toFixed(2)}` : '—' },
@@ -276,7 +276,7 @@ export function LoansPage() {
             <label className="label">Account ID (for disbursement)</label>
             <input value={form.accountId} onChange={set('accountId')} className="input font-mono text-sm" placeholder="UUID" required />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="label">Principal ($)</label>
               <input type="number" value={form.amount} onChange={set('amount')} className="input num" placeholder="10000" min="0.01" step="0.01" required />

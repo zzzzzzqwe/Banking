@@ -83,7 +83,7 @@ export function DashboardPage() {
       </motion.div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard label="Total Balance"    value={totalBalance}  prefix="$"      icon={Wallet}     color="cyan"    animateNumber delay={0}    />
         <StatCard label="Active Accounts"  value={activeAccs}                    icon={TrendingUp}  color="blue"    animateNumber delay={0.05} />
         <StatCard label="Active Loans"     value={activeLoans}                   icon={CreditCard}  color="purple"  animateNumber delay={0.1}  />

@@ -130,7 +130,7 @@ export function TransactionsPage() {
             {data.content.length === 0 ? (
               <div className="py-12 text-center text-slate-500 text-sm">No transactions found</div>
             ) : (
-              <div className="divide-y divide-white/[0.03]">
+              <div className="divide-y divide-white/[0.03] overflow-x-auto">
                 {data.content.map((tx, i) => {
                   const { color, bg, icon: TxIcon } = txColor(tx.type)
                   return (

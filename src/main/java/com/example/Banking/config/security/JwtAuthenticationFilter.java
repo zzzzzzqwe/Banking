@@ -58,6 +58,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (bearer != null && bearer.startsWith("Bearer ")) {
             return bearer.substring(7);
         }
+        // SSE (EventSource) cannot set custom headers — accept token as query param
+        if ("/api/notifications/stream".equals(request.getRequestURI())) {
+            String token = request.getParameter("token");
+            if (token != null && !token.isBlank()) {
+                return token;
+            }
+        }
         return null;
     }
 }

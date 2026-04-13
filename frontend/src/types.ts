@@ -109,3 +109,37 @@ export interface User {
   role: Role
   createdAt: string
 }
+
+export type NotificationType =
+  | 'TRANSFER_RECEIVED'
+  | 'LOAN_APPROVED'
+  | 'LOAN_REJECTED'
+  | 'GOAL_COMPLETED'
+  | 'LOAN_REPAYMENT'
+  | 'INSTALLMENT_OVERDUE'
+  | 'SYSTEM'
+
+export interface AppNotification {
+  id: string
+  userId: string
+  title: string
+  message: string
+  type: NotificationType
+  read: boolean
+  createdAt: string
+}
+
+export interface SavingsGoal {
+  id: string
+  userId: string
+  accountId: string
+  name: string
+  description: string | null
+  targetAmount: number
+  currentAmount: number
+  currency: string
+  completed: boolean
+  createdAt: string
+  updatedAt: string
+  completedAt: string | null
+}

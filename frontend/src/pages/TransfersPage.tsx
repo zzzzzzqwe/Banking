@@ -93,7 +93,7 @@ export function TransfersPage() {
 
             <ExchangeRateBanner fromCurrency={form.currency} toCurrency={form.toCurrency} />
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label className="label">From Currency</label>
                 <select value={form.currency} onChange={(e) => setForm((f) => ({ ...f, currency: e.target.value }))} className="input">

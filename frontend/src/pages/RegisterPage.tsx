@@ -84,7 +84,7 @@ export function RegisterPage() {
               onSubmit={handleSubmit}
               className="space-y-4"
             >
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="label">First Name</label>
                   <input type="text" value={form.firstName} onChange={set('firstName')} className="input" placeholder="Alex" required />

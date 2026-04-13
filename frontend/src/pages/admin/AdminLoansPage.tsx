@@ -98,7 +98,7 @@ export function AdminLoansPage() {
 
       {/* Stats */}
       {data && (
-        <div className="grid grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[
             { label: 'Total', value: data.totalElements, color: 'text-slate-300' },
             { label: 'Pending', value: pending, color: 'text-amber-400' },

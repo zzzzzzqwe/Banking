@@ -42,7 +42,7 @@ export function Modal({ open, onClose, title, children, maxWidth = 'max-w-md' }:
                   <X size={14} />
                 </button>
               </div>
-              <div className="px-6 py-5">{children}</div>
+              <div className="px-6 py-5 overflow-y-auto max-h-[calc(100vh-10rem)]">{children}</div>
             </motion.div>
           </div>
         </>

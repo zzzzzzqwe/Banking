@@ -1,9 +1,9 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, Wallet, ArrowLeftRight, ClipboardList,
   CreditCard, Users, ShieldCheck, LogOut, ChevronRight,
-  Hexagon, UserCircle, BarChart3, RefreshCw, PieChart
+  Hexagon, UserCircle, BarChart3, RefreshCw, PieChart, Target, X
 } from 'lucide-react'
 import clsx from 'clsx'
 import { useAuthStore } from '../store/useAuthStore'
@@ -23,6 +23,7 @@ const userNav: NavItem[] = [
   { to: '/transactions', icon: ClipboardList,   label: 'Transactions' },
   { to: '/analytics',    icon: PieChart,        label: 'Analytics' },
   { to: '/loans',        icon: CreditCard,      label: 'Loans' },
+  { to: '/savings-goals', icon: Target,         label: 'Savings' },
   { to: '/profile',      icon: UserCircle,      label: 'Profile' },
 ]
 
@@ -33,7 +34,7 @@ const adminNav: NavItem[] = [
   { to: '/admin/loans',    icon: ShieldCheck, label: 'Loans',     adminOnly: true },
 ]
 
-export function Sidebar() {
+function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
   const { userId, role, firstName, lastName, logout } = useAuthStore()
   const navigate = useNavigate()
   const isAdmin = role === 'ADMIN'
@@ -44,12 +45,7 @@ export function Sidebar() {
   }
 
   return (
-    <motion.aside
-      initial={{ x: -20, opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.3 }}
-      className="w-60 flex-shrink-0 flex flex-col h-screen glass-heavy border-r border-white/[0.05]"
-    >
+    <>
       {/* Logo */}
       <div className="px-5 py-6 flex items-center gap-3">
         <div className="relative">
@@ -79,6 +75,7 @@ export function Sidebar() {
               <NavLink
                 key={to}
                 to={to}
+                onClick={onNavClick}
                 className={({ isActive }) =>
                   clsx(
                     'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 group',
@@ -120,6 +117,7 @@ export function Sidebar() {
                 <NavLink
                   key={to}
                   to={to}
+                  onClick={onNavClick}
                   className={({ isActive }) =>
                     clsx(
                       'flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all duration-200 group',
@@ -151,7 +149,7 @@ export function Sidebar() {
 
       {/* User footer */}
       <div className="px-3 py-4 border-t border-white/[0.05]">
-        <NavLink to="/profile" className={({ isActive }) => clsx(
+        <NavLink to="/profile" onClick={onNavClick} className={({ isActive }) => clsx(
           'glass rounded-xl px-3 py-2.5 mb-2 block transition-all duration-200',
           isActive ? 'border-cyan-500/25' : 'hover:bg-white/[0.03]'
         )}>
@@ -186,6 +184,56 @@ export function Sidebar() {
           <span>Log out</span>
         </button>
       </div>
+    </>
+  )
+}
+
+/* Desktop sidebar — always visible on md+ */
+export function Sidebar() {
+  return (
+    <motion.aside
+      initial={{ x: -20, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="hidden md:flex w-60 flex-shrink-0 flex-col h-screen glass-heavy border-r border-white/[0.05]"
+    >
+      <SidebarContent />
     </motion.aside>
+  )
+}
+
+/* Mobile sidebar — overlay with backdrop */
+export function MobileSidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            key="sidebar-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+            onClick={onClose}
+          />
+          <motion.aside
+            key="sidebar-panel"
+            initial={{ x: -280 }}
+            animate={{ x: 0 }}
+            exit={{ x: -280 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            className="fixed inset-y-0 left-0 z-50 w-64 flex flex-col glass-heavy border-r border-white/[0.05] md:hidden"
+          >
+            <button
+              onClick={onClose}
+              className="absolute top-4 right-3 p-1.5 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-white/[0.06] transition-colors"
+            >
+              <X size={16} />
+            </button>
+            <SidebarContent onNavClick={onClose} />
+          </motion.aside>
+        </>
+      )}
+    </AnimatePresence>
   )
 }

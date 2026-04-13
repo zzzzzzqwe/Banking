@@ -27,7 +27,7 @@ export function ToastContainer() {
               transition={{ duration: 0.25 }}
               className={clsx(
                 'pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl border',
-                'backdrop-blur-xl shadow-2xl min-w-[280px] max-w-sm',
+                'backdrop-blur-xl shadow-2xl min-w-[240px] sm:min-w-[280px] max-w-sm',
                 bg
               )}
             >
