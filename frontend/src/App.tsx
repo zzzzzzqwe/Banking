@@ -4,18 +4,21 @@ import { ProtectedRoute } from './components/ProtectedRoute'
 import { LoginPage }       from './pages/LoginPage'
 import { RegisterPage }    from './pages/RegisterPage'
 import { DashboardPage }   from './pages/DashboardPage'
-import { AccountsPage }    from './pages/AccountsPage'
 import { TransfersPage }   from './pages/TransfersPage'
 import { TransactionsPage } from './pages/TransactionsPage'
 import { LoansPage }       from './pages/LoansPage'
 import { AdminUsersPage }    from './pages/admin/AdminUsersPage'
 import { AdminAccountsPage } from './pages/admin/AdminAccountsPage'
-import { AdminLoansPage }    from './pages/admin/AdminLoansPage'
+import { AdminRequestsPage } from './pages/admin/AdminRequestsPage'
+import { AdminAuditPage }    from './pages/admin/AdminAuditPage'
 import { AdminStatsPage }    from './pages/admin/AdminStatsPage'
 import { ProfilePage }       from './pages/ProfilePage'
 import { ExchangePage }      from './pages/ExchangePage'
 import { AnalyticsPage }     from './pages/AnalyticsPage'
 import { SavingsGoalsPage }  from './pages/SavingsGoalsPage'
+import { CardsPage }         from './pages/CardsPage'
+import { BudgetsPage }       from './pages/BudgetsPage'
+import { BeneficiariesPage } from './pages/BeneficiariesPage'
 
 export default function App() {
   return (
@@ -29,7 +32,10 @@ export default function App() {
         <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="/dashboard"    element={<DashboardPage />} />
-          <Route path="/accounts"     element={<AccountsPage />} />
+          <Route path="/accounts"     element={<Navigate to="/cards" replace />} />
+          <Route path="/cards"        element={<CardsPage />} />
+          <Route path="/budgets"      element={<BudgetsPage />} />
+          <Route path="/beneficiaries" element={<BeneficiariesPage />} />
           <Route path="/transfers"    element={<TransfersPage />} />
           <Route path="/transactions" element={<TransactionsPage />} />
           <Route path="/exchange"     element={<ExchangePage />} />
@@ -42,7 +48,9 @@ export default function App() {
           <Route path="/admin/stats"    element={<ProtectedRoute adminOnly><AdminStatsPage /></ProtectedRoute>} />
           <Route path="/admin/users"    element={<ProtectedRoute adminOnly><AdminUsersPage /></ProtectedRoute>} />
           <Route path="/admin/accounts" element={<ProtectedRoute adminOnly><AdminAccountsPage /></ProtectedRoute>} />
-          <Route path="/admin/loans"    element={<ProtectedRoute adminOnly><AdminLoansPage /></ProtectedRoute>} />
+          <Route path="/admin/requests" element={<ProtectedRoute adminOnly><AdminRequestsPage /></ProtectedRoute>} />
+          <Route path="/admin/audit"    element={<ProtectedRoute adminOnly><AdminAuditPage /></ProtectedRoute>} />
+          <Route path="/admin/loans"    element={<Navigate to="/admin/requests" replace />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

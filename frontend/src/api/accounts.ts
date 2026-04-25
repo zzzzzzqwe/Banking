@@ -12,8 +12,11 @@ export const getAccounts = () =>
 export const getAccount = (id: string) =>
   api.get<Account>(`/api/accounts/${id}`).then((r) => r.data)
 
-export const createAccount = (currency: string, initialBalance: number, cardNetwork?: string, cardTier?: string) =>
-  api.post<Account>('/api/accounts', { currency, initialBalance, cardNetwork: cardNetwork || null, cardTier: cardTier || null }).then((r) => r.data)
+export const createAccount = (currency: string, initialBalance: number, cardNetwork?: string, cardTier?: string, cardType?: 'PHYSICAL' | 'VIRTUAL') =>
+  api.post<Account>('/api/accounts', { currency, initialBalance, cardNetwork: cardNetwork || null, cardTier: cardTier || null, cardType: cardType || null }).then((r) => r.data)
+
+export const setDailyLimit = (id: string, dailyLimit: number | null) =>
+  api.put<Account>(`/api/accounts/${id}/limit`, { dailyLimit }).then((r) => r.data)
 
 export const deposit = (id: string, currency: string, amount: number, category?: string) =>
   api.post<Account>(`/api/accounts/${id}/deposit`, { currency, amount, category: category || null }).then((r) => r.data)

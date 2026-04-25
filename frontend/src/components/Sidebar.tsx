@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, Wallet, ArrowLeftRight, ClipboardList,
   CreditCard, Users, ShieldCheck, LogOut, ChevronRight,
-  Hexagon, UserCircle, BarChart3, RefreshCw, PieChart, Target, X
+  Hexagon, UserCircle, BarChart3, RefreshCw, PieChart, Target, X, PiggyBank, ScrollText
 } from 'lucide-react'
 import clsx from 'clsx'
 import { useAuthStore } from '../store/useAuthStore'
@@ -17,11 +17,13 @@ interface NavItem {
 
 const userNav: NavItem[] = [
   { to: '/dashboard',    icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/accounts',     icon: CreditCard,      label: 'Cards' },
+  { to: '/cards',        icon: CreditCard,      label: 'Cards' },
   { to: '/transfers',    icon: ArrowLeftRight,  label: 'Transfers' },
+  { to: '/beneficiaries', icon: Users,          label: 'Beneficiaries' },
   { to: '/exchange',     icon: RefreshCw,       label: 'Exchange' },
   { to: '/transactions', icon: ClipboardList,   label: 'Transactions' },
   { to: '/analytics',    icon: PieChart,        label: 'Analytics' },
+  { to: '/budgets',      icon: PiggyBank,       label: 'Budgets' },
   { to: '/loans',        icon: CreditCard,      label: 'Loans' },
   { to: '/savings-goals', icon: Target,         label: 'Savings' },
   { to: '/profile',      icon: UserCircle,      label: 'Profile' },
@@ -30,8 +32,9 @@ const userNav: NavItem[] = [
 const adminNav: NavItem[] = [
   { to: '/admin/stats',    icon: BarChart3,   label: 'Analytics', adminOnly: true },
   { to: '/admin/users',    icon: Users,       label: 'Users',     adminOnly: true },
-  { to: '/admin/accounts', icon: Wallet,      label: 'Accounts',  adminOnly: true },
-  { to: '/admin/loans',    icon: ShieldCheck, label: 'Loans',     adminOnly: true },
+  { to: '/admin/accounts', icon: Wallet,      label: 'Cards',     adminOnly: true },
+  { to: '/admin/requests', icon: ShieldCheck, label: 'Requests',  adminOnly: true },
+  { to: '/admin/audit',    icon: ScrollText,  label: 'Audit Log', adminOnly: true },
 ]
 
 function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
@@ -61,7 +64,7 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
           />
         </div>
         <div>
-          <span className="text-sm font-bold tracking-widest gradient-text">VERTEX</span>
+          <span className="text-sm font-bold tracking-widest gradient-text">VELORA</span>
           <p className="text-[10px] text-slate-600 tracking-wider uppercase">Banking</p>
         </div>
       </div>

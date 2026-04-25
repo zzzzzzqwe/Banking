@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { AreaChart, Area, ResponsiveContainer, Tooltip } from 'recharts'
 import { getAccounts, getBalanceSummary } from '../api/accounts'
 import { getMyLoans } from '../api/loans'
+import { getExchangeRates } from '../api/exchange'
 import { StatCard } from '../components/StatCard'
 import { GlassCard } from '../components/GlassCard'
 import { DashboardSkeleton } from '../components/Skeleton'
@@ -27,23 +28,59 @@ export function DashboardPage() {
   const [loans, setLoans]       = useState<Loan[]>([])
   const [loading, setLoading]   = useState(true)
   const [chartData, setChartData] = useState<{ name: string; value: number }[]>([])
+  const [rates, setRates] = useState<Record<string, number>>({})
 
   const mounted = useRef(true)
   useEffect(() => {
     mounted.current = true
-    Promise.all([getAccounts(), getMyLoans()])
-      .then(async ([accs, lns]) => {
+    Promise.all([getAccounts(), getMyLoans(), getExchangeRates().catch(() => ({} as Record<string, number>))])
+      .then(async ([accs, lns, rts]) => {
         if (!mounted.current) return
         setAccounts(accs)
         setLoans(lns)
-        const primary = accs.find((a) => a.status === 'ACTIVE') ?? accs[0]
-        if (primary) {
-          try {
-            const summary = await getBalanceSummary(primary.id, 30)
-            if (mounted.current) setChartData(summary.map((d) => ({ name: d.date.slice(5), value: d.balance })))
-          } catch {
-            // нет истории — оставляем пустой граф
+        setRates(rts)
+
+        const active = accs.filter((a) => a.status === 'ACTIVE')
+        if (active.length === 0) return
+
+        const convert = (amount: number, from: string) => {
+          if (from === 'USD') return amount
+          const direct = rts[`${from}_USD`]
+          if (direct) return amount * direct
+          const reverse = rts[`USD_${from}`]
+          if (reverse && reverse !== 0) return amount / reverse
+          return 0
+        }
+
+        try {
+          const summaries = await Promise.all(
+            active.map((a) =>
+              getBalanceSummary(a.id, 365)
+                .then((s) => ({ currency: a.currency, data: s }))
+                .catch(() => ({ currency: a.currency, data: [] as { date: string; balance: number }[] }))
+            )
+          )
+
+          const endOfMonth = new Map<string, number>()
+          for (const { currency, data } of summaries) {
+            const cardByMonth = new Map<string, number>()
+            for (const point of data) {
+              cardByMonth.set(point.date.slice(0, 7), convert(point.balance, currency))
+            }
+            for (const [month, val] of cardByMonth) {
+              endOfMonth.set(month, (endOfMonth.get(month) || 0) + val)
+            }
           }
+
+          const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+          const chartPoints = [...endOfMonth.keys()].sort().map((m) => ({
+            name: monthNames[parseInt(m.slice(5, 7), 10) - 1],
+            value: Math.round((endOfMonth.get(m) || 0) * 100) / 100,
+          }))
+
+          if (mounted.current) setChartData(chartPoints)
+        } catch {
+          // нет истории — оставляем пустой граф
         }
       })
       .catch(() => {})
@@ -53,11 +90,29 @@ export function DashboardPage() {
 
   if (loading) return <DashboardSkeleton />
 
-  const totalBalance  = accounts.reduce((s, a) => s + a.balance, 0)
   const activeAccs    = accounts.filter((a) => a.status === 'ACTIVE').length
   const activeLoans   = loans.filter((l) => l.status === 'ACTIVE').length
   const pendingLoans  = loans.filter((l) => l.status === 'PENDING').length
-  const primaryCurrency = (accounts.find((a) => a.status === 'ACTIVE') ?? accounts[0])?.currency ?? 'USD'
+  const primaryCurrency = 'USD'
+
+  const convertToPrimary = (balance: number, fromCurrency: string) => {
+    if (fromCurrency === primaryCurrency) return balance
+    const direct = rates[`${fromCurrency}_${primaryCurrency}`]
+    if (direct && direct !== 0) return balance * direct
+    const reverse = rates[`${primaryCurrency}_${fromCurrency}`]
+    if (reverse && reverse !== 0) return balance / reverse
+    return 0
+  }
+  const totalBalance = accounts
+    .filter((a) => a.status !== 'CLOSED')
+    .reduce((s, a) => s + convertToPrimary(a.balance, a.currency), 0)
+
+  const currencySymbol: Record<string, string> = { USD: '$', EUR: '€', GBP: '£', RUB: '₽', JPY: '¥', CNY: '¥', KZT: '₸' }
+  const sym = currencySymbol[primaryCurrency] || primaryCurrency + ' '
+  const formatCurrency = (amount: number, currency: string) => {
+    const s = currencySymbol[currency] || currency + ' '
+    return `${s}${Number(amount).toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  }
 
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
@@ -77,16 +132,16 @@ export function DashboardPage() {
             )}
           </h1>
         </div>
-        <Link to="/accounts" className="btn-ghost flex items-center gap-2 text-xs">
-          <Plus size={14} /> New Account
+        <Link to="/cards" className="btn-ghost flex items-center gap-2 text-xs">
+          <Plus size={14} /> New Card
         </Link>
       </motion.div>
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Total Balance"    value={totalBalance}  prefix="$"      icon={Wallet}     color="cyan"    animateNumber delay={0}    />
-        <StatCard label="Active Accounts"  value={activeAccs}                    icon={TrendingUp}  color="blue"    animateNumber delay={0.05} />
-        <StatCard label="Active Loans"     value={activeLoans}                   icon={CreditCard}  color="purple"  animateNumber delay={0.1}  />
+        <StatCard label="Total Balance"    value={totalBalance}  prefix={sym}    icon={Wallet}     color="cyan"    animateNumber delay={0}    />
+        <StatCard label="Active Cards"     value={activeAccs}                    icon={CreditCard}  color="blue"    animateNumber delay={0.05} />
+        <StatCard label="Active Loans"     value={activeLoans}                   icon={TrendingUp}  color="purple"  animateNumber delay={0.1}  />
         <StatCard label="Pending Loans"    value={pendingLoans}                  icon={Clock}       color="amber"   animateNumber delay={0.15} subtext={pendingLoans > 0 ? 'Awaiting approval' : 'None pending'} />
       </div>
 
@@ -101,12 +156,12 @@ export function DashboardPage() {
           <GlassCard glow="cyan">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <p className="text-xs text-slate-500 uppercase tracking-wider">Portfolio Balance</p>
-                <p className="text-3xl font-bold num text-white mt-1">${totalBalance.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+                <p className="text-xs text-slate-500 uppercase tracking-wider">Account Balance</p>
+                <p className="text-3xl font-bold num text-white mt-1">{sym}{totalBalance.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
               </div>
               <div className="text-right">
                 <span className="text-xs text-emerald-400 flex items-center gap-1 justify-end">
-                  <ArrowUpRight size={12} /> All accounts
+                  <ArrowUpRight size={12} /> All cards
                 </span>
                 <p className="text-xs text-slate-600 mt-0.5">{activeAccs} active</p>
               </div>
@@ -128,7 +183,8 @@ export function DashboardPage() {
                 <Tooltip
                   contentStyle={{ background: 'rgba(4,4,16,0.9)', border: '1px solid rgba(6,182,212,0.2)', borderRadius: 8, fontSize: 12 }}
                   labelStyle={{ color: '#94a3b8' }}
-                  formatter={(v: number) => [`${v.toFixed(2)} ${primaryCurrency}`, 'Balance']}
+                  labelFormatter={(_, payload) => payload?.[0]?.payload?.name || ''}
+                  formatter={(v: number) => [`${sym}${v.toLocaleString('en', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`, 'Balance']}
                 />
                 <Area type="monotone" dataKey="value" stroke="#06b6d4" strokeWidth={2} fill="url(#balGrad)" />
               </AreaChart>
@@ -140,15 +196,15 @@ export function DashboardPage() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
           <GlassCard className="h-full">
             <div className="flex items-center justify-between mb-4">
-              <p className="text-xs text-slate-500 uppercase tracking-wider">Your Accounts</p>
-              <Link to="/accounts" className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors">View all</Link>
+              <p className="text-xs text-slate-500 uppercase tracking-wider">Your Cards</p>
+              <Link to="/cards" className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors">View all</Link>
             </div>
 
             {accounts.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 text-center">
-                <Wallet size={28} className="text-slate-700 mb-3" />
-                <p className="text-xs text-slate-500">No accounts yet</p>
-                <Link to="/accounts" className="text-xs text-cyan-400 mt-2 hover:underline">Create one</Link>
+                <CreditCard size={28} className="text-slate-700 mb-3" />
+                <p className="text-xs text-slate-500">No cards yet</p>
+                <Link to="/cards" className="text-xs text-cyan-400 mt-2 hover:underline">Create one</Link>
               </div>
             ) : (
               <div className="space-y-2">
@@ -161,8 +217,8 @@ export function DashboardPage() {
                       {a.currency}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs font-mono text-slate-400 truncate">{a.id.slice(0, 12)}…</p>
-                      <p className="text-sm font-semibold num text-white">${Number(a.balance).toFixed(2)}</p>
+                      <p className="text-xs font-mono text-slate-400 truncate">{a.cardNumber || a.id.slice(0, 12) + '…'}</p>
+                      <p className="text-sm font-semibold num text-white">{formatCurrency(a.balance, a.currency)}</p>
                     </div>
                     {a.status === 'ACTIVE'
                       ? <ArrowUpRight size={12} className="text-emerald-400 flex-shrink-0" />

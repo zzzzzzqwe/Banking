@@ -182,7 +182,7 @@ export function LoansPage() {
   const [loading, setLoading]   = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [applying, setApplying] = useState(false)
-  const [form, setForm] = useState({ accountId: '', amount: '', annualInterestRate: '0.12', termMonths: '12' })
+  const [form, setForm] = useState({ accountId: '', amount: '', annualRatePercent: '12', termMonths: '12' })
 
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, [k]: e.target.value }))
 
@@ -209,12 +209,12 @@ export function LoansPage() {
       await applyForLoan({
         accountId: form.accountId,
         amount: parseFloat(form.amount),
-        annualInterestRate: parseFloat(form.annualInterestRate),
+        annualInterestRate: parseFloat(form.annualRatePercent) / 100,
         termMonths: parseInt(form.termMonths),
       })
       push('Loan application submitted! Awaiting admin approval.', 'success')
       setShowModal(false)
-      setForm({ accountId: '', amount: '', annualInterestRate: '0.12', termMonths: '12' })
+      setForm({ accountId: '', amount: '', annualRatePercent: '12', termMonths: '12' })
       load()
     } catch (err: any) {
       push(err.response?.data?.message || 'Application failed', 'error')
@@ -225,7 +225,7 @@ export function LoansPage() {
 
   // Monthly payment preview
   const preview = (() => {
-    const P = parseFloat(form.amount), r = parseFloat(form.annualInterestRate) / 12, n = parseInt(form.termMonths)
+    const P = parseFloat(form.amount), r = parseFloat(form.annualRatePercent) / 100 / 12, n = parseInt(form.termMonths)
     if (!P || !n || isNaN(r)) return null
     if (r === 0) return (P / n).toFixed(2)
     const m = P * (r * Math.pow(1 + r, n)) / (Math.pow(1 + r, n) - 1)
@@ -282,8 +282,8 @@ export function LoansPage() {
               <input type="number" value={form.amount} onChange={set('amount')} className="input num" placeholder="10000" min="0.01" step="0.01" required />
             </div>
             <div>
-              <label className="label">Annual Rate (e.g. 0.12)</label>
-              <input type="number" value={form.annualInterestRate} onChange={set('annualInterestRate')} className="input num" placeholder="0.12" min="0" step="0.001" required />
+              <label className="label">Annual Rate (%)</label>
+              <input type="number" value={form.annualRatePercent} onChange={set('annualRatePercent')} className="input num" placeholder="12" min="0" max="100" step="0.1" required />
             </div>
           </div>
           <div>

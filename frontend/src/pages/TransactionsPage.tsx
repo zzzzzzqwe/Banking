@@ -1,17 +1,31 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Search, ClipboardList, ArrowUpRight, ArrowDownLeft, ChevronLeft, ChevronRight, Download, Tag } from 'lucide-react'
-import { getTransactions, exportTransactions, updateTransactionCategory } from '../api/accounts'
+import { ClipboardList, ArrowUpRight, ArrowDownLeft, ChevronLeft, ChevronRight, Download } from 'lucide-react'
+import { getAccounts, getTransactions, exportTransactions, updateTransactionCategory } from '../api/accounts'
+import { getCategories } from '../api/budgets'
 import { GlassCard } from '../components/GlassCard'
+import { AccountSelect } from '../components/AccountSelect'
 import { PageLoader } from '../components/LoadingSpinner'
 import { useToastStore } from '../store/useToastStore'
-import type { Transaction, Page } from '../types'
+import type { Account, Transaction, Page, Category } from '../types'
 
-const CATEGORIES = [
-  'SALARY', 'GROCERIES', 'TRANSPORT', 'ENTERTAINMENT', 'UTILITIES',
-  'HEALTHCARE', 'EDUCATION', 'SHOPPING', 'RESTAURANT', 'TRANSFER',
-  'EXCHANGE', 'LOAN', 'OTHER',
-]
+const ICON_FALLBACK: Record<string, string> = {
+  'heart-pulse': '🏥', 'send': '🔁', 'shopping-bag': '🛍️', 'utensils': '🍽️',
+  'car': '🚗', 'film': '🎬', 'lightbulb': '💡', 'book-open': '📚',
+  'briefcase': '💼', 'gift': '🎁', 'undo-2': '↩️', 'shopping-cart': '🛒',
+  'credit-card': '💳', 'package': '📦', 'repeat': '🔁', 'arrow-left-right': '💱',
+  'wallet': '💼', 'banknote': '💵', 'receipt': '🧾', 'home': '🏠',
+  'plane': '✈️', 'coffee': '☕', 'music': '🎵', 'gamepad-2': '🎮',
+  'dumbbell': '💪', 'shirt': '👕', 'scissors': '✂️', 'phone': '📱',
+  'wifi': '📶', 'baby': '👶', 'dog': '🐕', 'flower-2': '🌸',
+}
+
+function resolveIcon(icon: string | null | undefined): string {
+  if (!icon) return ''
+  if (ICON_FALLBACK[icon]) return ICON_FALLBACK[icon]
+  if (/^[a-z]/.test(icon)) return ''
+  return icon
+}
 
 const txColor = (type: string) => {
   if (type.includes('DEPOSIT') || type.includes('CREDIT') || type.includes('LOAN') || type === 'EXCHANGE_IN')
@@ -21,6 +35,9 @@ const txColor = (type: string) => {
 
 export function TransactionsPage() {
   const push = useToastStore((s) => s.push)
+  const [accounts, setAccounts]       = useState<Account[]>([])
+  const [categories, setCategories]   = useState<Category[]>([])
+  const [accountsLoading, setAccountsLoading] = useState(true)
   const [accountId, setAccountId] = useState('')
   const [fromDate, setFromDate]   = useState('')
   const [toDate, setToDate]       = useState('')
@@ -29,11 +46,30 @@ export function TransactionsPage() {
   const [loading, setLoading]     = useState(false)
   const [exporting, setExporting] = useState(false)
 
-  const load = async (p = 0) => {
-    if (!accountId.trim()) { push('Enter an account ID', 'warning'); return }
+  useEffect(() => {
+    getAccounts()
+      .then((accs) => {
+        setAccounts(accs)
+        const first = accs.find((a) => a.status === 'ACTIVE') ?? accs[0]
+        if (first) {
+          setAccountId(first.id)
+          load(0, first.id)
+        }
+      })
+      .catch(() => {})
+      .finally(() => setAccountsLoading(false))
+    getCategories().then(setCategories).catch(() => {})
+  }, [])
+
+  const categoryByCode = (code?: string | null) =>
+    code ? categories.find((c) => c.code.toUpperCase() === code.toUpperCase()) : undefined
+
+  const load = async (p = 0, overrideId?: string) => {
+    const id = overrideId || accountId
+    if (!id.trim()) { push('Select a card', 'warning'); return }
     setLoading(true)
     try {
-      const res = await getTransactions(accountId.trim(), p)
+      const res = await getTransactions(id.trim(), p)
       setData(res)
       setPage(p)
     } catch {
@@ -44,7 +80,7 @@ export function TransactionsPage() {
   }
 
   const handleExport = async () => {
-    if (!accountId.trim()) { push('Enter an account ID first', 'warning'); return }
+    if (!accountId.trim()) { push('Select a card first', 'warning'); return }
     setExporting(true)
     try {
       const blob = await exportTransactions(accountId.trim(), fromDate || undefined, toDate || undefined)
@@ -66,25 +102,21 @@ export function TransactionsPage() {
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-white">Transaction History</h1>
-        <p className="text-sm text-slate-500 mt-0.5">View all operations on an account</p>
+        <p className="text-sm text-slate-500 mt-0.5">View all operations on a card</p>
       </div>
 
       <GlassCard>
-        <div className="flex gap-3 mb-3">
-          <div className="relative flex-1">
-            <Search size={14} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500" />
-            <input
+        <div className="flex gap-3 mb-3 items-end">
+          <div className="flex-1">
+            <AccountSelect
+              accounts={accounts}
               value={accountId}
-              onChange={(e) => setAccountId(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && load(0)}
-              className="input pl-9 font-mono text-sm"
-              placeholder="Paste account UUID…"
+              onChange={(id) => { setAccountId(id); load(0, id) }}
+              label="Card"
+              placeholder="Select card"
+              loading={accountsLoading}
             />
           </div>
-          <button onClick={() => load(0)} disabled={loading} className="btn-primary flex items-center gap-2 whitespace-nowrap">
-            {loading ? <div className="w-4 h-4 spin rounded-full" style={{ border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white' }} /> : <Search size={16} />}
-            <span>Search</span>
-          </button>
         </div>
         <div className="flex gap-3 items-center flex-wrap">
           <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -92,6 +124,11 @@ export function TransactionsPage() {
             <input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} className="input text-xs flex-1" />
             <label className="text-xs text-slate-500 whitespace-nowrap">To</label>
             <input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} className="input text-xs flex-1" />
+            {(fromDate || toDate) && (
+              <button onClick={() => { setFromDate(''); setToDate('') }} className="text-[10px] text-slate-500 hover:text-slate-300 transition-colors whitespace-nowrap">
+                Clear
+              </button>
+            )}
           </div>
           <button
             onClick={handleExport}
@@ -109,14 +146,23 @@ export function TransactionsPage() {
 
       {loading && <PageLoader />}
 
-      {!loading && data && (
+      {!loading && data && (() => {
+        const filtered = data.content.filter((tx) => {
+          const txDate = tx.createdAt.slice(0, 10)
+          if (fromDate && txDate < fromDate) return false
+          if (toDate && txDate > toDate) return false
+          return true
+        })
+        return (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <GlassCard padding={false}>
             <div className="px-6 py-4 border-b border-white/[0.05] flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <ClipboardList size={16} className="text-cyan-400" />
                 <p className="text-sm font-medium text-white">Transactions</p>
-                <span className="text-xs text-slate-500">({data.totalElements} total)</span>
+                <span className="text-xs text-slate-500">
+                  ({(fromDate || toDate) ? `${filtered.length} shown / ` : ''}{data.totalElements} total)
+                </span>
               </div>
               {data.totalPages > 1 && (
                 <div className="flex items-center gap-2 text-xs text-slate-500">
@@ -127,11 +173,11 @@ export function TransactionsPage() {
               )}
             </div>
 
-            {data.content.length === 0 ? (
+            {filtered.length === 0 ? (
               <div className="py-12 text-center text-slate-500 text-sm">No transactions found</div>
             ) : (
               <div className="divide-y divide-white/[0.03] overflow-x-auto">
-                {data.content.map((tx, i) => {
+                {filtered.map((tx, i) => {
                   const { color, bg, icon: TxIcon } = txColor(tx.type)
                   return (
                     <motion.div
@@ -148,7 +194,21 @@ export function TransactionsPage() {
                         <div className="flex items-center gap-2">
                           <p className="text-xs text-slate-400 font-medium">{tx.type.replace(/_/g, ' ')}</p>
                           {tx.category ? (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.06] text-slate-400">{tx.category}</span>
+                            (() => {
+                              const cat = categoryByCode(tx.category)
+                              return (
+                                <span
+                                  className="text-[10px] px-1.5 py-0.5 rounded inline-flex items-center gap-1"
+                                  style={{
+                                    background: cat?.color ? `${cat.color}15` : 'rgba(255,255,255,0.06)',
+                                    color: cat?.color || '#94a3b8',
+                                    border: cat?.color ? `1px solid ${cat.color}30` : '1px solid rgba(255,255,255,0.06)',
+                                  }}
+                                >
+                                  {resolveIcon(cat?.icon)} {cat?.name || tx.category}
+                                </span>
+                              )
+                            })()
                           ) : (
                             <select
                               className="text-[10px] bg-transparent border border-white/[0.08] rounded px-1 py-0.5 text-slate-500 cursor-pointer hover:border-cyan-500/30"
@@ -163,7 +223,7 @@ export function TransactionsPage() {
                               }}
                             >
                               <option value="" disabled>+ category</option>
-                              {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                              {categories.map((c) => <option key={c.id} value={c.code}>{resolveIcon(c.icon)} {c.name}</option>)}
                             </select>
                           )}
                         </div>
@@ -182,13 +242,14 @@ export function TransactionsPage() {
             )}
           </GlassCard>
         </motion.div>
-      )}
+        )
+      })()}
 
       {!loading && !data && (
         <GlassCard className="text-center py-16">
           <ClipboardList size={40} className="text-slate-700 mx-auto mb-4" />
-          <p className="text-slate-400 font-medium">Enter an account ID to view transactions</p>
-          <p className="text-slate-600 text-sm mt-1">Paste the UUID from your Accounts page</p>
+          <p className="text-slate-400 font-medium">Select a card to view transactions</p>
+          <p className="text-slate-600 text-sm mt-1">Choose from the dropdown above</p>
         </GlassCard>
       )}
     </div>

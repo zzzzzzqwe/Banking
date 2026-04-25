@@ -1,5 +1,7 @@
 package com.example.Banking.user.controller;
 
+import com.example.Banking.audit.model.AuditAction;
+import com.example.Banking.audit.service.AuditService;
 import com.example.Banking.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.http.MediaType;
@@ -15,10 +17,13 @@ public class UserProfileController {
 
     private final UserRepository userRepo;
     private final PasswordEncoder passwordEncoder;
+    private final AuditService auditService;
 
-    public UserProfileController(UserRepository userRepo, PasswordEncoder passwordEncoder) {
+    public UserProfileController(UserRepository userRepo, PasswordEncoder passwordEncoder,
+                                 AuditService auditService) {
         this.userRepo = userRepo;
         this.passwordEncoder = passwordEncoder;
+        this.auditService = auditService;
     }
 
     @GetMapping
@@ -31,19 +36,23 @@ public class UserProfileController {
     @PatchMapping
     @Transactional
     public UserResponse updateProfile(@RequestBody UpdateProfileRequest req, Authentication auth) {
-        var user = userRepo.findById(UUID.fromString(auth.getName()))
+        UUID uid = UUID.fromString(auth.getName());
+        var user = userRepo.findById(uid)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         if (req.firstName() != null && !req.firstName().isBlank())
             user.setFirstName(req.firstName().trim());
         if (req.lastName() != null && !req.lastName().isBlank())
             user.setLastName(req.lastName().trim());
-        return toResponse(userRepo.save(user));
+        var saved = userRepo.save(user);
+        auditService.log(uid, AuditAction.PROFILE_UPDATED, "User", uid);
+        return toResponse(saved);
     }
 
     @PostMapping("/password")
     @Transactional
     public void changePassword(@RequestBody ChangePasswordRequest req, Authentication auth) {
-        var user = userRepo.findById(UUID.fromString(auth.getName()))
+        UUID uid = UUID.fromString(auth.getName());
+        var user = userRepo.findById(uid)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
         if (!passwordEncoder.matches(req.currentPassword(), user.getPasswordHash()))
             throw new IllegalArgumentException("Current password is incorrect");
@@ -51,6 +60,7 @@ public class UserProfileController {
             throw new IllegalArgumentException("New password must be at least 6 characters");
         user.setPasswordHash(passwordEncoder.encode(req.newPassword()));
         userRepo.save(user);
+        auditService.log(uid, AuditAction.PASSWORD_CHANGED, "User", uid);
     }
 
     private UserResponse toResponse(com.example.Banking.user.model.User u) {

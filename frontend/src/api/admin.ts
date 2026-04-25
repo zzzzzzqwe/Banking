@@ -1,5 +1,5 @@
 import api from './axios'
-import type { User, Account, Loan, Page } from '../types'
+import type { User, Account, Loan, CardRequest, AuditLogEntry, Page } from '../types'
 
 export const getUsers = (page = 0, size = 20) =>
   api.get<Page<User>>(`/api/admin/users?page=${page}&size=${size}`).then((r) => r.data)
@@ -25,6 +25,15 @@ export const approveLoan = (id: string) =>
 export const rejectLoan = (id: string) =>
   api.post<Loan>(`/api/admin/loans/${id}/reject`).then((r) => r.data)
 
+export const getAllCardRequests = (page = 0, size = 20) =>
+  api.get<Page<CardRequest>>(`/api/admin/card-requests?page=${page}&size=${size}`).then((r) => r.data)
+
+export const approveCardRequest = (id: string) =>
+  api.post<CardRequest>(`/api/admin/card-requests/${id}/approve`).then((r) => r.data)
+
+export const rejectCardRequest = (id: string) =>
+  api.post<CardRequest>(`/api/admin/card-requests/${id}/reject`).then((r) => r.data)
+
 export interface CurrencyStat   { currency: string; count: number; totalBalance: number }
 export interface MonthlyVolume  { month: string; deposits: number; withdrawals: number }
 export interface AdminStats {
@@ -38,3 +47,15 @@ export interface AdminStats {
 
 export const getAdminStats = () =>
   api.get<AdminStats>('/api/admin/stats').then((r) => r.data)
+
+export const getAuditLog = (page = 0, size = 30, params?: { userId?: string; action?: string; from?: string; to?: string }) => {
+  const q = new URLSearchParams({ page: String(page), size: String(size) })
+  if (params?.userId) q.set('userId', params.userId)
+  if (params?.action) q.set('action', params.action)
+  if (params?.from) q.set('from', params.from)
+  if (params?.to) q.set('to', params.to)
+  return api.get<Page<AuditLogEntry>>(`/api/admin/audit?${q}`).then((r) => r.data)
+}
+
+export const getAuditActions = () =>
+  api.get<string[]>('/api/admin/audit/actions').then((r) => r.data)

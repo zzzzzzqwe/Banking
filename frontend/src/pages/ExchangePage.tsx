@@ -137,7 +137,7 @@ export function ExchangePage() {
                   <option value="">Select source account</option>
                   {accounts.map((a) => (
                     <option key={a.id} value={a.id}>
-                      {CURRENCY_FLAGS[a.currency] || ''} {a.currency} — {a.balance.toFixed(2)} ({a.id.slice(0, 8)}…)
+                      {CURRENCY_FLAGS[a.currency] || ''} {a.currency} — {a.balance.toFixed(2)} ({a.cardNumber || a.id.slice(0, 8) + '…'})
                     </option>
                   ))}
                 </select>
@@ -191,7 +191,7 @@ export function ExchangePage() {
                   <option value="">Select destination account</option>
                   {availableToAccounts.map((a) => (
                     <option key={a.id} value={a.id}>
-                      {CURRENCY_FLAGS[a.currency] || ''} {a.currency} — {a.balance.toFixed(2)} ({a.id.slice(0, 8)}…)
+                      {CURRENCY_FLAGS[a.currency] || ''} {a.currency} — {a.balance.toFixed(2)} ({a.cardNumber || a.id.slice(0, 8) + '…'})
                     </option>
                   ))}
                 </select>

@@ -1,5 +1,7 @@
 package com.example.Banking.savingsgoal.controller;
 
+import com.example.Banking.audit.model.AuditAction;
+import com.example.Banking.audit.service.AuditService;
 import com.example.Banking.savingsgoal.service.SavingsGoalService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -16,9 +18,11 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class SavingsGoalController {
 
     private final SavingsGoalService savingsGoalService;
+    private final AuditService auditService;
 
-    public SavingsGoalController(SavingsGoalService savingsGoalService) {
+    public SavingsGoalController(SavingsGoalService savingsGoalService, AuditService auditService) {
         this.savingsGoalService = savingsGoalService;
+        this.auditService = auditService;
     }
 
     @GetMapping
@@ -30,27 +34,36 @@ public class SavingsGoalController {
     @ResponseStatus(HttpStatus.CREATED)
     public SavingsGoalResponse create(@RequestBody @Valid CreateSavingsGoalRequest request,
                                       Authentication auth) {
-        return savingsGoalService.createGoal(
+        var goal = savingsGoalService.createGoal(
                 auth.getName(),
                 request.accountId(),
                 request.name(),
                 request.description(),
                 request.targetAmount()
         );
+        auditService.log(UUID.fromString(auth.getName()), AuditAction.SAVINGS_GOAL_CREATED,
+                "SavingsGoal", goal.id(), request.name());
+        return goal;
     }
 
     @PostMapping("/{id}/deposit")
     public SavingsGoalResponse deposit(@PathVariable UUID id,
                                        @RequestBody @Valid AmountRequest request,
                                        Authentication auth) {
-        return savingsGoalService.deposit(id, auth.getName(), request.amount());
+        var goal = savingsGoalService.deposit(id, auth.getName(), request.amount());
+        auditService.log(UUID.fromString(auth.getName()), AuditAction.SAVINGS_GOAL_DEPOSIT,
+                "SavingsGoal", id, String.valueOf(request.amount()));
+        return goal;
     }
 
     @PostMapping("/{id}/withdraw")
     public SavingsGoalResponse withdraw(@PathVariable UUID id,
                                         @RequestBody @Valid AmountRequest request,
                                         Authentication auth) {
-        return savingsGoalService.withdraw(id, auth.getName(), request.amount());
+        var goal = savingsGoalService.withdraw(id, auth.getName(), request.amount());
+        auditService.log(UUID.fromString(auth.getName()), AuditAction.SAVINGS_GOAL_WITHDRAW,
+                "SavingsGoal", id, String.valueOf(request.amount()));
+        return goal;
     }
 
     @DeleteMapping("/{id}")

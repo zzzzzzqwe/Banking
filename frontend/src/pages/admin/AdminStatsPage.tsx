@@ -146,7 +146,7 @@ export function AdminStatsPage() {
       {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard icon={Users}         label="Total Users"    value={stats?.totalUsers ?? 0}     sub={`${stats?.activeUsers ?? 0} active`}    color="#06b6d4" delay={0}    />
-        <StatCard icon={Wallet}        label="Accounts"       value={stats?.totalAccounts ?? 0}  sub={`${stats?.activeAccounts ?? 0} active`} color="#a855f7" delay={0.06} />
+        <StatCard icon={Wallet}        label="Cards"           value={stats?.totalAccounts ?? 0}  sub={`${stats?.activeAccounts ?? 0} active`} color="#a855f7" delay={0.06} />
         <StatCard icon={CreditCard}    label="Loans Issued"   value={stats?.totalLoans ?? 0}     sub={`${stats?.activeLoans ?? 0} active`}    color="#10b981" delay={0.12} />
         <StatCard icon={AlertTriangle} label="Overdue"        value={stats?.overdueCount ?? 0}   sub={`${stats?.pendingLoans ?? 0} pending approval`} color="#ef4444" delay={0.18} />
       </div>
@@ -268,7 +268,7 @@ export function AdminStatsPage() {
             <div className="space-y-3">
               {[
                 { label: 'Active Users',    value: stats?.activeUsers ?? 0,    total: stats?.totalUsers ?? 0,    color: '#06b6d4', icon: Users },
-                { label: 'Active Accounts', value: stats?.activeAccounts ?? 0, total: stats?.totalAccounts ?? 0, color: '#a855f7', icon: Wallet },
+                { label: 'Active Cards',    value: stats?.activeAccounts ?? 0, total: stats?.totalAccounts ?? 0, color: '#a855f7', icon: Wallet },
                 { label: 'Active Loans',    value: stats?.activeLoans ?? 0,    total: stats?.totalLoans ?? 0,    color: '#10b981', icon: CreditCard },
               ].map(({ label, value, total, color, icon: Icon }) => {
                 const pct = total > 0 ? Math.round((value / total) * 100) : 0

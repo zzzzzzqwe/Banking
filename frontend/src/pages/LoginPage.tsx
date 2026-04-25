@@ -87,7 +87,7 @@ export function LoginPage() {
                   <Zap size={10} className="text-cyan-400" />
                 </div>
               </div>
-              <h1 className="text-2xl font-bold tracking-widest gradient-text">VERTEX BANK</h1>
+              <h1 className="text-2xl font-bold tracking-widest gradient-text">VELORA BANK</h1>
               <p className="text-xs text-slate-500 mt-1 tracking-wider">Next-Generation Banking</p>
             </motion.div>
 
@@ -105,7 +105,7 @@ export function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="input"
-                  placeholder="you@vertexbank.io"
+                  placeholder="you@velorabank.io"
                   required
                   autoComplete="email"
                 />
@@ -174,16 +174,6 @@ export function LoginPage() {
           <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.3), rgba(6,182,212,0.2), transparent)' }} />
         </div>
 
-        {/* Demo hint */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-          className="mt-4 text-center text-xs text-slate-600"
-        >
-          Admin: <span className="text-slate-500 font-mono">admin@bank.local</span> /
-          <span className="text-slate-500 font-mono"> admin123</span>
-        </motion.div>
       </motion.div>
 
       <ToastContainer />

@@ -97,7 +97,7 @@ export function RegisterPage() {
 
               <div>
                 <label className="label">Email Address</label>
-                <input type="email" value={form.email} onChange={set('email')} className="input" placeholder="you@vertexbank.io" required />
+                <input type="email" value={form.email} onChange={set('email')} className="input" placeholder="you@velorabank.io" required />
               </div>
 
               <div>

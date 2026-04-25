@@ -1,5 +1,6 @@
 package com.example.Banking.account.controller;
 
+import com.example.Banking.account.model.Account;
 import com.example.Banking.account.repository.AccountRepository;
 import com.example.Banking.config.AccountNotFoundException;
 import org.springframework.data.domain.Page;
@@ -24,32 +25,21 @@ public class AccountAdminController {
 
     @GetMapping
     public Page<AccountResponse> listAll(@PageableDefault(size = 20) Pageable pageable) {
-        return accountRepository.findAll(pageable)
-                .map(a -> new AccountResponse(
-                        a.getId(),
-                        a.getOwnerId(),
-                        a.getBalance(),
-                        a.getCurrency(),
-                        a.getStatus().name(),
-                        a.getCreatedAt(),
-                        a.getCardNetwork(),
-                        a.getCardTier()
-                ));
+        return accountRepository.findAll(pageable).map(this::toResponse);
     }
 
     @GetMapping("/{id}")
     public AccountResponse getById(@PathVariable UUID id) {
         var account = accountRepository.findById(id)
                 .orElseThrow(() -> new AccountNotFoundException(id));
+        return toResponse(account);
+    }
+
+    private AccountResponse toResponse(Account a) {
         return new AccountResponse(
-                account.getId(),
-                account.getOwnerId(),
-                account.getBalance(),
-                account.getCurrency(),
-                account.getStatus().name(),
-                account.getCreatedAt(),
-                account.getCardNetwork(),
-                account.getCardTier()
+                a.getId(), a.getOwnerId(), a.getBalance(), a.getCurrency(), a.getStatus().name(),
+                a.getCreatedAt(), a.getCardNetwork(), a.getCardTier(), a.getCardNumber(),
+                a.getCardType(), a.getDailyLimit(), a.getExpiryDate(), a.getHolderName()
         );
     }
 }

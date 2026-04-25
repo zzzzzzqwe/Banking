@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   ArrowDownLeft, CheckCircle2, XCircle, Target, CreditCard,
-  AlertTriangle, Bell, CheckCheck
+  AlertTriangle, Bell, CheckCheck, Lock
 } from 'lucide-react'
 import clsx from 'clsx'
 import { useNotificationStore } from '../store/useNotificationStore'
@@ -15,8 +15,10 @@ const typeConfig: Record<NotificationType, { icon: typeof Bell; color: string }>
   LOAN_REJECTED:      { icon: XCircle,        color: 'text-red-400' },
   GOAL_COMPLETED:     { icon: Target,         color: 'text-purple-400' },
   LOAN_REPAYMENT:     { icon: CreditCard,     color: 'text-blue-400' },
-  INSTALLMENT_OVERDUE:{ icon: AlertTriangle,  color: 'text-amber-400' },
-  SYSTEM:             { icon: Bell,           color: 'text-slate-400' },
+  INSTALLMENT_OVERDUE:    { icon: AlertTriangle,  color: 'text-amber-400' },
+  CARD_REQUEST_APPROVED:  { icon: Lock,           color: 'text-emerald-400' },
+  CARD_REQUEST_REJECTED:  { icon: Lock,           color: 'text-red-400' },
+  SYSTEM:                 { icon: Bell,           color: 'text-slate-400' },
 }
 
 function timeAgo(dateStr: string): string {

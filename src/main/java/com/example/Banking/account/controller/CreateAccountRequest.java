@@ -11,5 +11,6 @@ public record CreateAccountRequest(
         String currency,
         @NotNull BigDecimal initialBalance,
         String cardNetwork,
-        String cardTier
+        String cardTier,
+        String cardType
 ) {}

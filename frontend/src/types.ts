@@ -10,17 +10,30 @@ export interface AuthResponse {
 
 export type CardNetwork = 'VISA' | 'MASTERCARD'
 export type CardTier = 'STANDARD' | 'PREMIUM' | 'DELUXE'
+export type CardType = 'PHYSICAL' | 'VIRTUAL'
+export type CardStatus = 'ACTIVE' | 'BLOCKED' | 'CLOSED'
 
+/**
+ * A Card is the primary money-holding entity owned by a user.
+ * Kept as `Account` for legacy API-path compatibility, but represents a card in the UX.
+ */
 export interface Account {
   id: string
   ownerId: string
   balance: number
   currency: string
-  status: 'ACTIVE' | 'CLOSED'
+  status: CardStatus
   createdAt: string
   cardNetwork: CardNetwork | null
   cardTier: CardTier | null
+  cardNumber: string | null
+  cardType: CardType | null
+  dailyLimit: number | null
+  expiryDate: string | null
+  holderName: string | null
 }
+
+export type Card = Account
 
 export interface Transaction {
   id: string
@@ -110,6 +123,21 @@ export interface User {
   createdAt: string
 }
 
+export type CardRequestType = 'BLOCK' | 'UNBLOCK'
+export type CardRequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED'
+
+export interface CardRequest {
+  id: string
+  userId: string
+  accountId: string
+  requestType: CardRequestType
+  status: CardRequestStatus
+  createdAt: string
+  resolvedAt: string | null
+  cardNumber: string | null
+  holderName: string | null
+}
+
 export type NotificationType =
   | 'TRANSFER_RECEIVED'
   | 'LOAN_APPROVED'
@@ -117,6 +145,8 @@ export type NotificationType =
   | 'GOAL_COMPLETED'
   | 'LOAN_REPAYMENT'
   | 'INSTALLMENT_OVERDUE'
+  | 'CARD_REQUEST_APPROVED'
+  | 'CARD_REQUEST_REJECTED'
   | 'SYSTEM'
 
 export interface AppNotification {
@@ -126,6 +156,63 @@ export interface AppNotification {
   message: string
   type: NotificationType
   read: boolean
+  createdAt: string
+}
+
+export interface Beneficiary {
+  id: string
+  nickname: string
+  accountNumber: string
+  accountId: string | null
+  bankName: string | null
+  holderName: string | null
+  currency: string
+  favorite: boolean
+  createdAt: string
+  lastUsedAt: string | null
+  internal: boolean
+}
+
+export interface Category {
+  id: string
+  code: string
+  name: string
+  icon: string | null
+  color: string | null
+  type: 'INCOME' | 'EXPENSE'
+  system: boolean
+}
+
+export type BudgetPeriod = 'WEEKLY' | 'MONTHLY'
+
+export interface Budget {
+  id: string
+  categoryId: string
+  categoryCode: string | null
+  categoryName: string | null
+  categoryIcon: string | null
+  categoryColor: string | null
+  period: BudgetPeriod
+  limitAmount: number
+  currency: string
+  alertThreshold: number | null
+  startDate: string
+  spent: number
+  remaining: number
+  percentUsed: number
+  periodStart: string
+  periodEnd: string
+}
+
+export interface AuditLogEntry {
+  id: string
+  userId: string | null
+  userEmail: string
+  action: string
+  entityType: string | null
+  entityId: string | null
+  details: string | null
+  ipAddress: string | null
   createdAt: string
 }
 

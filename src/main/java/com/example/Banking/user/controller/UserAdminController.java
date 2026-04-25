@@ -1,5 +1,7 @@
 package com.example.Banking.user.controller;
 
+import com.example.Banking.audit.model.AuditAction;
+import com.example.Banking.audit.service.AuditService;
 import com.example.Banking.user.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -7,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
@@ -17,9 +20,11 @@ import java.util.UUID;
 public class UserAdminController {
 
     private final UserRepository userRepository;
+    private final AuditService auditService;
 
-    public UserAdminController(UserRepository userRepository) {
+    public UserAdminController(UserRepository userRepository, AuditService auditService) {
         this.userRepository = userRepository;
+        this.auditService = auditService;
     }
 
     @GetMapping
@@ -36,10 +41,12 @@ public class UserAdminController {
 
     @PutMapping("/{id}/deactivate")
     @Transactional
-    public UserResponse deactivate(@PathVariable UUID id) {
+    public UserResponse deactivate(@PathVariable UUID id, Authentication auth) {
         var user = userRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("User not found: " + id));
         user.setActive(false);
+        auditService.log(UUID.fromString(auth.getName()), AuditAction.USER_DEACTIVATED,
+                "User", id, user.getEmail());
         return toResponse(userRepository.save(user));
     }
 

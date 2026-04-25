@@ -7,6 +7,7 @@ import com.example.Banking.account.repository.AccountRepository;
 import com.example.Banking.account.repository.AccountTransactionRepository;
 import com.example.Banking.config.AccountNotFoundException;
 import com.example.Banking.config.InsufficientFundsException;
+import com.example.Banking.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,30 +22,41 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 public class AccountService {
 
     private final AccountRepository accountRepo;
     private final AccountTransactionRepository txRepo;
+    private final UserRepository userRepo;
 
-    public AccountService(AccountRepository accountRepo, AccountTransactionRepository txRepo) {
+    public AccountService(AccountRepository accountRepo,
+                          AccountTransactionRepository txRepo,
+                          UserRepository userRepo) {
         this.accountRepo = accountRepo;
         this.txRepo = txRepo;
+        this.userRepo = userRepo;
     }
 
     public Account create(String ownerId, String currency, BigDecimal initialBalance) {
-        return create(ownerId, currency, initialBalance, null, null);
+        return create(ownerId, currency, initialBalance, null, null, null);
     }
 
     public Account create(String ownerId, String currency, BigDecimal initialBalance, String cardNetwork, String cardTier) {
+        return create(ownerId, currency, initialBalance, cardNetwork, cardTier, null);
+    }
+
+    @Transactional
+    public Account create(String ownerId, String currency, BigDecimal initialBalance, String cardNetwork, String cardTier, String cardType) {
         if (initialBalance.signum() < 0) {
             throw new IllegalArgumentException("initialBalance must be >= 0");
         }
 
+        UUID owner = UUID.fromString(ownerId);
         var account = new Account(
                 UUID.randomUUID(),
-                UUID.fromString(ownerId),
+                owner,
                 initialBalance.setScale(2, RoundingMode.HALF_UP),
                 currency,
                 AccountStatus.ACTIVE,
@@ -52,7 +64,46 @@ public class AccountService {
                 cardNetwork,
                 cardTier
         );
+        account.setCardNumber(generateCardNumber(cardNetwork));
+        account.setCardType(cardType == null ? "PHYSICAL" : cardType);
+        account.setExpiryDate(LocalDate.now().plusYears(4));
+        account.setHolderName(userRepo.findById(owner)
+                .map(u -> (u.getFirstName() + " " + u.getLastName()).toUpperCase())
+                .orElse("CARDHOLDER"));
         return accountRepo.save(account);
+    }
+
+    private String generateCardNumber(String network) {
+        String prefix;
+        if ("VISA".equalsIgnoreCase(network)) {
+            prefix = "4";
+        } else if ("MASTERCARD".equalsIgnoreCase(network)) {
+            prefix = "5" + ThreadLocalRandom.current().nextInt(1, 6);
+        } else {
+            prefix = "6";
+        }
+
+        StringBuilder sb = new StringBuilder(prefix);
+        ThreadLocalRandom rng = ThreadLocalRandom.current();
+        while (sb.length() < 15) {
+            sb.append(rng.nextInt(10));
+        }
+
+        int sum = 0;
+        for (int i = 0; i < 15; i++) {
+            int d = sb.charAt(i) - '0';
+            if (i % 2 == 0) {
+                d *= 2;
+                if (d > 9) d -= 9;
+            }
+            sum += d;
+        }
+        int check = (10 - (sum % 10)) % 10;
+        sb.append(check);
+
+        String raw = sb.toString();
+        return raw.substring(0, 4) + " " + raw.substring(4, 8) + " "
+             + raw.substring(8, 12) + " " + raw.substring(12, 16);
     }
 
     public Account getById(UUID id) {
@@ -124,13 +175,39 @@ public class AccountService {
         var account = accountRepo.findById(id)
                 .orElseThrow(() -> new AccountNotFoundException(id));
 
-        requireActive(account);
+        if (account.getStatus() == AccountStatus.CLOSED) {
+            throw new IllegalArgumentException("Card is already closed");
+        }
 
         if (account.getBalance().signum() != 0) {
-            throw new IllegalArgumentException("Cannot close account with non-zero balance: " + account.getBalance());
+            throw new IllegalArgumentException("Cannot close card with non-zero balance: " + account.getBalance());
         }
 
         account.setStatus(AccountStatus.CLOSED);
+        return accountRepo.save(account);
+    }
+
+    @Transactional
+    public Account block(UUID id) {
+        var account = accountRepo.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
+        if (account.getStatus() == AccountStatus.CLOSED) throw new IllegalArgumentException("Card is closed");
+        account.setStatus(AccountStatus.BLOCKED);
+        return accountRepo.save(account);
+    }
+
+    @Transactional
+    public Account unblock(UUID id) {
+        var account = accountRepo.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
+        if (account.getStatus() != AccountStatus.BLOCKED) throw new IllegalArgumentException("Card is not blocked");
+        account.setStatus(AccountStatus.ACTIVE);
+        return accountRepo.save(account);
+    }
+
+    @Transactional
+    public Account setDailyLimit(UUID id, BigDecimal limit) {
+        var account = accountRepo.findById(id).orElseThrow(() -> new AccountNotFoundException(id));
+        if (limit != null && limit.signum() < 0) throw new IllegalArgumentException("Limit must be >= 0");
+        account.setDailyLimit(limit);
         return accountRepo.save(account);
     }
 
@@ -147,7 +224,6 @@ public class AccountService {
         Instant since = Instant.now().minus(days, ChronoUnit.DAYS);
         var txs = txRepo.findByAccountIdAndCreatedAtGreaterThanEqualOrderByCreatedAtAsc(accountId, since);
 
-        // Нетто-дельта за каждый день (UTC)
         TreeMap<String, BigDecimal> dailyDelta = new TreeMap<>();
         for (var tx : txs) {
             String day = tx.getCreatedAt().atZone(ZoneOffset.UTC).toLocalDate().toString();
@@ -156,7 +232,6 @@ public class AccountService {
             dailyDelta.merge(day, delta, BigDecimal::add);
         }
 
-        // Баланс на начало окна = текущий баланс − сумма всех дельт за период
         BigDecimal sumOfDeltas = dailyDelta.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
         BigDecimal running = account.getBalance().subtract(sumOfDeltas).setScale(2, RoundingMode.HALF_UP);
 
@@ -175,7 +250,7 @@ public class AccountService {
 
     private void requireActive(Account account) {
         if (account.getStatus() != AccountStatus.ACTIVE) {
-            throw new IllegalArgumentException("Account is closed");
+            throw new IllegalArgumentException("Card is not active (status=" + account.getStatus() + ")");
         }
     }
 

@@ -2,6 +2,8 @@ package com.example.Banking.account.controller;
 
 import com.example.Banking.account.model.Account;
 import com.example.Banking.account.service.AccountService;
+import com.example.Banking.audit.model.AuditAction;
+import com.example.Banking.audit.service.AuditService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -9,7 +11,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -17,9 +21,11 @@ import java.util.UUID;
 public class AccountController {
 
     private final AccountService accountService;
+    private final AuditService auditService;
 
-    public AccountController(AccountService accountService) {
+    public AccountController(AccountService accountService, AuditService auditService) {
         this.accountService = accountService;
+        this.auditService = auditService;
     }
 
     @GetMapping
@@ -41,7 +47,10 @@ public class AccountController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public CreateAccountResponse create(@RequestBody @Valid CreateAccountRequest req, Authentication auth) {
-        var account = accountService.create(auth.getName(), req.currency(), req.initialBalance(), req.cardNetwork(), req.cardTier());
+        var account = accountService.create(auth.getName(), req.currency(), req.initialBalance(),
+                req.cardNetwork(), req.cardTier(), req.cardType());
+        auditService.log(UUID.fromString(auth.getName()), AuditAction.CARD_CREATED,
+                "Account", account.getId(), req.currency() + " " + req.cardNetwork());
         return new CreateAccountResponse(account.getId().toString());
     }
 
@@ -51,6 +60,8 @@ public class AccountController {
                                    Authentication auth) {
         verifyOwnership(accountService.getById(id), auth);
         var account = accountService.deposit(id, req.currency(), req.amount(), req.category());
+        auditService.log(UUID.fromString(auth.getName()), AuditAction.CARD_DEPOSIT,
+                "Account", id, req.amount() + " " + req.currency());
         return toResponse(account);
     }
 
@@ -60,6 +71,8 @@ public class AccountController {
                                     Authentication auth) {
         verifyOwnership(accountService.getById(id), auth);
         var account = accountService.withdraw(id, req.currency(), req.amount(), req.category());
+        auditService.log(UUID.fromString(auth.getName()), AuditAction.CARD_WITHDRAW,
+                "Account", id, req.amount() + " " + req.currency());
         return toResponse(account);
     }
 
@@ -67,6 +80,19 @@ public class AccountController {
     public AccountResponse close(@PathVariable("id") UUID id, Authentication auth) {
         verifyOwnership(accountService.getById(id), auth);
         var account = accountService.close(id);
+        auditService.log(UUID.fromString(auth.getName()), AuditAction.CARD_CLOSED, "Account", id);
+        return toResponse(account);
+    }
+
+    @PutMapping("/{id}/limit")
+    public AccountResponse setLimit(@PathVariable("id") UUID id,
+                                    @RequestBody Map<String, Object> body,
+                                    Authentication auth) {
+        verifyOwnership(accountService.getById(id), auth);
+        BigDecimal limit = body.get("dailyLimit") == null ? null : new BigDecimal(body.get("dailyLimit").toString());
+        var account = accountService.setDailyLimit(id, limit);
+        auditService.log(UUID.fromString(auth.getName()), AuditAction.DAILY_LIMIT_SET,
+                "Account", id, limit != null ? limit.toString() : "removed");
         return toResponse(account);
     }
 
@@ -85,7 +111,12 @@ public class AccountController {
                 account.getStatus().name(),
                 account.getCreatedAt(),
                 account.getCardNetwork(),
-                account.getCardTier()
+                account.getCardTier(),
+                account.getCardNumber(),
+                account.getCardType(),
+                account.getDailyLimit(),
+                account.getExpiryDate(),
+                account.getHolderName()
         );
     }
 }

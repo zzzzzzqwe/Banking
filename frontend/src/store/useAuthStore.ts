@@ -34,6 +34,6 @@ export const useAuthStore = create<AuthState>()(
       },
       isAdmin: () => get().role === 'ADMIN',
     }),
-    { name: 'vertex-auth' }
+    { name: 'velora-auth' }
   )
 )

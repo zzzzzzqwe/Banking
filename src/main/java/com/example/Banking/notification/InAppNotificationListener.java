@@ -91,6 +91,24 @@ public class InAppNotificationListener {
 
     @Async
     @EventListener
+    public void onCardRequestStatusChanged(CardRequestStatusChangedEvent event) {
+        var user = userRepo.findByEmail(event.userEmail());
+        user.ifPresent(u -> {
+            boolean approved = "APPROVED".equals(event.newStatus());
+            String action = "BLOCK".equals(event.requestType()) ? "block" : "unblock";
+            notificationService.createNotification(
+                    u.getId(),
+                    approved ? "Card " + action + " approved" : "Card " + action + " rejected",
+                    approved
+                            ? "Your request to " + action + " card has been approved."
+                            : "Your request to " + action + " card has been rejected.",
+                    approved ? NotificationType.CARD_REQUEST_APPROVED : NotificationType.CARD_REQUEST_REJECTED
+            );
+        });
+    }
+
+    @Async
+    @EventListener
     public void onSavingsGoalCompleted(SavingsGoalCompletedEvent event) {
         notificationService.createNotification(
                 event.userId(),

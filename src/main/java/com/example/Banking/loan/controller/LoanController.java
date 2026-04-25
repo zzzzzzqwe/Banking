@@ -1,5 +1,7 @@
 package com.example.Banking.loan.controller;
 
+import com.example.Banking.audit.model.AuditAction;
+import com.example.Banking.audit.service.AuditService;
 import com.example.Banking.loan.model.Loan;
 import com.example.Banking.loan.model.RepaymentScheduleEntry;
 import com.example.Banking.loan.service.LoanService;
@@ -21,9 +23,11 @@ import java.util.UUID;
 public class LoanController {
 
     private final LoanService loanService;
+    private final AuditService auditService;
 
-    public LoanController(LoanService loanService) {
+    public LoanController(LoanService loanService, AuditService auditService) {
         this.loanService = loanService;
+        this.auditService = auditService;
     }
 
     // ── User endpoints ──
@@ -34,6 +38,8 @@ public class LoanController {
         var loan = loanService.applyForLoan(
                 auth.getName(), req.accountId(),
                 req.amount(), req.annualInterestRate(), req.termMonths());
+        auditService.log(UUID.fromString(auth.getName()), AuditAction.LOAN_APPLIED,
+                "Loan", loan.getId(), "$" + req.amount() + " / " + req.termMonths() + " mo.");
         return toResponse(loan);
     }
 
@@ -56,7 +62,10 @@ public class LoanController {
 
     @PostMapping("/api/loans/{id}/repay")
     public ScheduleEntryResponse repay(@PathVariable UUID id, Authentication auth) {
-        return toScheduleResponse(loanService.makeRepayment(id, auth.getName()));
+        var entry = loanService.makeRepayment(id, auth.getName());
+        auditService.log(UUID.fromString(auth.getName()), AuditAction.LOAN_REPAYMENT, "Loan", id,
+                "installment #" + entry.getInstallmentNumber());
+        return toScheduleResponse(entry);
     }
 
     // ── Admin endpoints ──
@@ -69,14 +78,18 @@ public class LoanController {
 
     @PostMapping("/api/admin/loans/{id}/approve")
     @PreAuthorize("hasRole('ADMIN')")
-    public LoanResponse approve(@PathVariable UUID id) {
-        return toResponse(loanService.approveLoan(id));
+    public LoanResponse approve(@PathVariable UUID id, Authentication auth) {
+        var loan = loanService.approveLoan(id);
+        auditService.log(UUID.fromString(auth.getName()), AuditAction.LOAN_APPROVED, "Loan", id);
+        return toResponse(loan);
     }
 
     @PostMapping("/api/admin/loans/{id}/reject")
     @PreAuthorize("hasRole('ADMIN')")
-    public LoanResponse reject(@PathVariable UUID id) {
-        return toResponse(loanService.rejectLoan(id));
+    public LoanResponse reject(@PathVariable UUID id, Authentication auth) {
+        var loan = loanService.rejectLoan(id);
+        auditService.log(UUID.fromString(auth.getName()), AuditAction.LOAN_REJECTED, "Loan", id);
+        return toResponse(loan);
     }
 
     // ── Mappers ──

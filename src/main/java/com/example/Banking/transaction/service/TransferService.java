@@ -55,12 +55,12 @@ public class TransferService {
 
         // 2) load accounts
         UUID fromId = UUID.fromString(fromAccountId);
-        UUID toId   = UUID.fromString(toAccountId);
 
         Account from = accountRepo.findById(fromId)
                 .orElseThrow(() -> new IllegalArgumentException("from account not found"));
-        Account to   = accountRepo.findById(toId)
-                .orElseThrow(() -> new IllegalArgumentException("to account not found"));
+
+        Account to = resolveAccount(toAccountId);
+        UUID toId = to.getId();
 
         // 3) ownership check — caller must own the source account
         if (!from.getOwnerId().toString().equals(callerId)) {
@@ -130,5 +130,17 @@ public class TransferService {
         }
 
         return txId;
+    }
+
+    private Account resolveAccount(String idOrCardNumber) {
+        try {
+            UUID uuid = UUID.fromString(idOrCardNumber);
+            return accountRepo.findById(uuid)
+                    .orElseThrow(() -> new IllegalArgumentException("Recipient account not found"));
+        } catch (IllegalArgumentException e) {
+            String normalized = idOrCardNumber.replaceAll("\\s+", " ").trim();
+            return accountRepo.findByCardNumber(normalized)
+                    .orElseThrow(() -> new IllegalArgumentException("Card number not found: " + idOrCardNumber));
+        }
     }
 }

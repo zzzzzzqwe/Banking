@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Wallet, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react'
+import { CreditCard, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react'
 import { getAllAccounts } from '../../api/admin'
 import { GlassCard } from '../../components/GlassCard'
 import { PageLoader } from '../../components/LoadingSpinner'
@@ -20,7 +20,7 @@ export function AdminAccountsPage() {
       setData(res)
       setPage(p)
     } catch {
-      push('Failed to load accounts', 'error')
+      push('Failed to load cards', 'error')
     } finally {
       setLoading(false)
     }
@@ -36,11 +36,11 @@ export function AdminAccountsPage() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center" style={{ background: 'rgba(251,146,60,0.1)', border: '1px solid rgba(251,146,60,0.2)' }}>
-            <Wallet size={18} className="text-orange-400" />
+            <CreditCard size={18} className="text-orange-400" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white">All Accounts</h1>
-            <p className="text-xs text-slate-500">{data?.totalElements ?? 0} accounts in system</p>
+            <h1 className="text-2xl font-bold text-white">All Cards</h1>
+            <p className="text-xs text-slate-500">{data?.totalElements ?? 0} cards in system</p>
           </div>
         </div>
         <button onClick={() => load(page)} className="btn-ghost text-xs flex items-center gap-2"><RefreshCw size={14} /></button>
@@ -52,7 +52,7 @@ export function AdminAccountsPage() {
           {[
             { label: 'This Page Balance', value: `$${totalBalance.toFixed(2)}`, color: 'text-cyan-400' },
             { label: 'Active on Page', value: activeCount.toString(), color: 'text-emerald-400' },
-            { label: 'Total Accounts', value: data.totalElements.toString(), color: 'text-purple-400' },
+            { label: 'Total Cards', value: data.totalElements.toString(), color: 'text-purple-400' },
           ].map(({ label, value, color }) => (
             <div key={label} className="glass rounded-xl p-4">
               <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">{label}</p>
@@ -69,7 +69,7 @@ export function AdminAccountsPage() {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>Account ID</th>
+                    <th>Card</th>
                     <th>Owner ID</th>
                     <th>Currency</th>
                     <th>Balance</th>
@@ -80,7 +80,7 @@ export function AdminAccountsPage() {
                 <tbody>
                   {data?.content.map((a, i) => (
                     <motion.tr key={a.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}>
-                      <td className="font-mono text-xs text-slate-500">{a.id.slice(0, 14)}…</td>
+                      <td className="font-mono text-xs text-slate-500">{a.cardNumber || a.id.slice(0, 14) + '…'}</td>
                       <td className="font-mono text-xs text-slate-500">{a.ownerId.slice(0, 14)}…</td>
                       <td>
                         <span className="px-2 py-0.5 rounded-md text-xs font-mono font-medium" style={{ background: 'rgba(6,182,212,0.1)', color: '#06b6d4', border: '1px solid rgba(6,182,212,0.2)' }}>
@@ -98,7 +98,7 @@ export function AdminAccountsPage() {
 
             {data && data.totalPages > 1 && (
               <div className="flex items-center justify-between px-6 py-3 border-t border-white/[0.04]">
-                <p className="text-xs text-slate-600">{data.totalElements} accounts</p>
+                <p className="text-xs text-slate-600">{data.totalElements} cards</p>
                 <div className="flex items-center gap-2">
                   <button onClick={() => load(page - 1)} disabled={data.first} className="p-1.5 rounded-lg hover:bg-white/[0.05] disabled:opacity-30 text-slate-400 hover:text-slate-200 transition-colors"><ChevronLeft size={14} /></button>
                   <span className="text-xs text-slate-500 px-2">{page + 1} / {data.totalPages}</span>

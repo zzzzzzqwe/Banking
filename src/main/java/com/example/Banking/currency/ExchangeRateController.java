@@ -1,5 +1,7 @@
 package com.example.Banking.currency;
 
+import com.example.Banking.audit.model.AuditAction;
+import com.example.Banking.audit.service.AuditService;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.web.PageableDefault;
@@ -21,10 +23,14 @@ public class ExchangeRateController {
 
     private final ExchangeRateService rateService;
     private final CurrencyExchangeService exchangeService;
+    private final AuditService auditService;
 
-    public ExchangeRateController(ExchangeRateService rateService, CurrencyExchangeService exchangeService) {
+    public ExchangeRateController(ExchangeRateService rateService,
+                                  CurrencyExchangeService exchangeService,
+                                  AuditService auditService) {
         this.rateService = rateService;
         this.exchangeService = exchangeService;
+        this.auditService = auditService;
     }
 
     @GetMapping("/rates")
@@ -46,7 +52,11 @@ public class ExchangeRateController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ExchangeResponse exchange(@RequestBody @Valid ExchangeRequest req, Authentication auth) {
-        return exchangeService.exchange(auth.getName(), req.fromAccountId(), req.toAccountId(), req.amount());
+        var result = exchangeService.exchange(auth.getName(), req.fromAccountId(), req.toAccountId(), req.amount());
+        auditService.log(UUID.fromString(auth.getName()), AuditAction.EXCHANGE, "Exchange", null,
+                result.fromAmount() + " " + result.fromCurrency() + " → " +
+                        result.toAmount() + " " + result.toCurrency());
+        return result;
     }
 
     public record ExchangeHistoryEntry(
