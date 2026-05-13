@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { ClipboardList, ArrowUpRight, ArrowDownLeft, ChevronLeft, ChevronRight, Download } from 'lucide-react'
-import { getAccounts, getTransactions, exportTransactions, updateTransactionCategory } from '../api/accounts'
+import { getAccounts, getTransactions, getAllTransactions, exportTransactions, updateTransactionCategory } from '../api/accounts'
 import { getCategories } from '../api/budgets'
 import { GlassCard } from '../components/GlassCard'
 import { AccountSelect } from '../components/AccountSelect'
@@ -27,8 +27,11 @@ function resolveIcon(icon: string | null | undefined): string {
   return icon
 }
 
+const isIncome = (type: string) =>
+  type.includes('DEPOSIT') || type.includes('CREDIT') || type.includes('TRANSFER_IN') || type === 'EXCHANGE_IN'
+
 const txColor = (type: string) => {
-  if (type.includes('DEPOSIT') || type.includes('CREDIT') || type.includes('LOAN') || type === 'EXCHANGE_IN')
+  if (isIncome(type))
     return { color: 'text-emerald-400', bg: 'rgba(52,211,153,0.08)', icon: ArrowDownLeft }
   return { color: 'text-red-400', bg: 'rgba(248,113,113,0.08)', icon: ArrowUpRight }
 }
@@ -38,7 +41,7 @@ export function TransactionsPage() {
   const [accounts, setAccounts]       = useState<Account[]>([])
   const [categories, setCategories]   = useState<Category[]>([])
   const [accountsLoading, setAccountsLoading] = useState(true)
-  const [accountId, setAccountId] = useState('')
+  const [accountId, setAccountId] = useState('ALL')
   const [fromDate, setFromDate]   = useState('')
   const [toDate, setToDate]       = useState('')
   const [data, setData]           = useState<Page<Transaction> | null>(null)
@@ -50,11 +53,7 @@ export function TransactionsPage() {
     getAccounts()
       .then((accs) => {
         setAccounts(accs)
-        const first = accs.find((a) => a.status === 'ACTIVE') ?? accs[0]
-        if (first) {
-          setAccountId(first.id)
-          load(0, first.id)
-        }
+        load(0, 'ALL')
       })
       .catch(() => {})
       .finally(() => setAccountsLoading(false))
@@ -69,7 +68,9 @@ export function TransactionsPage() {
     if (!id.trim()) { push('Select a card', 'warning'); return }
     setLoading(true)
     try {
-      const res = await getTransactions(id.trim(), p)
+      const res = id === 'ALL'
+        ? await getAllTransactions(p)
+        : await getTransactions(id.trim(), p)
       setData(res)
       setPage(p)
     } catch {
@@ -115,6 +116,7 @@ export function TransactionsPage() {
               label="Card"
               placeholder="Select card"
               loading={accountsLoading}
+              showAllOption
             />
           </div>
         </div>
@@ -132,7 +134,7 @@ export function TransactionsPage() {
           </div>
           <button
             onClick={handleExport}
-            disabled={exporting || !accountId.trim()}
+            disabled={exporting || !accountId.trim() || accountId === 'ALL'}
             className="btn-ghost flex items-center gap-2 text-xs whitespace-nowrap"
             title="Export CSV"
           >
@@ -227,11 +229,10 @@ export function TransactionsPage() {
                             </select>
                           )}
                         </div>
-                        <p className="text-xs text-slate-600 font-mono truncate">{tx.id}</p>
                       </div>
                       <div className="text-right flex-shrink-0">
                         <p className={`text-sm font-semibold num ${color}`}>
-                          {tx.amount > 0 ? '+' : ''}{Number(tx.amount).toFixed(2)} {tx.currency}
+                          {isIncome(tx.type) ? '+' : '-'}{Number(tx.amount).toFixed(2)} {tx.currency}
                         </p>
                         <p className="text-xs text-slate-600">{new Date(tx.createdAt).toLocaleString()}</p>
                       </div>

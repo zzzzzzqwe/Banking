@@ -11,6 +11,7 @@ interface Props {
   label: string
   placeholder?: string
   loading?: boolean
+  showAllOption?: boolean
 }
 
 const CARD_ICONS: Record<string, string> = {
@@ -32,7 +33,7 @@ function displayNumber(acc: Account) {
   return `${id.slice(0, 4)}…${id.slice(-4)}`
 }
 
-export function AccountSelect({ accounts, value, onChange, label, placeholder = 'Select account', loading }: Props) {
+export function AccountSelect({ accounts, value, onChange, label, placeholder = 'Select account', loading, showAllOption }: Props) {
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement>(null)
   const triggerRef = useRef<HTMLButtonElement>(null)
@@ -90,6 +91,14 @@ export function AccountSelect({ accounts, value, onChange, label, placeholder = 
             <div className="w-4 h-4 spin rounded-full" style={{ border: '2px solid rgba(255,255,255,0.2)', borderTopColor: 'rgba(6,182,212,0.6)' }} />
             <span className="text-slate-500 text-sm">Loading accounts…</span>
           </div>
+        ) : showAllOption && value === 'ALL' ? (
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
+              style={{ background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.2)' }}>
+              <Wallet size={14} className="text-cyan-400" />
+            </div>
+            <span className="text-sm text-white font-medium">All Cards</span>
+          </div>
         ) : selected ? (
           <div className="flex items-center gap-3 flex-1 min-w-0">
             <div
@@ -146,6 +155,23 @@ export function AccountSelect({ accounts, value, onChange, label, placeholder = 
                 overflowY: 'auto',
               }}
             >
+            {showAllOption && (
+              <button
+                type="button"
+                onClick={() => { onChange('ALL'); setOpen(false) }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-left transition-all duration-150 hover:bg-white/[0.04]"
+                style={value === 'ALL' ? { background: 'rgba(6,182,212,0.08)' } : {}}
+              >
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
+                  style={{
+                    background: value === 'ALL' ? 'rgba(6,182,212,0.15)' : 'rgba(255,255,255,0.04)',
+                    border: `1px solid ${value === 'ALL' ? 'rgba(6,182,212,0.3)' : 'rgba(255,255,255,0.06)'}`,
+                  }}>
+                  <Wallet size={15} className={value === 'ALL' ? 'text-cyan-400' : 'text-slate-400'} />
+                </div>
+                <span className={`text-sm font-medium ${value === 'ALL' ? 'text-cyan-300' : 'text-slate-200'}`}>All Cards</span>
+              </button>
+            )}
             {activeAccounts.length === 0 ? (
               <div className="px-4 py-6 text-center text-sm text-slate-500">No active accounts</div>
             ) : (

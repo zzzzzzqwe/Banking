@@ -47,8 +47,9 @@ export function StatCard({ label, value, prefix = '', suffix = '', icon: Icon, c
   const numericValue = typeof value === 'number' ? value : 0
   const countedValue = useCountUp(animateNumber ? numericValue : 0, 1200)
 
+  const isInteger = typeof value === 'number' && Number.isInteger(value)
   const displayValue = animateNumber && typeof value === 'number'
-    ? (value >= 1000 ? countedValue.toFixed(2) : countedValue.toFixed(2))
+    ? (isInteger ? Math.round(countedValue).toString() : countedValue.toFixed(2))
     : value
 
   return (

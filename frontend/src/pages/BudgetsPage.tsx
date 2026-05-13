@@ -186,7 +186,7 @@ export function BudgetsPage() {
 
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-slate-500">{Number(b.percentUsed).toFixed(1)}% used</span>
-                      <span className="text-slate-600">{b.periodStart} — {b.periodEnd}</span>
+                      <span className="text-slate-600">{b.periodStart} - {b.periodEnd}</span>
                     </div>
                   </div>
                 </GlassCard>

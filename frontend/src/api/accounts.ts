@@ -30,6 +30,9 @@ export const closeAccount = (id: string) =>
 export const getTransactions = (id: string, page = 0, size = 20) =>
   api.get<Page<Transaction>>(`/api/accounts/${id}/transactions?page=${page}&size=${size}`).then((r) => r.data)
 
+export const getAllTransactions = (page = 0, size = 20) =>
+  api.get<Page<Transaction>>(`/api/transactions?page=${page}&size=${size}`).then((r) => r.data)
+
 export const exportTransactions = (id: string, from?: string, to?: string) => {
   const params = new URLSearchParams()
   if (from) params.set('from', from)

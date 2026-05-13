@@ -93,7 +93,6 @@ function LoanCard({ loan, onRefresh }: { loan: Loan; onRefresh: () => void }) {
       <div className="p-5">
         <div className="flex items-start justify-between mb-4">
           <div>
-            <p className="text-xs font-mono text-slate-600 mb-1">{loan.id.slice(0, 16)}…</p>
             <LoanBadge status={loan.status} />
           </div>
           <div className="text-right">

@@ -113,7 +113,7 @@ export function TransfersPage() {
       </div>
 
       {/* Saved beneficiaries */}
-      {beneficiaries.filter((b) => b.internal).length > 0 && (
+      {beneficiaries.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <GlassCard>
             <div className="flex items-center justify-between mb-3">
@@ -126,7 +126,7 @@ export function TransfersPage() {
               </Link>
             </div>
             <div className="flex gap-2 overflow-x-auto pb-1">
-              {beneficiaries.filter((b) => b.internal).slice(0, 8).map((b) => (
+              {beneficiaries.slice(0, 8).map((b) => (
                 <button
                   key={b.id}
                   onClick={() => handlePickBeneficiary(b)}

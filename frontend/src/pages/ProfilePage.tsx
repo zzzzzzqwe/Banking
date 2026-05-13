@@ -287,7 +287,7 @@ export function ProfilePage() {
 
             {/* Stats row */}
             <div className="flex gap-3">
-              <StatChip icon={Wallet}     label="Active Accs"  value={accCount}   color="#06b6d4" />
+              <StatChip icon={Wallet}     label="Active Cards"  value={accCount}   color="#06b6d4" />
               <StatChip icon={CreditCard} label="Active Loans" value={loanCount}   color="#a855f7" />
               <StatChip icon={Shield}     label="Security"     value="Secured"     color="#10b981" />
               <StatChip icon={User}       label="Status"       value={profile.active ? 'Active' : 'Inactive'} color={profile.active ? '#10b981' : '#ef4444'} />

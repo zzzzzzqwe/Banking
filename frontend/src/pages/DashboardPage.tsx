@@ -23,7 +23,7 @@ function LoanStatusBadge({ status }: { status: string }) {
 }
 
 export function DashboardPage() {
-  const { userId, role } = useAuthStore()
+  const { userId, role, firstName } = useAuthStore()
   const [accounts, setAccounts] = useState<Account[]>([])
   const [loans, setLoans]       = useState<Loan[]>([])
   const [loading, setLoading]   = useState(true)
@@ -115,14 +115,15 @@ export function DashboardPage() {
   }
 
   const hour = new Date().getHours()
-  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
+  const timeGreeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening'
+  const greeting = firstName ? `${timeGreeting}, ${firstName}` : `${timeGreeting}.`
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-start justify-between">
         <div>
-          <p className="text-sm text-slate-500 mb-1">{greeting} 👋</p>
+          <p className="text-sm text-slate-500 mb-1">{greeting}</p>
           <h1 className="text-2xl font-bold text-white">
             Dashboard
             {role === 'ADMIN' && (
@@ -142,7 +143,7 @@ export function DashboardPage() {
         <StatCard label="Total Balance"    value={totalBalance}  prefix={sym}    icon={Wallet}     color="cyan"    animateNumber delay={0}    />
         <StatCard label="Active Cards"     value={activeAccs}                    icon={CreditCard}  color="blue"    animateNumber delay={0.05} />
         <StatCard label="Active Loans"     value={activeLoans}                   icon={TrendingUp}  color="purple"  animateNumber delay={0.1}  />
-        <StatCard label="Pending Loans"    value={pendingLoans}                  icon={Clock}       color="amber"   animateNumber delay={0.15} subtext={pendingLoans > 0 ? 'Awaiting approval' : 'None pending'} />
+        <StatCard label="Pending Loans"    value={pendingLoans}                  icon={Clock}       color="amber"   animateNumber delay={0.15} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -244,7 +245,6 @@ export function DashboardPage() {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>Loan ID</th>
                     <th>Principal</th>
                     <th>Rate</th>
                     <th>Term</th>
@@ -255,7 +255,6 @@ export function DashboardPage() {
                 <tbody>
                   {loans.slice(0, 5).map((l) => (
                     <tr key={l.id}>
-                      <td className="font-mono text-slate-500 text-xs">{l.id.slice(0, 12)}…</td>
                       <td className="num font-medium">${Number(l.principalAmount).toFixed(2)}</td>
                       <td className="text-amber-400">{(Number(l.annualInterestRate) * 100).toFixed(1)}%</td>
                       <td className="text-slate-400">{l.termMonths} mo.</td>

@@ -121,7 +121,7 @@ export function AnalyticsPage() {
           <select className="input w-full" value={accountId} onChange={(e) => setAccountId(e.target.value)}>
             {accounts.map((a) => (
               <option key={a.id} value={a.id}>
-                {a.currency} — {a.balance.toFixed(2)} ({a.id.slice(0, 8)}…)
+                {a.cardNetwork || 'Card'} · {a.currency} - {a.balance.toFixed(2)}
               </option>
             ))}
           </select>
@@ -296,9 +296,9 @@ export function AnalyticsPage() {
               <div className="overflow-x-auto"><table className="data-table w-full">
                 <thead>
                   <tr>
-                    <th className="text-left text-xs text-slate-500 pb-2">Category</th>
-                    <th className="text-right text-xs text-slate-500 pb-2">Amount</th>
-                    <th className="text-right text-xs text-slate-500 pb-2">Share</th>
+                    <th>Category</th>
+                    <th style={{ textAlign: 'right' }}>Amount</th>
+                    <th style={{ textAlign: 'right' }}>Share</th>
                   </tr>
                 </thead>
                 <tbody>

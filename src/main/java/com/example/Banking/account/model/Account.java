@@ -7,10 +7,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-/**
- * Represents a single card owned by a user. Holds balance + card metadata.
- * Table name kept as "accounts" for backward DB compatibility.
- */
+
 @Entity
 @Table(name = "accounts")
 public class Account {

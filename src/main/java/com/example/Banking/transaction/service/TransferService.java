@@ -3,6 +3,7 @@ package com.example.Banking.transaction.service;
 import com.example.Banking.account.model.Account;
 import com.example.Banking.account.model.AccountStatus;
 import com.example.Banking.account.repository.AccountRepository;
+import com.example.Banking.account.service.AccountService;
 import com.example.Banking.currency.ExchangeRateService;
 import com.example.Banking.notification.event.TransferCompletedEvent;
 import com.example.Banking.transaction.model.IdempotencyRecord;
@@ -27,6 +28,7 @@ public class TransferService {
     private final TransferRepository transferRepo;
     private final IdempotencyRepository idempotencyRepo;
     private final UserRepository userRepo;
+    private final AccountService accountService;
     private final ExchangeRateService exchangeRateService;
     private final ApplicationEventPublisher eventPublisher;
 
@@ -34,12 +36,14 @@ public class TransferService {
                            TransferRepository transferRepo,
                            IdempotencyRepository idempotencyRepo,
                            UserRepository userRepo,
+                           AccountService accountService,
                            ExchangeRateService exchangeRateService,
                            ApplicationEventPublisher eventPublisher) {
         this.accountRepo = accountRepo;
         this.transferRepo = transferRepo;
         this.idempotencyRepo = idempotencyRepo;
         this.userRepo = userRepo;
+        this.accountService = accountService;
         this.exchangeRateService = exchangeRateService;
         this.eventPublisher = eventPublisher;
     }
@@ -109,10 +113,14 @@ public class TransferService {
                 creditAmount, to.getCurrency(),
                 appliedRate, Instant.now()));
 
-        // 7) store idempotency
+        // 7) record in account_transactions for both sides
+        accountService.saveTransaction(fromId, "TRANSFER_OUT", from.getCurrency(), transferAmount, "TRANSFER");
+        accountService.saveTransaction(toId, "TRANSFER_IN", to.getCurrency(), creditAmount, "TRANSFER");
+
+        // 8a) store idempotency
         idempotencyRepo.save(new IdempotencyRecord(idempotencyKey, txId, Instant.now()));
 
-        // 8) publish event (best-effort — lookup emails)
+        // 8b) publish event (best-effort — lookup emails)
         try {
             var senderOpt    = userRepo.findById(from.getOwnerId());
             var recipientOpt = userRepo.findById(to.getOwnerId());
@@ -138,9 +146,13 @@ public class TransferService {
             return accountRepo.findById(uuid)
                     .orElseThrow(() -> new IllegalArgumentException("Recipient account not found"));
         } catch (IllegalArgumentException e) {
-            String normalized = idOrCardNumber.replaceAll("\\s+", " ").trim();
-            return accountRepo.findByCardNumber(normalized)
-                    .orElseThrow(() -> new IllegalArgumentException("Card number not found: " + idOrCardNumber));
+            String normalized = idOrCardNumber.replaceAll("\\s+", "");
+            for (Account a : accountRepo.findAll()) {
+                if (a.getCardNumber() != null && a.getCardNumber().replaceAll("\\s+", "").equals(normalized)) {
+                    return a;
+                }
+            }
+            throw new IllegalArgumentException("Card number not found: " + idOrCardNumber);
         }
     }
 }

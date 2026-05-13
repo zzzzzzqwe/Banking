@@ -135,7 +135,7 @@ export function AdminStatsPage() {
             <p className="text-xs text-orange-400/70 uppercase tracking-widest">Admin</p>
           </div>
           <h1 className="text-2xl font-bold text-white">Analytics</h1>
-          <p className="text-sm text-slate-500 mt-0.5">Platform overview — real-time data</p>
+          <p className="text-sm text-slate-500 mt-0.5">Platform overview - real-time data</p>
         </div>
         <button onClick={load} disabled={loading}
           className="btn-ghost flex items-center gap-2 text-xs">

@@ -1,6 +1,8 @@
 package com.example.Banking.account.controller;
 
+import com.example.Banking.account.model.Account;
 import com.example.Banking.account.model.AccountTransaction;
+import com.example.Banking.account.repository.AccountRepository;
 import com.example.Banking.account.repository.AccountTransactionRepository;
 import com.example.Banking.account.service.AccountService;
 import com.example.Banking.account.service.AnalyticsService;
@@ -27,15 +29,34 @@ import java.util.UUID;
 public class TransactionController {
 
     private final AccountTransactionRepository txRepo;
+    private final AccountRepository accountRepo;
     private final AccountService accountService;
     private final AnalyticsService analyticsService;
 
     public TransactionController(AccountTransactionRepository txRepo,
+                                 AccountRepository accountRepo,
                                  AccountService accountService,
                                  AnalyticsService analyticsService) {
         this.txRepo = txRepo;
+        this.accountRepo = accountRepo;
         this.accountService = accountService;
         this.analyticsService = analyticsService;
+    }
+
+    @GetMapping("/api/transactions")
+    public Page<TransactionResponse> getAllTransactions(
+            @PageableDefault(size = 20) Pageable pageable,
+            Authentication auth
+    ) {
+        UUID userId = UUID.fromString(auth.getName());
+        List<UUID> accountIds = accountRepo.findByOwnerId(userId)
+                .stream().map(Account::getId).toList();
+        if (accountIds.isEmpty()) return Page.empty(pageable);
+        return txRepo.findByAccountIdInOrderByCreatedAtDesc(accountIds, pageable)
+                .map(e -> new TransactionResponse(
+                        e.getId(), e.getType(), e.getCurrency(),
+                        e.getAmount(), e.getCreatedAt(), e.getCategory()
+                ));
     }
 
     @GetMapping("/api/accounts/{id}/transactions")
