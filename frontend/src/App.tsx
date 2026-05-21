@@ -1,6 +1,8 @@
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { ProtectedRoute } from './components/ProtectedRoute'
+import { useAuthStore } from './store/useAuthStore'
 import { LoginPage }       from './pages/LoginPage'
 import { RegisterPage }    from './pages/RegisterPage'
 import { DashboardPage }   from './pages/DashboardPage'
@@ -21,6 +23,16 @@ import { BudgetsPage }       from './pages/BudgetsPage'
 import { BeneficiariesPage } from './pages/BeneficiariesPage'
 
 export default function App() {
+  const [hydrated, setHydrated] = useState(false)
+
+  useEffect(() => {
+    const unsub = useAuthStore.persist.onFinishHydration(() => setHydrated(true))
+    if (useAuthStore.persist.hasHydrated()) setHydrated(true)
+    return unsub
+  }, [])
+
+  if (!hydrated) return null
+
   return (
     <BrowserRouter>
       <Routes>

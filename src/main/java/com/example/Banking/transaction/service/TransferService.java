@@ -61,32 +61,32 @@ public class TransferService {
         UUID fromId = UUID.fromString(fromAccountId);
 
         Account from = accountRepo.findById(fromId)
-                .orElseThrow(() -> new IllegalArgumentException("from account not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Source account not found"));
 
         Account to = resolveAccount(toAccountId);
         UUID toId = to.getId();
 
         // 3) ownership check — caller must own the source account
         if (!from.getOwnerId().toString().equals(callerId)) {
-            throw new AccessDeniedException("Account does not belong to the current user");
+            throw new AccessDeniedException("Card does not belong to the current user");
         }
 
         if (from.getStatus() != AccountStatus.ACTIVE) {
-            throw new IllegalArgumentException("from account is closed");
+            throw new IllegalArgumentException("Source card is closed");
         }
         if (to.getStatus() != AccountStatus.ACTIVE) {
-            throw new IllegalArgumentException("to account is closed");
+            throw new IllegalArgumentException("Destination card is closed");
         }
 
         // 4) parse amount
         BigDecimal transferAmount = new BigDecimal(amount).setScale(2, RoundingMode.HALF_UP);
         if (transferAmount.signum() <= 0) {
-            throw new IllegalArgumentException("amount must be > 0");
+            throw new IllegalArgumentException("Amount must be more than 0");
         }
 
         // 5) debit / credit with optional currency conversion
         if (from.getBalance().compareTo(transferAmount) < 0) {
-            throw new IllegalArgumentException("insufficient funds");
+            throw new IllegalArgumentException("Insufficient funds");
         }
 
         BigDecimal creditAmount;
