@@ -106,44 +106,15 @@ export function TransfersPage() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-white">Transfers</h1>
         <p className="text-sm text-slate-500 mt-0.5">Send funds between cards securely</p>
       </div>
 
-      {beneficiaries.length > 0 && (
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
-          <GlassCard>
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <Users size={14} className="text-cyan-400" />
-                <p className="text-xs text-slate-500 uppercase tracking-wider">Saved Recipients</p>
-              </div>
-              <Link to="/beneficiaries" className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1">
-                <Plus size={11} /> Manage
-              </Link>
-            </div>
-            <div className="flex gap-2 overflow-x-auto pb-1">
-              {beneficiaries.slice(0, 8).map((b) => (
-                <button
-                  key={b.id}
-                  onClick={() => handlePickBeneficiary(b)}
-                  className="flex-shrink-0 px-3 py-2 rounded-xl text-left transition-all hover:bg-white/[0.04] border border-white/[0.05] hover:border-cyan-500/30 min-w-[140px]"
-                  style={usedBeneficiaryId === b.id ? { background: 'rgba(6,182,212,0.08)', borderColor: 'rgba(6,182,212,0.3)' } : {}}
-                >
-                  <div className="flex items-center gap-1.5 mb-0.5">
-                    {b.favorite && <Star size={9} className="text-amber-400" fill="currentColor" />}
-                    <p className="text-xs font-medium text-white truncate">{b.nickname}</p>
-                  </div>
-                  <p className="text-[10px] text-slate-500 font-mono truncate">{b.accountNumber}</p>
-                  <p className="text-[10px] text-cyan-400 mt-0.5">{b.currency}</p>
-                </button>
-              ))}
-            </div>
-          </GlassCard>
-        </motion.div>
-      )}
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      {/* Left column: Transfer form */}
+      <div className="lg:col-span-3 space-y-6">
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <GlassCard glow="cyan">
@@ -247,16 +218,53 @@ export function TransfersPage() {
         </GlassCard>
       </motion.div>
 
+      </div>
+
+      {/* Right column: Recipients + Rates */}
+      <div className="lg:col-span-2 space-y-6">
+
+      {beneficiaries.length > 0 && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <GlassCard>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <Users size={14} className="text-cyan-400" />
+                <p className="text-xs text-slate-500 uppercase tracking-wider">Saved Recipients</p>
+              </div>
+              <Link to="/beneficiaries" className="text-xs text-cyan-400 hover:text-cyan-300 transition-colors flex items-center gap-1">
+                <Plus size={11} /> Manage
+              </Link>
+            </div>
+            <div className="flex flex-col gap-2">
+              {beneficiaries.slice(0, 8).map((b) => (
+                <button
+                  key={b.id}
+                  onClick={() => handlePickBeneficiary(b)}
+                  className="px-3 py-2.5 rounded-xl text-left transition-all hover:bg-white/[0.04] border border-white/[0.05] hover:border-cyan-500/30"
+                  style={usedBeneficiaryId === b.id ? { background: 'rgba(6,182,212,0.08)', borderColor: 'rgba(6,182,212,0.3)' } : {}}
+                >
+                  <div className="flex items-center gap-1.5 mb-0.5">
+                    {b.favorite && <Star size={9} className="text-amber-400" fill="currentColor" />}
+                    <p className="text-xs font-medium text-white truncate">{b.nickname}</p>
+                  </div>
+                  <p className="text-[10px] text-slate-500 font-mono truncate">{b.accountNumber}</p>
+                  <p className="text-[10px] text-cyan-400 mt-0.5">{b.currency}</p>
+                </button>
+              ))}
+            </div>
+          </GlassCard>
+        </motion.div>
+      )}
+
       {Object.keys(rates).length > 0 && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
           <GlassCard>
             <div className="flex items-center gap-2 mb-4">
               <TrendingUp size={14} className="text-cyan-400" />
               <p className="text-xs text-slate-500 uppercase tracking-wider">Exchange Rates</p>
-              <span className="text-xs text-slate-600 ml-auto">relative to 1 unit</span>
             </div>
             <div className="overflow-x-auto">
-              <table className="data-table">
+              <table className="data-table text-[11px]">
                 <thead>
                   <tr>
                     <th>From \ To</th>
@@ -271,8 +279,8 @@ export function TransfersPage() {
                         const key = `${from}_${to}`
                         const rate = rates[key]
                         return (
-                          <td key={to} className={`num text-xs ${from === to ? 'text-slate-600' : 'text-slate-300'}`}>
-                            {rate != null ? Number(rate).toFixed(4) : '—'}
+                          <td key={to} className={`num ${from === to ? 'text-slate-600' : 'text-slate-300'}`}>
+                            {rate != null ? Number(rate).toFixed(2) : '—'}
                           </td>
                         )
                       })}
@@ -284,6 +292,9 @@ export function TransfersPage() {
           </GlassCard>
         </motion.div>
       )}
+
+      </div>
+      </div>
 
       {lastTxId && (
         <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}>

@@ -272,78 +272,68 @@ export function ExchangePage() {
               </p>
             </GlassCard>
           )}
-        </div>
-      </div>
 
-      <GlassCard>
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-white flex items-center gap-2">
-            <Clock size={18} className="text-cyan-400" />
-            Exchange History
-          </h2>
-        </div>
-
-        {history && history.content.length > 0 ? (
-          <>
-            <div className="overflow-x-auto">
-              <table className="data-table w-full">
-                <thead>
-                  <tr>
-                    <th className="text-left text-xs text-slate-500 pb-2">From</th>
-                    <th className="text-left text-xs text-slate-500 pb-2">To</th>
-                    <th className="text-right text-xs text-slate-500 pb-2">Rate</th>
-                    <th className="text-right text-xs text-slate-500 pb-2">Date</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {history.content.map((ex) => (
-                    <tr key={ex.id} className="border-t border-white/[0.04]">
-                      <td className="py-2.5 text-sm">
-                        <span className="text-red-400 num font-medium">-{ex.fromAmount.toFixed(2)}</span>
-                        <span className="text-slate-500 ml-1">{ex.fromCurrency}</span>
-                      </td>
-                      <td className="py-2.5 text-sm">
-                        <span className="text-emerald-400 num font-medium">+{ex.toAmount.toFixed(2)}</span>
-                        <span className="text-slate-500 ml-1">{ex.toCurrency}</span>
-                      </td>
-                      <td className="py-2.5 text-sm text-right text-slate-400 num">
-                        {ex.exchangeRate.toFixed(4)}
-                      </td>
-                      <td className="py-2.5 text-sm text-right text-slate-500">
-                        {new Date(ex.createdAt).toLocaleDateString()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          <GlassCard>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-sm font-semibold text-white flex items-center gap-2">
+                <Clock size={16} className="text-cyan-400" />
+                Exchange History
+              </h2>
             </div>
 
-            {history.totalPages > 1 && (
-              <div className="flex justify-center gap-2 mt-4">
-                <button
-                  className="btn-ghost text-xs"
-                  disabled={history.first}
-                  onClick={() => loadHistory(historyPage - 1)}
-                >
-                  Previous
-                </button>
-                <span className="text-xs text-slate-500 py-2">
-                  {historyPage + 1} / {history.totalPages}
-                </span>
-                <button
-                  className="btn-ghost text-xs"
-                  disabled={history.last}
-                  onClick={() => loadHistory(historyPage + 1)}
-                >
-                  Next
-                </button>
-              </div>
+            {history && history.content.length > 0 ? (
+              <>
+                <div className="space-y-2">
+                  {history.content.map((ex) => (
+                    <div key={ex.id} className="flex items-center justify-between py-2 border-b border-white/[0.04] last:border-0">
+                      <div className="flex items-center gap-3">
+                        <div>
+                          <p className="text-xs">
+                            <span className="text-red-400 num font-medium">-{ex.fromAmount.toFixed(2)}</span>
+                            <span className="text-slate-500 ml-1">{ex.fromCurrency}</span>
+                          </p>
+                          <p className="text-xs mt-0.5">
+                            <span className="text-emerald-400 num font-medium">+{ex.toAmount.toFixed(2)}</span>
+                            <span className="text-slate-500 ml-1">{ex.toCurrency}</span>
+                          </p>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-[11px] text-slate-400 num">{ex.exchangeRate.toFixed(4)}</p>
+                        <p className="text-[10px] text-slate-600">{new Date(ex.createdAt).toLocaleDateString()}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {history.totalPages > 1 && (
+                  <div className="flex justify-center gap-2 mt-4">
+                    <button
+                      className="btn-ghost text-xs"
+                      disabled={history.first}
+                      onClick={() => loadHistory(historyPage - 1)}
+                    >
+                      Previous
+                    </button>
+                    <span className="text-xs text-slate-500 py-2">
+                      {historyPage + 1} / {history.totalPages}
+                    </span>
+                    <button
+                      className="btn-ghost text-xs"
+                      disabled={history.last}
+                      onClick={() => loadHistory(historyPage + 1)}
+                    >
+                      Next
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="text-sm text-slate-500 text-center py-4">No exchange history yet</p>
             )}
-          </>
-        ) : (
-          <p className="text-sm text-slate-500 text-center py-6">No exchange history yet</p>
-        )}
-      </GlassCard>
+          </GlassCard>
+        </div>
+      </div>
     </div>
   )
 }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import { ClipboardList, ArrowUpRight, ArrowDownLeft, ChevronLeft, ChevronRight, Download } from 'lucide-react'
 import { getAccounts, getTransactions, getAllTransactions, exportTransactions, updateTransactionCategory } from '../api/accounts'
+import { getExchangeRates } from '../api/exchange'
 import { getCategories } from '../api/budgets'
 import { GlassCard } from '../components/GlassCard'
 import { AccountSelect } from '../components/AccountSelect'
@@ -31,6 +32,13 @@ export function TransactionsPage() {
   const [page, setPage]           = useState(0)
   const [loading, setLoading]     = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [rates, setRates] = useState<Record<string, number>>({})
+
+  const toUsd = (amount: number, currency: string) => {
+    if (currency === 'USD') return amount
+    const rate = rates[`${currency}_USD`]
+    return rate ? amount * rate : amount
+  }
 
   useEffect(() => {
     getAccounts()
@@ -41,6 +49,7 @@ export function TransactionsPage() {
       .catch(() => {})
       .finally(() => setAccountsLoading(false))
     getCategories().then(setCategories).catch(() => {})
+    getExchangeRates().then(setRates).catch(() => {})
   }, [])
 
   const categoryByCode = (code?: string | null) =>
@@ -83,7 +92,7 @@ export function TransactionsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-white">Transaction History</h1>
         <p className="text-sm text-slate-500 mt-0.5">View all operations on a card</p>
@@ -138,7 +147,20 @@ export function TransactionsPage() {
           if (toDate && txDate > toDate) return false
           return true
         })
+        const totalIncome = filtered.filter((tx) => isIncome(tx.type)).reduce((s, tx) => s + toUsd(Number(tx.amount), tx.currency), 0)
+        const totalExpense = filtered.filter((tx) => !isIncome(tx.type)).reduce((s, tx) => s + toUsd(Number(tx.amount), tx.currency), 0)
+        const topCategories = Object.entries(
+          filtered.reduce<Record<string, { amount: number; cat?: Category }>>((acc, tx) => {
+            const code = tx.category || 'UNCATEGORIZED'
+            if (!acc[code]) acc[code] = { amount: 0, cat: categoryByCode(tx.category) }
+            acc[code].amount += toUsd(Number(tx.amount), tx.currency)
+            return acc
+          }, {})
+        ).sort((a, b) => b[1].amount - a[1].amount).slice(0, 6)
+
         return (
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="lg:col-span-3">
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <GlassCard padding={false}>
             <div className="px-6 py-4 border-b border-white/[0.05] flex items-center justify-between">
@@ -226,6 +248,53 @@ export function TransactionsPage() {
             )}
           </GlassCard>
         </motion.div>
+        </div>
+
+        <div className="lg:col-span-1 space-y-6">
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+            <GlassCard>
+              <p className="text-xs text-slate-500 uppercase tracking-wider mb-3">Page Summary</p>
+              <div className="space-y-2.5">
+                <div className="flex justify-between items-baseline">
+                  <span className="text-[10px] text-slate-600">Income</span>
+                  <span className="text-sm font-bold text-emerald-400 num">+${Math.round(totalIncome).toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-baseline">
+                  <span className="text-[10px] text-slate-600">Expenses</span>
+                  <span className="text-sm font-bold text-red-400 num">-${Math.round(totalExpense).toLocaleString()}</span>
+                </div>
+                <div className="h-px bg-white/[0.05]" />
+                <div className="flex justify-between items-baseline">
+                  <span className="text-[10px] text-slate-600">Net</span>
+                  <span className={`text-sm font-bold num ${totalIncome - totalExpense >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                    {totalIncome - totalExpense >= 0 ? '+' : '-'}${Math.round(Math.abs(totalIncome - totalExpense)).toLocaleString()}
+                  </span>
+                </div>
+              </div>
+              <p className="text-[10px] text-slate-600 mt-3">Converted to USD</p>
+            </GlassCard>
+          </motion.div>
+
+          {topCategories.length > 0 && (
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+              <GlassCard>
+                <p className="text-xs text-slate-500 uppercase tracking-wider mb-3">Top Categories</p>
+                <div className="space-y-2">
+                  {topCategories.map(([code, { amount, cat }]) => (
+                    <div key={code} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <CategoryIcon icon={cat?.icon} size={12} color={cat?.color || '#64748b'} />
+                        <span className="text-xs text-slate-400 truncate">{cat?.name || code}</span>
+                      </div>
+                      <span className="text-xs text-slate-300 num font-medium flex-shrink-0 ml-2">${Math.round(amount).toLocaleString()}</span>
+                    </div>
+                  ))}
+                </div>
+              </GlassCard>
+            </motion.div>
+          )}
+        </div>
+        </div>
         )
       })()}
 
