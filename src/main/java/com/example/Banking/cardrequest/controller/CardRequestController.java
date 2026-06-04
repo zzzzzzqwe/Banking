@@ -60,8 +60,6 @@ public class CardRequestController {
                 .stream().map(this::toResponse).toList();
     }
 
-    // ── Admin ──
-
     @GetMapping("/api/admin/card-requests")
     @PreAuthorize("hasRole('ADMIN')")
     public Page<CardRequestResponse> allRequests(@PageableDefault(size = 20) Pageable pageable) {

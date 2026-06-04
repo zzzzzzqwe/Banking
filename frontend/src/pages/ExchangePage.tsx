@@ -115,18 +115,15 @@ export function ExchangePage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-white">Currency Exchange</h1>
         <p className="text-sm text-slate-500 mt-1">Convert between your accounts instantly</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* Exchange form */}
         <div className="lg:col-span-3">
           <GlassCard glow="cyan">
             <div className="space-y-5">
-              {/* From */}
               <div>
                 <label className="label">From Account</label>
                 <select
@@ -143,7 +140,6 @@ export function ExchangePage() {
                 </select>
               </div>
 
-              {/* Amount */}
               <div>
                 <label className="label">Amount</label>
                 <div className="relative">
@@ -169,7 +165,6 @@ export function ExchangePage() {
                 )}
               </div>
 
-              {/* Swap button */}
               <div className="flex justify-center">
                 <button
                   onClick={handleSwap}
@@ -180,7 +175,6 @@ export function ExchangePage() {
                 </button>
               </div>
 
-              {/* To */}
               <div>
                 <label className="label">To Account</label>
                 <select
@@ -197,7 +191,6 @@ export function ExchangePage() {
                 </select>
               </div>
 
-              {/* Rate & Preview */}
               <AnimatePresence>
                 {rate !== null && fromAccount && toAccount && (
                   <motion.div
@@ -224,7 +217,6 @@ export function ExchangePage() {
                 )}
               </AnimatePresence>
 
-              {/* Submit */}
               <button
                 className="btn-primary w-full flex items-center justify-center gap-2"
                 disabled={!fromId || !toId || !amount || submitting || parseFloat(amount) <= 0}
@@ -241,7 +233,6 @@ export function ExchangePage() {
           </GlassCard>
         </div>
 
-        {/* Last result */}
         <div className="lg:col-span-2">
           <AnimatePresence>
             {lastResult && (
@@ -284,7 +275,6 @@ export function ExchangePage() {
         </div>
       </div>
 
-      {/* History */}
       <GlassCard>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-white flex items-center gap-2">
@@ -328,7 +318,6 @@ export function ExchangePage() {
               </table>
             </div>
 
-            {/* Pagination */}
             {history.totalPages > 1 && (
               <div className="flex justify-center gap-2 mt-4">
                 <button

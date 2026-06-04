@@ -17,7 +17,6 @@ import { Modal } from '../components/Modal'
 import { useToastStore } from '../store/useToastStore'
 import type { Account, CardNetwork, CardTier, CardType, CardRequest } from '../types'
 
-/* ──────────────────── Card Design Config ──────────────────── */
 
 // Simple gradient matrix: network × tier = 6 styles
 const CARD_GRADIENTS: Record<string, Record<string, string>> = {
@@ -93,7 +92,6 @@ function getGradient(network: string | null, tier: string | null) {
   return (CARD_GRADIENTS[n] || CARD_GRADIENTS.DEFAULT)[t] || CARD_GRADIENTS.DEFAULT.STANDARD
 }
 
-/* ──────────────────── Visa / Mastercard Logos ──────────────────── */
 
 function VisaLogo({ color, size = 28 }: { color: string; size?: number }) {
   return (
@@ -122,7 +120,6 @@ function MastercardLogo({ color, size = 28 }: { color: string; size?: number }) 
   )
 }
 
-/* ──────────────────── Card Visual Component ──────────────────── */
 
 function maskCardNumber(num: string | null) {
   if (!num) return '•••• •••• •••• ••••'
@@ -147,7 +144,6 @@ function CardVisual({ account, reveal }: { account: Account; reveal?: boolean })
         filter: isBlocked ? 'grayscale(0.6)' : 'none',
       }}
     >
-      {/* Texture */}
       <div
         className="absolute inset-0 opacity-20"
         style={{
@@ -155,7 +151,6 @@ function CardVisual({ account, reveal }: { account: Account; reveal?: boolean })
         }}
       />
 
-      {/* Header */}
       <div className="relative flex items-start justify-between">
         <div>
           {account.cardType === 'VIRTUAL' && (
@@ -176,7 +171,6 @@ function CardVisual({ account, reveal }: { account: Account; reveal?: boolean })
         </div>
       </div>
 
-      {/* Chip */}
       <div className="relative">
         <div
           className="w-10 h-7 rounded-md mb-3"
@@ -190,7 +184,6 @@ function CardVisual({ account, reveal }: { account: Account; reveal?: boolean })
         </p>
       </div>
 
-      {/* Footer */}
       <div className="relative flex items-end justify-between">
         <div>
           <p className="text-[9px] uppercase tracking-widest text-white/60">Cardholder</p>
@@ -220,7 +213,6 @@ function CardVisual({ account, reveal }: { account: Account; reveal?: boolean })
   )
 }
 
-/* ──────────────────── Single Card ──────────────────── */
 
 function CardItem({
   account, reveal, pendingRequest, onToggleReveal, onOpenTx, onOpenLimit, onRefresh,
@@ -334,7 +326,6 @@ function CardItem({
   )
 }
 
-/* ──────────────────── Card Creation Wizard ──────────────────── */
 
 type WizardStep = 'network' | 'tier' | 'type' | 'currency' | 'confirm'
 
@@ -608,7 +599,6 @@ function CardCreationWizard({
   )
 }
 
-/* ──────────────────── Main Page ──────────────────── */
 
 export function CardsPage() {
   const push = useToastStore((s) => s.push)
@@ -717,7 +707,6 @@ export function CardsPage() {
         </div>
       )}
 
-      {/* Issue Card wizard */}
       <Modal open={showWizard} onClose={() => setShowWizard(false)} title="Issue New Card" maxWidth="max-w-lg">
         <CardCreationWizard
           currencies={currencies}
@@ -726,7 +715,6 @@ export function CardsPage() {
         />
       </Modal>
 
-      {/* Daily limit modal */}
       <Modal open={!!limitModal} onClose={() => setLimitModal(null)} title="Daily Spending Limit">
         <div className="space-y-4">
           <p className="text-sm text-slate-400">
@@ -745,7 +733,6 @@ export function CardsPage() {
         </div>
       </Modal>
 
-      {/* Deposit / Withdraw modal */}
       <Modal
         open={!!txModal}
         onClose={() => setTxModal(null)}

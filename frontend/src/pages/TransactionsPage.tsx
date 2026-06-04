@@ -7,25 +7,8 @@ import { GlassCard } from '../components/GlassCard'
 import { AccountSelect } from '../components/AccountSelect'
 import { PageLoader } from '../components/LoadingSpinner'
 import { useToastStore } from '../store/useToastStore'
+import { CategoryIcon } from '../utils/categoryIcons'
 import type { Account, Transaction, Page, Category } from '../types'
-
-const ICON_FALLBACK: Record<string, string> = {
-  'heart-pulse': '🏥', 'send': '🔁', 'shopping-bag': '🛍️', 'utensils': '🍽️',
-  'car': '🚗', 'film': '🎬', 'lightbulb': '💡', 'book-open': '📚',
-  'briefcase': '💼', 'gift': '🎁', 'undo-2': '↩️', 'shopping-cart': '🛒',
-  'credit-card': '💳', 'package': '📦', 'repeat': '🔁', 'arrow-left-right': '💱',
-  'wallet': '💼', 'banknote': '💵', 'receipt': '🧾', 'home': '🏠',
-  'plane': '✈️', 'coffee': '☕', 'music': '🎵', 'gamepad-2': '🎮',
-  'dumbbell': '💪', 'shirt': '👕', 'scissors': '✂️', 'phone': '📱',
-  'wifi': '📶', 'baby': '👶', 'dog': '🐕', 'flower-2': '🌸',
-}
-
-function resolveIcon(icon: string | null | undefined): string {
-  if (!icon) return ''
-  if (ICON_FALLBACK[icon]) return ICON_FALLBACK[icon]
-  if (/^[a-z]/.test(icon)) return ''
-  return icon
-}
 
 const isIncome = (type: string) =>
   type.includes('DEPOSIT') || type.includes('CREDIT') || type.includes('TRANSFER_IN') || type === 'EXCHANGE_IN'
@@ -207,7 +190,7 @@ export function TransactionsPage() {
                                     border: cat?.color ? `1px solid ${cat.color}30` : '1px solid rgba(255,255,255,0.06)',
                                   }}
                                 >
-                                  {resolveIcon(cat?.icon)} {cat?.name || tx.category}
+                                  <CategoryIcon icon={cat?.icon} size={10} color={cat?.color || '#94a3b8'} /> {cat?.name || tx.category}
                                 </span>
                               )
                             })()
@@ -225,7 +208,7 @@ export function TransactionsPage() {
                               }}
                             >
                               <option value="" disabled>+ category</option>
-                              {categories.map((c) => <option key={c.id} value={c.code}>{resolveIcon(c.icon)} {c.name}</option>)}
+                              {categories.map((c) => <option key={c.id} value={c.code}>{c.name}</option>)}
                             </select>
                           )}
                         </div>

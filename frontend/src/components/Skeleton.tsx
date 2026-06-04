@@ -1,13 +1,11 @@
 import { motion } from 'framer-motion'
 
-/* ─── Base block ─────────────────────────────────────────── */
 function Sk({ w = 'w-full', h = 'h-4', rounded = 'rounded-lg', className = '' }) {
   return <div className={`shimmer ${w} ${h} ${rounded} ${className}`} />
 }
 
 const fade = { initial: { opacity: 0 }, animate: { opacity: 1 }, transition: { duration: 0.4 } }
 
-/* ─── Dashboard skeleton ─────────────────────────────────── */
 export function DashboardSkeleton() {
   return (
     <motion.div {...fade} className="max-w-6xl mx-auto space-y-8">
@@ -90,7 +88,6 @@ export function DashboardSkeleton() {
   )
 }
 
-/* ─── Accounts skeleton ──────────────────────────────────── */
 export function AccountsSkeleton() {
   return (
     <motion.div {...fade} className="max-w-5xl mx-auto space-y-6">
@@ -140,7 +137,6 @@ export function AccountsSkeleton() {
   )
 }
 
-/* ─── Loans skeleton ─────────────────────────────────────── */
 export function LoansSkeleton() {
   return (
     <motion.div {...fade} className="max-w-5xl mx-auto space-y-6">
@@ -200,7 +196,6 @@ export function LoansSkeleton() {
   )
 }
 
-/* ─── Profile skeleton ───────────────────────────────────── */
 export function ProfileSkeleton() {
   return (
     <motion.div {...fade} className="max-w-4xl mx-auto space-y-6">

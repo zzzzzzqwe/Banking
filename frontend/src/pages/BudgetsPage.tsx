@@ -6,25 +6,8 @@ import { Modal } from '../components/Modal'
 import { PageLoader } from '../components/LoadingSpinner'
 import { getBudgets, createBudget, deleteBudget, getCategories } from '../api/budgets'
 import { useToastStore } from '../store/useToastStore'
+import { CategoryIcon } from '../utils/categoryIcons'
 import type { Budget, BudgetPeriod, Category } from '../types'
-
-const ICON_FALLBACK: Record<string, string> = {
-  'heart-pulse': '🏥', 'send': '🔁', 'shopping-bag': '🛍️', 'utensils': '🍽️',
-  'car': '🚗', 'film': '🎬', 'lightbulb': '💡', 'book-open': '📚',
-  'briefcase': '💼', 'gift': '🎁', 'undo-2': '↩️', 'shopping-cart': '🛒',
-  'credit-card': '💳', 'package': '📦', 'repeat': '🔁', 'arrow-left-right': '💱',
-  'wallet': '💼', 'banknote': '💵', 'receipt': '🧾', 'home': '🏠',
-  'plane': '✈️', 'coffee': '☕', 'music': '🎵', 'gamepad-2': '🎮',
-  'dumbbell': '💪', 'shirt': '👕', 'scissors': '✂️', 'phone': '📱',
-  'wifi': '📶', 'baby': '👶', 'dog': '🐕', 'flower-2': '🌸',
-}
-
-function resolveIcon(icon: string | null | undefined): string {
-  if (!icon) return '📁'
-  if (ICON_FALLBACK[icon]) return ICON_FALLBACK[icon]
-  if (/^[a-z]/.test(icon)) return '📁'
-  return icon
-}
 
 export function BudgetsPage() {
   const push = useToastStore((s) => s.push)
@@ -102,7 +85,6 @@ export function BudgetsPage() {
         </button>
       </div>
 
-      {/* Summary */}
       {budgets.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <GlassCard>
@@ -142,7 +124,7 @@ export function BudgetsPage() {
                         className="w-10 h-10 rounded-xl flex items-center justify-center text-lg flex-shrink-0"
                         style={{ background: `${b.categoryColor || '#06b6d4'}15`, border: `1px solid ${b.categoryColor || '#06b6d4'}30` }}
                       >
-                        {resolveIcon(b.categoryIcon)}
+                        <CategoryIcon icon={b.categoryIcon} size={18} color={b.categoryColor || '#06b6d4'} />
                       </div>
                       <div>
                         <p className="text-sm font-semibold text-white">{b.categoryName}</p>
@@ -173,7 +155,6 @@ export function BudgetsPage() {
                       </div>
                     </div>
 
-                    {/* Progress bar */}
                     <div className="relative h-2 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)' }}>
                       <motion.div
                         initial={{ width: 0 }}
@@ -196,7 +177,6 @@ export function BudgetsPage() {
         </div>
       )}
 
-      {/* Create budget modal */}
       <Modal open={createOpen} onClose={() => setCreateOpen(false)} title="New Budget">
         <div className="space-y-4">
           <div>
@@ -204,7 +184,7 @@ export function BudgetsPage() {
             <select value={form.categoryId} onChange={(e) => setForm({ ...form, categoryId: e.target.value })} className="input w-full">
               <option value="">Select category</option>
               {availableCats.map((c) => (
-                <option key={c.id} value={c.id}>{resolveIcon(c.icon)} {c.name}</option>
+                <option key={c.id} value={c.id}>{c.name}</option>
               ))}
             </select>
           </div>

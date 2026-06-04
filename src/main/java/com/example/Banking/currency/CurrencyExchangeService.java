@@ -74,13 +74,11 @@ public class CurrencyExchangeService {
         BigDecimal rate = rateService.getRate(from.getCurrency(), to.getCurrency());
         BigDecimal toAmount = amount.multiply(rate).setScale(2, RoundingMode.HALF_UP);
 
-        // Update balances
         from.setBalance(from.getBalance().subtract(amount).setScale(2, RoundingMode.HALF_UP));
         to.setBalance(to.getBalance().add(toAmount).setScale(2, RoundingMode.HALF_UP));
         accountRepo.save(from);
         accountRepo.save(to);
 
-        // Record transactions
         accountService.saveTransaction(fromAccountId, "EXCHANGE_OUT", from.getCurrency(), amount, "EXCHANGE");
         accountService.saveTransaction(toAccountId, "EXCHANGE_IN", to.getCurrency(), toAmount, "EXCHANGE");
 

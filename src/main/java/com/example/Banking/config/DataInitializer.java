@@ -105,21 +105,21 @@ public class DataInitializer implements ApplicationRunner {
 
     private void seedSystemCategories() {
         Object[][] seeds = {
-                {"SALARY",        "Salary",        "💼", "#10b981", CategoryType.INCOME},
-                {"BONUS",         "Bonus",         "🎁", "#22c55e", CategoryType.INCOME},
-                {"REFUND",        "Refund",        "↩️", "#84cc16", CategoryType.INCOME},
-                {"GROCERIES",     "Groceries",     "🛒", "#f59e0b", CategoryType.EXPENSE},
-                {"TRANSPORT",     "Transport",     "🚗", "#3b82f6", CategoryType.EXPENSE},
-                {"ENTERTAINMENT", "Entertainment", "🎬", "#ec4899", CategoryType.EXPENSE},
-                {"UTILITIES",     "Utilities",     "💡", "#06b6d4", CategoryType.EXPENSE},
-                {"HEALTHCARE",    "Healthcare",    "🏥", "#ef4444", CategoryType.EXPENSE},
-                {"EDUCATION",     "Education",     "📚", "#8b5cf6", CategoryType.EXPENSE},
-                {"SHOPPING",      "Shopping",      "🛍️", "#f97316", CategoryType.EXPENSE},
-                {"RESTAURANT",    "Restaurants",   "🍽️", "#eab308", CategoryType.EXPENSE},
-                {"TRANSFER",      "Transfer",      "🔁", "#94a3b8", CategoryType.EXPENSE},
-                {"EXCHANGE",      "Exchange",      "💱", "#a855f7", CategoryType.EXPENSE},
-                {"LOAN",          "Loan",          "💳", "#0ea5e9", CategoryType.EXPENSE},
-                {"OTHER",         "Other",         "📦", "#64748b", CategoryType.EXPENSE},
+                {"SALARY",        "Salary",        "briefcase",        "#10b981", CategoryType.INCOME},
+                {"BONUS",         "Bonus",         "gift",             "#22c55e", CategoryType.INCOME},
+                {"REFUND",        "Refund",        "undo-2",           "#84cc16", CategoryType.INCOME},
+                {"GROCERIES",     "Groceries",     "shopping-cart",    "#f59e0b", CategoryType.EXPENSE},
+                {"TRANSPORT",     "Transport",     "car",              "#3b82f6", CategoryType.EXPENSE},
+                {"ENTERTAINMENT", "Entertainment", "film",             "#ec4899", CategoryType.EXPENSE},
+                {"UTILITIES",     "Utilities",     "lightbulb",        "#06b6d4", CategoryType.EXPENSE},
+                {"HEALTHCARE",    "Healthcare",    "heart-pulse",      "#ef4444", CategoryType.EXPENSE},
+                {"EDUCATION",     "Education",     "book-open",        "#8b5cf6", CategoryType.EXPENSE},
+                {"SHOPPING",      "Shopping",      "shopping-bag",     "#f97316", CategoryType.EXPENSE},
+                {"RESTAURANT",    "Restaurants",   "utensils",         "#eab308", CategoryType.EXPENSE},
+                {"TRANSFER",      "Transfer",      "arrow-left-right", "#94a3b8", CategoryType.EXPENSE},
+                {"EXCHANGE",      "Exchange",      "repeat",           "#a855f7", CategoryType.EXPENSE},
+                {"LOAN",          "Loan",          "credit-card",      "#0ea5e9", CategoryType.EXPENSE},
+                {"OTHER",         "Other",         "package",          "#64748b", CategoryType.EXPENSE},
         };
         int created = 0;
         int updated = 0;

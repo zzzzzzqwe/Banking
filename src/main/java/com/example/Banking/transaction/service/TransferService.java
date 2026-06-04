@@ -51,13 +51,11 @@ public class TransferService {
     @Transactional
     public UUID transfer(String callerId, String fromAccountId, String toAccountId,
                          String currency, String amount, String idempotencyKey) {
-        // 1) idempotency check
         var existing = idempotencyRepo.findByIdemKey(idempotencyKey);
         if (existing.isPresent()) {
             return existing.get().getTransactionId();
         }
 
-        // 2) load accounts
         UUID fromId = UUID.fromString(fromAccountId);
 
         Account from = accountRepo.findById(fromId)
@@ -66,7 +64,6 @@ public class TransferService {
         Account to = resolveAccount(toAccountId);
         UUID toId = to.getId();
 
-        // 3) ownership check — caller must own the source account
         if (!from.getOwnerId().toString().equals(callerId)) {
             throw new AccessDeniedException("Card does not belong to the current user");
         }
@@ -78,13 +75,11 @@ public class TransferService {
             throw new IllegalArgumentException("Destination card is closed");
         }
 
-        // 4) parse amount
         BigDecimal transferAmount = new BigDecimal(amount).setScale(2, RoundingMode.HALF_UP);
         if (transferAmount.signum() <= 0) {
             throw new IllegalArgumentException("Amount must be more than 0");
         }
 
-        // 5) debit / credit with optional currency conversion
         if (from.getBalance().compareTo(transferAmount) < 0) {
             throw new IllegalArgumentException("Insufficient funds");
         }
@@ -106,21 +101,17 @@ public class TransferService {
         accountRepo.save(from);
         accountRepo.save(to);
 
-        // 6) save transfer record
         UUID txId = UUID.randomUUID();
         transferRepo.save(new Transfer(txId, fromId, toId,
                 transferAmount, from.getCurrency(),
                 creditAmount, to.getCurrency(),
                 appliedRate, Instant.now()));
 
-        // 7) record in account_transactions for both sides
         accountService.saveTransaction(fromId, "TRANSFER_OUT", from.getCurrency(), transferAmount, "TRANSFER");
         accountService.saveTransaction(toId, "TRANSFER_IN", to.getCurrency(), creditAmount, "TRANSFER");
 
-        // 8a) store idempotency
         idempotencyRepo.save(new IdempotencyRecord(idempotencyKey, txId, Instant.now()));
 
-        // 8b) publish event (best-effort — lookup emails)
         try {
             var senderOpt    = userRepo.findById(from.getOwnerId());
             var recipientOpt = userRepo.findById(to.getOwnerId());
@@ -134,7 +125,6 @@ public class TransferService {
                 ));
             }
         } catch (Exception e) {
-            // don't fail the transfer if event publishing fails
         }
 
         return txId;

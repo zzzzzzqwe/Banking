@@ -3,6 +3,7 @@ package com.example.Banking.transaction.service;
 import com.example.Banking.account.model.Account;
 import com.example.Banking.account.model.AccountStatus;
 import com.example.Banking.account.repository.AccountRepository;
+import com.example.Banking.account.service.AccountService;
 import com.example.Banking.currency.ExchangeRateService;
 import com.example.Banking.transaction.model.IdempotencyRecord;
 import com.example.Banking.transaction.repository.IdempotencyRepository;
@@ -33,6 +34,7 @@ class TransferServiceTest {
     @Mock TransferRepository transferRepo;
     @Mock IdempotencyRepository idempotencyRepo;
     @Mock UserRepository userRepo;
+    @Mock AccountService accountService;
     @Mock ExchangeRateService exchangeRateService;
     @Mock ApplicationEventPublisher eventPublisher;
 
@@ -125,7 +127,7 @@ class TransferServiceTest {
         assertThatThrownBy(() -> transferService.transfer(
                 ownerId.toString(), fromId.toString(), toId.toString(), "USD", "200", "key-4"))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("insufficient funds");
+                .hasMessageContaining("Insufficient funds");
     }
 
     @Test
@@ -160,6 +162,6 @@ class TransferServiceTest {
         assertThatThrownBy(() -> transferService.transfer(
                 ownerId.toString(), fromId.toString(), toId.toString(), "USD", "0", "key-5"))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("amount must be > 0");
+                .hasMessageContaining("Amount must be more than 0");
     }
 }

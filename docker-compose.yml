@@ -4,8 +4,8 @@ services:
     image: postgres:16-alpine
     restart: unless-stopped
     environment:
-      POSTGRES_DB:       banking
-      POSTGRES_USER:     postgres
+      POSTGRES_DB: banking
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${DB_PASSWORD:-123321}
     ports:
       - "5432:5432"
@@ -28,14 +28,14 @@ services:
       db:
         condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL:      jdbc:postgresql://db:5432/banking
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/banking
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-123321}
-      JWT_SECRET:                 ${JWT_SECRET:-YmFua2luZy1hcHAtc2VjcmV0LWtleS1mb3Itand0LXRva2VuLWdlbmVyYXRpb24tMjAyNg==}
-      JWT_EXPIRATION:             ${JWT_EXPIRATION:-86400000}
-      SPRING_MAIL_HOST:           ${MAIL_HOST:-smtp.gmail.com}
-      SPRING_MAIL_USERNAME:       ${MAIL_USERNAME:-}
-      SPRING_MAIL_PASSWORD:       ${MAIL_PASSWORD:-}
+      JWT_SECRET: ${JWT_SECRET:-YmFua2luZy1hcHAtc2VjcmV0LWtleS1mb3Itand0LXRva2VuLWdlbmVyYXRpb24tMjAyNg==}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      SPRING_MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
+      SPRING_MAIL_USERNAME: ${MAIL_USERNAME:-}
+      SPRING_MAIL_PASSWORD: ${MAIL_PASSWORD:-}
 
   frontend:
     build:

@@ -108,13 +108,11 @@ export function AnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-white">Analytics</h1>
         <p className="text-sm text-slate-500 mt-1">Track your spending patterns</p>
       </div>
 
-      {/* Controls */}
       <div className="flex flex-wrap gap-4 items-end">
         <div className="flex-1 min-w-[200px]">
           <label className="label">Account</label>
@@ -149,7 +147,6 @@ export function AnalyticsPage() {
         </div>
       ) : data ? (
         <>
-          {/* Summary cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0 }}>
               <GlassCard>
@@ -194,9 +191,7 @@ export function AnalyticsPage() {
             </motion.div>
           </div>
 
-          {/* Charts */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Pie Chart — Spending by Category */}
             <GlassCard glow="purple">
               <h3 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
                 <PieChartIcon size={16} className="text-purple-400" />
@@ -241,7 +236,6 @@ export function AnalyticsPage() {
               ) : (
                 <p className="text-sm text-slate-500 text-center py-10">No expense data</p>
               )}
-              {/* Legend */}
               <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
                 {data.categoryBreakdown.map((entry, i) => (
                   <div key={entry.category} className="flex items-center gap-1.5 text-xs">
@@ -256,7 +250,6 @@ export function AnalyticsPage() {
               </div>
             </GlassCard>
 
-            {/* Bar Chart — Income vs Expenses */}
             <GlassCard glow="cyan">
               <h3 className="text-sm font-semibold text-slate-300 mb-4">Income vs Expenses</h3>
               {chartData.length > 0 ? (
@@ -289,7 +282,6 @@ export function AnalyticsPage() {
             </GlassCard>
           </div>
 
-          {/* Category breakdown table */}
           {data.categoryBreakdown.length > 0 && (
             <GlassCard>
               <h3 className="text-sm font-semibold text-slate-300 mb-3">Category Breakdown</h3>

@@ -167,7 +167,6 @@ function GoalCard({ goal, onAction }: { goal: SavingsGoal; onAction: () => void 
         </div>
       </GlassCard>
 
-      {/* Deposit modal */}
       <Modal open={depositOpen} onClose={() => setDepositOpen(false)} title="Deposit to Goal">
         <div className="space-y-4">
           <div>
@@ -197,7 +196,6 @@ function GoalCard({ goal, onAction }: { goal: SavingsGoal; onAction: () => void 
         </div>
       </Modal>
 
-      {/* Withdraw modal */}
       <Modal open={withdrawOpen} onClose={() => setWithdrawOpen(false)} title="Withdraw from Goal">
         <div className="space-y-4">
           <div>
@@ -298,7 +296,6 @@ export function SavingsGoalsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-xl font-bold text-slate-100">Savings Goals</h1>
@@ -317,7 +314,6 @@ export function SavingsGoalsPage() {
         </button>
       </div>
 
-      {/* Stats */}
       {goals.length > 0 && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <GlassCard>
@@ -345,7 +341,6 @@ export function SavingsGoalsPage() {
         </div>
       )}
 
-      {/* Goals Grid */}
       {goals.length === 0 ? (
         <GlassCard>
           <div className="p-12 text-center">
@@ -372,7 +367,6 @@ export function SavingsGoalsPage() {
         </div>
       )}
 
-      {/* Create Modal */}
       <Modal open={createOpen} onClose={() => setCreateOpen(false)} title="New Savings Goal">
         <div className="space-y-4">
           <div>

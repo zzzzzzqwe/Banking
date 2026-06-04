@@ -46,7 +46,6 @@ export function AdminAccountsPage() {
         <button onClick={() => load(page)} className="btn-ghost text-xs flex items-center gap-2"><RefreshCw size={14} /></button>
       </div>
 
-      {/* Quick stats */}
       {data && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[

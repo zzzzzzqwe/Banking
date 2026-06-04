@@ -16,7 +16,7 @@
       height: 100vh;
     }
 
-    /* ── Header ── */
+    /*  Header  */
     header {
       background: #161b22;
       border-bottom: 1px solid #2d3348;
@@ -70,14 +70,14 @@
     }
     #btn-logout:hover { border-color: #f87171; color: #f87171; background: transparent; }
 
-    /* ── Layout ── */
+    /*  Layout  */
     .layout {
       display: flex;
       flex: 1;
       overflow: hidden;
     }
 
-    /* ── Sidebar ── */
+    /*  Sidebar  */
     nav {
       width: 180px;
       flex-shrink: 0;
@@ -118,7 +118,7 @@
     nav .admin-link:hover { color: #fb923c; background: #1e1208; }
     nav .admin-link.active { background: #431407; color: #fb923c; }
 
-    /* ── Main content ── */
+    /*  Main content  */
     main {
       flex: 1;
       overflow-y: auto;
@@ -142,7 +142,7 @@
       gap: 16px;
     }
 
-    /* ── Cards ── */
+    /*  Cards  */
     .card {
       background: #161b22;
       border: 1px solid #2d3348;
@@ -233,7 +233,7 @@
     .response.pending { color: #475569; }
     .response.warn    { color: #fbbf24; }
 
-    /* ── Base URL bar ── */
+    /*  Base URL bar  */
     .base-bar {
       display: flex;
       align-items: center;
@@ -243,7 +243,7 @@
     .base-bar label { margin: 0; font-size: 0.78rem; white-space: nowrap; color: #64748b; }
     .base-bar input { max-width: 240px; }
 
-    /* ── Data table ── */
+    /*  Data table  */
     .data-table {
       width: 100%;
       border-collapse: collapse;
@@ -304,7 +304,7 @@
     .toggle-view { font-size: 0.7rem; color: #475569; cursor: pointer; text-decoration: underline; float: right; margin-top: 2px; }
     .toggle-view:hover { color: #94a3b8; }
 
-    /* ── Token display ── */
+    /*  Token display  */
     .token-box {
       background: #0d1117;
       border: 1px solid #2d3348;
@@ -346,7 +346,7 @@
 </head>
 <body>
 
-<!-- ── Header ── -->
+<!--  Header  -->
 <header>
   <h1>Banking API Tester</h1>
   <div id="user-state">
@@ -359,7 +359,7 @@
 
 <div class="layout">
 
-  <!-- ── Sidebar ── -->
+  <!--  Sidebar  -->
   <nav id="sidebar">
     <div class="nav-group">
       <div class="nav-group-title">Auth</div>
@@ -380,7 +380,7 @@
     </div>
   </nav>
 
-  <!-- ── Main ── -->
+  <!--  Main  -->
   <main>
 
     <!-- Base URL + Token state -->
@@ -395,7 +395,7 @@
       <div class="info-chip">role: <span id="info-role">—</span></div>
     </div>
 
-    <!-- ══════════════════ AUTH ══════════════════ -->
+    <!--  AUTH  -->
     <div class="section active" id="section-auth">
       <div class="section-title">Authentication</div>
       <div class="grid">
@@ -430,7 +430,7 @@
       </div>
     </div>
 
-    <!-- ══════════════════ ACCOUNTS ══════════════════ -->
+    <!--  ACCOUNTS  -->
     <div class="section" id="section-accounts">
       <div class="section-title">Accounts</div>
       <div class="grid">
@@ -501,7 +501,7 @@
       </div>
     </div>
 
-    <!-- ══════════════════ TRANSFERS ══════════════════ -->
+    <!--  TRANSFERS  -->
     <div class="section" id="section-transfers">
       <div class="section-title">Transfers</div>
       <div class="grid">
@@ -526,7 +526,7 @@
       </div>
     </div>
 
-    <!-- ══════════════════ TRANSACTIONS ══════════════════ -->
+    <!--  TRANSACTIONS  -->
     <div class="section" id="section-transactions">
       <div class="section-title">Transaction History</div>
       <div class="grid">
@@ -546,7 +546,7 @@
       </div>
     </div>
 
-    <!-- ══════════════════ ADMIN — USERS ══════════════════ -->
+    <!--  ADMIN — USERS  -->
     <div class="section" id="section-admin-users">
       <div class="section-title">Admin — Users</div>
       <p class="hint" style="margin-bottom:16px">Эти запросы вернут <strong style="color:#f87171">403 Forbidden</strong> если у текущего пользователя роль <code>USER</code>. Нужна роль <code style="color:#fb923c">ADMIN</code>.</p>
@@ -602,7 +602,7 @@
       </div>
     </div>
 
-    <!-- ══════════════════ ADMIN — ACCOUNTS ══════════════════ -->
+    <!--  ADMIN — ACCOUNTS  -->
     <div class="section" id="section-admin-accounts">
       <div class="section-title">Admin — All Accounts</div>
       <p class="hint" style="margin-bottom:16px">Эти запросы вернут <strong style="color:#f87171">403 Forbidden</strong> если у текущего пользователя роль <code>USER</code>.</p>
@@ -646,7 +646,7 @@
       </div>
     </div>
 
-    <!-- ══════════════════ LOANS ══════════════════ -->
+    <!--  LOANS  -->
     <div class="section" id="section-loans">
       <div class="section-title">Loans</div>
       <div class="grid">
@@ -709,7 +709,7 @@
       </div>
     </div>
 
-    <!-- ══════════════════ ADMIN — LOANS ══════════════════ -->
+    <!--  ADMIN — LOANS  -->
     <div class="section" id="section-admin-loans">
       <div class="section-title">Admin — All Loans</div>
       <p class="hint" style="margin-bottom:16px">Нужна роль <code style="color:#fb923c">ADMIN</code>. Одобрите заявку — деньги зачислятся на счёт.</p>
@@ -766,7 +766,7 @@
 </div>
 
 <script>
-  // ── State ──
+  // State 
   let state = { token: null, userId: null, role: null };
 
   function base() { return document.getElementById('baseUrl').value.replace(/\/$/, ''); }
@@ -804,7 +804,7 @@
     updateHeader();
   }
 
-  // ── Navigation ──
+  // Navigation 
   const navMap = {
     auth:             'nav-auth',
     accounts:         'nav-accounts',
@@ -823,7 +823,7 @@
     document.getElementById(navMap[name]).classList.add('active');
   }
 
-  // ── HTTP helper ──
+  // HTTP helper 
   async function call(method, url, body, resId, { auth = true, extraHeaders = {} } = {}) {
     const el = document.getElementById(resId);
     el.className = 'response pending';
@@ -852,7 +852,7 @@
     }
   }
 
-  // ── Auth ──
+  // Auth 
   async function register() {
     const body = {
       email:     document.getElementById('reg-email').value.trim(),
@@ -877,7 +877,7 @@
     }
   }
 
-  // ── Accounts ──
+  // Accounts 
   function getMyAccounts() {
     call('GET', `${base()}/api/accounts`, null, 'res-my-accounts');
   }
@@ -918,7 +918,7 @@
     call('POST', `${base()}/api/accounts/${id}/close`, null, 'res-close-account');
   }
 
-  // ── Transfers ──
+  // Transfers 
   function transfer() {
     // Auto-generate idempotency key if empty
     const keyInput = document.getElementById('transfer-idem-key');
@@ -936,7 +936,7 @@
     });
   }
 
-  // ── Transactions ──
+  // Transactions 
   function getTransactions() {
     const id   = document.getElementById('tx-account-id').value.trim();
     const page = document.getElementById('tx-page').value || 0;
@@ -944,7 +944,7 @@
     call('GET', `${base()}/api/accounts/${id}/transactions?page=${page}&size=${size}`, null, 'res-transactions');
   }
 
-  // ── View toggle (table ↔ JSON) ──
+  // View toggle (table ↔ JSON) 
   const viewMode = { users: 'table', acc: 'table', sched: 'table', 'admin-loans': 'table' };
 
   function toggleView(key) {
@@ -966,7 +966,7 @@
     }
   }
 
-  // ── Admin — Users ──
+  // Admin — Users 
   async function adminGetUsers() {
     const page = document.getElementById('admin-users-page').value || 0;
     const size = document.getElementById('admin-users-size').value || 20;
@@ -1033,7 +1033,7 @@
       .then(r => { if (r.ok) adminGetUsers(); });
   }
 
-  // ── Admin — Accounts ──
+  // Admin — Accounts 
   async function adminGetAccounts() {
     const page = document.getElementById('admin-accounts-page').value || 0;
     const size = document.getElementById('admin-accounts-size').value || 20;
@@ -1082,7 +1082,7 @@
     call('GET', `${base()}/api/admin/accounts/${id}`, null, 'res-admin-get-account');
   }
 
-  // ── Loans (User) ──
+  // Loans (User) 
   function applyForLoan() {
     const body = {
       accountId:          document.getElementById('loan-account-id').value.trim(),
@@ -1202,7 +1202,7 @@
     getMyLoans();
   }
 
-  // ── Admin — Loans ──
+  // Admin — Loans 
   async function adminGetLoans() {
     const page = document.getElementById('admin-loans-page').value || 0;
     const size = document.getElementById('admin-loans-size').value || 20;

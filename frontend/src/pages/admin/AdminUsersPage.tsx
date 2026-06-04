@@ -63,7 +63,6 @@ export function AdminUsersPage() {
         <button onClick={() => load(page)} className="btn-ghost text-xs flex items-center gap-2"><RefreshCw size={14} /></button>
       </div>
 
-      {/* Filter bar */}
       <GlassCard padding={false}>
         <div className="flex items-center gap-3 px-4 py-3">
           <Search size={14} className="text-slate-500 flex-shrink-0" />
@@ -144,7 +143,6 @@ export function AdminUsersPage() {
               </table>
             </div>
 
-            {/* Pagination */}
             {data && data.totalPages > 1 && (
               <div className="flex items-center justify-between px-6 py-3 border-t border-white/[0.04]">
                 <p className="text-xs text-slate-600">{data.totalElements} users</p>

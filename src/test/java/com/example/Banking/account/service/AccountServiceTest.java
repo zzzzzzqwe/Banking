@@ -6,6 +6,7 @@ import com.example.Banking.account.repository.AccountRepository;
 import com.example.Banking.account.repository.AccountTransactionRepository;
 import com.example.Banking.config.AccountNotFoundException;
 import com.example.Banking.config.InsufficientFundsException;
+import com.example.Banking.user.repository.UserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,6 +27,7 @@ class AccountServiceTest {
 
     @Mock AccountRepository accountRepo;
     @Mock AccountTransactionRepository txRepo;
+    @Mock UserRepository userRepo;
 
     @InjectMocks AccountService accountService;
 
@@ -96,7 +98,7 @@ class AccountServiceTest {
 
         assertThatThrownBy(() -> accountService.deposit(id, "USD", new BigDecimal("50.00")))
                 .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("closed");
+                .hasMessageContaining("not active");
     }
 
     @Test

@@ -135,7 +135,6 @@ function LoanCard({ loan, onRefresh }: { loan: Loan; onRefresh: () => void }) {
         </div>
       </div>
 
-      {/* Schedule */}
       <AnimatePresence>
         {expanded && (
           <motion.div

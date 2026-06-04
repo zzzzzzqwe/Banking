@@ -23,7 +23,6 @@ function StatusBadge({ status }: { status: string }) {
   return <span className={map[status] || 'badge'}>{status}</span>
 }
 
-/* ── Pagination ── */
 function Pagination({ data, page, onPage }: { data: Page<any>; page: number; onPage: (p: number) => void }) {
   if (data.totalPages <= 1) return null
   return (
@@ -38,7 +37,6 @@ function Pagination({ data, page, onPage }: { data: Page<any>; page: number; onP
   )
 }
 
-/* ── Action buttons (shared) ── */
 function ActionButtons({ isPending, actionId, itemId, onApprove, onReject }: {
   isPending: boolean; actionId: string | null; itemId: string
   onApprove: () => void; onReject: () => void
@@ -71,7 +69,7 @@ function ActionButtons({ isPending, actionId, itemId, onApprove, onReject }: {
   )
 }
 
-/* ═══════════════════════  Loans Tab  ═══════════════════════ */
+/*   Loans Tab   */
 
 function LoansTab() {
   const push = useToastStore((s) => s.push)
@@ -158,7 +156,7 @@ function LoansTab() {
   )
 }
 
-/* ═══════════════════════  Card Requests Tab  ═══════════════════════ */
+/*   Card Requests Tab   */
 
 function CardRequestsTab() {
   const push = useToastStore((s) => s.push)
@@ -253,7 +251,7 @@ function CardRequestsTab() {
   )
 }
 
-/* ═══════════════════════  Main Page  ═══════════════════════ */
+/*   Main Page   */
 
 const TABS: { key: Tab; label: string; icon: typeof ShieldCheck }[] = [
   { key: 'loans', label: 'Loans', icon: ShieldCheck },
@@ -278,7 +276,6 @@ export function AdminRequestsPage() {
         </div>
       </div>
 
-      {/* Tabs */}
       <div className="flex gap-1 p-1 rounded-xl glass" style={{ width: 'fit-content' }}>
         {TABS.map(({ key, label, icon: Icon }) => (
           <button

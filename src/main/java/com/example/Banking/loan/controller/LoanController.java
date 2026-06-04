@@ -30,8 +30,6 @@ public class LoanController {
         this.auditService = auditService;
     }
 
-    // ── User endpoints ──
-
     @PostMapping("/api/loans")
     @ResponseStatus(HttpStatus.CREATED)
     public LoanResponse apply(@RequestBody @Valid LoanApplicationRequest req, Authentication auth) {
@@ -68,8 +66,6 @@ public class LoanController {
         return toScheduleResponse(entry);
     }
 
-    // ── Admin endpoints ──
-
     @GetMapping("/api/admin/loans")
     @PreAuthorize("hasRole('ADMIN')")
     public Page<LoanResponse> allLoans(@PageableDefault(size = 20) Pageable pageable) {
@@ -91,8 +87,6 @@ public class LoanController {
         auditService.log(UUID.fromString(auth.getName()), AuditAction.LOAN_REJECTED, "Loan", id);
         return toResponse(loan);
     }
-
-    // ── Mappers ──
 
     private LoanResponse toResponse(Loan loan) {
         return new LoanResponse(

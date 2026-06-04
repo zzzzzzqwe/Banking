@@ -13,10 +13,6 @@ export type CardTier = 'STANDARD' | 'PREMIUM' | 'DELUXE'
 export type CardType = 'PHYSICAL' | 'VIRTUAL'
 export type CardStatus = 'ACTIVE' | 'BLOCKED' | 'CLOSED'
 
-/**
- * A Card is the primary money-holding entity owned by a user.
- * Kept as `Account` for legacy API-path compatibility, but represents a card in the UX.
- */
 export interface Account {
   id: string
   ownerId: string

@@ -46,14 +46,12 @@ export function LoginPage() {
     <div className="min-h-screen flex items-center justify-center bg-space-950 relative overflow-hidden">
       <AnimatedBackground />
 
-      {/* Centered card */}
       <motion.div
         initial={{ opacity: 0, y: 30, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.5, ease: 'easeOut' }}
         className="w-full max-w-md mx-4 relative"
       >
-        {/* Glow behind card */}
         <div
           className="absolute -inset-px rounded-2xl pointer-events-none"
           style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.15), rgba(168,85,247,0.1), transparent)', filter: 'blur(1px)' }}
@@ -62,11 +60,9 @@ export function LoginPage() {
         <div className="glass-heavy rounded-2xl relative overflow-hidden"
           style={{ boxShadow: '0 0 80px rgba(6,182,212,0.06), 0 32px 80px rgba(0,0,0,0.5)' }}>
 
-          {/* Top accent bar */}
           <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(6,182,212,0.6), rgba(168,85,247,0.4), transparent)' }} />
 
           <div className="px-8 pt-8 pb-9">
-            {/* Logo */}
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -170,7 +166,6 @@ export function LoginPage() {
             </p>
           </div>
 
-          {/* Bottom accent bar */}
           <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.3), rgba(6,182,212,0.2), transparent)' }} />
         </div>
 

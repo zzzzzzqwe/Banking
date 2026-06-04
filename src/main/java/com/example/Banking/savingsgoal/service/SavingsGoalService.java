@@ -79,12 +79,10 @@ public class SavingsGoalService {
             throw new IllegalArgumentException("Goal is already completed");
         }
 
-        // Deduct from linked account
         accountService.withdraw(goal.getAccountId(), goal.getCurrency(), amount, "SAVINGS_GOAL");
 
         goal.setCurrentAmount(goal.getCurrentAmount().add(amount).setScale(2, RoundingMode.HALF_UP));
 
-        // Check if target reached
         if (goal.getCurrentAmount().compareTo(goal.getTargetAmount()) >= 0) {
             goal.setCompleted(true);
             goal.setCompletedAt(LocalDateTime.now());
@@ -103,7 +101,6 @@ public class SavingsGoalService {
             throw new IllegalArgumentException("Amount exceeds goal balance");
         }
 
-        // Return money to linked account
         accountService.deposit(goal.getAccountId(), goal.getCurrency(), amount, "SAVINGS_GOAL");
 
         goal.setCurrentAmount(goal.getCurrentAmount().subtract(amount).setScale(2, RoundingMode.HALF_UP));
@@ -121,7 +118,6 @@ public class SavingsGoalService {
     public void deleteGoal(UUID goalId, String userId) {
         SavingsGoal goal = getAndVerifyOwnership(goalId, userId);
 
-        // Return remaining funds to account
         if (goal.getCurrentAmount().signum() > 0) {
             accountService.deposit(goal.getAccountId(), goal.getCurrency(),
                     goal.getCurrentAmount(), "SAVINGS_GOAL");

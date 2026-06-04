@@ -6,7 +6,7 @@
 -- psql -U postgres -d banking -f seed-data.sql
 -- =============================================================
 
--- ─── 1. USERS ────────────────────────────────────────────────
+-- 1. USERS
 -- All passwords: password123 (BCrypt hash)
 
 -- User 1: Michael Chen — active power user, 4 cards, loans, savings
@@ -69,7 +69,7 @@ VALUES (
   NOW() - INTERVAL '150 days'
 ) ON CONFLICT (id) DO NOTHING;
 
--- ─── 2. CARDS (accounts table) ───────────────────────────────
+-- 2. CARDS (accounts table)
 -- Card 1: USD VISA PREMIUM (main card)
 INSERT INTO accounts (id, owner_id, balance, currency, status, created_at,
   card_network, card_tier, card_number, card_type, daily_limit, expiry_date, holder_name)
@@ -115,7 +115,7 @@ VALUES (
 ) ON CONFLICT (id) DO NOTHING;
 
 
--- ─── 3. TRANSACTIONS for USD card (main, most data) ─────────
+-- 3. TRANSACTIONS for USD card (main, most data)
 -- Generates a rich 12-month history with categories for analytics
 
 -- Helper: card IDs
@@ -320,7 +320,7 @@ INSERT INTO account_transactions (id, account_id, type, currency, amount, create
 (gen_random_uuid(), 'c0000001-0000-4000-8000-000000000003', 'WITHDRAW', 'GBP', 85.00,   NOW() - INTERVAL '3 days',   'TRANSPORT');
 
 
--- ─── 4. TRANSFERS ────────────────────────────────────────────
+-- 4. TRANSFERS
 INSERT INTO transfers (id, from_account_id, to_account_id, amount, currency, to_credit_amount, to_currency, exchange_rate, created_at) VALUES
 (gen_random_uuid(), 'c0000001-0000-4000-8000-000000000001', 'c0000001-0000-4000-8000-000000000002', 1000.00, 'USD', 920.00, 'EUR', 0.92, NOW() - INTERVAL '240 days'),
 (gen_random_uuid(), 'c0000001-0000-4000-8000-000000000002', 'c0000001-0000-4000-8000-000000000001', 500.00,  'EUR', 543.48, 'USD', 1.087, NOW() - INTERVAL '180 days'),
@@ -331,7 +331,7 @@ INSERT INTO transfers (id, from_account_id, to_account_id, amount, currency, to_
 -- NOTE: TransferService does NOT create account_transactions — only updates balances + writes to transfers table
 
 
--- ─── 5. LOAN (active) ───────────────────────────────────────
+-- 5. LOAN (active)
 INSERT INTO loans (id, borrower_id, account_id, principal_amount, annual_interest_rate, term_months,
   monthly_payment, status, start_date, end_date, created_at, updated_at)
 VALUES (
@@ -400,7 +400,7 @@ VALUES (
 ) ON CONFLICT (id) DO NOTHING;
 
 
--- ─── 6. SAVINGS GOALS ───────────────────────────────────────
+-- 6. SAVINGS GOALS
 INSERT INTO savings_goals (id, user_id, account_id, name, description, target_amount, current_amount, currency, completed, created_at, updated_at, completed_at) VALUES
 (
   gen_random_uuid(),
@@ -428,7 +428,7 @@ INSERT INTO savings_goals (id, user_id, account_id, name, description, target_am
 );
 
 
--- ─── 7. BUDGETS ──────────────────────────────────────────────
+-- 7. BUDGETS
 -- Need category IDs — use subselect from categories table (system categories seeded by DataInitializer)
 INSERT INTO budgets (id, user_id, category_id, period, limit_amount, currency, alert_threshold, start_date, created_at)
 SELECT gen_random_uuid(), 'a1b2c3d4-0000-4000-8000-000000000001', c.id, 'MONTHLY', 400.00, 'USD', 0.8,
@@ -461,7 +461,7 @@ FROM categories c WHERE c.code = 'TRANSPORT' AND c.is_system = true
 ON CONFLICT DO NOTHING;
 
 
--- ─── 8. NOTIFICATIONS ────────────────────────────────────────
+-- 8. NOTIFICATIONS
 INSERT INTO notifications (id, user_id, title, message, type, read, created_at) VALUES
 (gen_random_uuid(), 'a1b2c3d4-0000-4000-8000-000000000001', 'Loan Approved', 'Your loan of $15,000.00 has been approved.', 'LOAN_APPROVED', true, NOW() - INTERVAL '6 months'),
 (gen_random_uuid(), 'a1b2c3d4-0000-4000-8000-000000000001', 'Transfer Received', 'You received €920.00 on your EUR card.', 'TRANSFER_RECEIVED', true, NOW() - INTERVAL '240 days'),
@@ -474,7 +474,7 @@ INSERT INTO notifications (id, user_id, title, message, type, read, created_at) 
 (gen_random_uuid(), 'a1b2c3d4-0000-4000-8000-000000000001', 'Emergency Fund Complete', 'Congratulations! Your "Emergency Fund" goal is complete!', 'GOAL_COMPLETED', true, NOW() - INTERVAL '30 days');
 
 
--- ─── 9. BENEFICIARIES ────────────────────────────────────────
+-- 9. BENEFICIARIES
 -- Use the admin user ID — get it dynamically
 INSERT INTO beneficiaries (id, user_id, nickname, account_number, account_id, bank_name, holder_name, currency, is_favorite, created_at, last_used_at)
 SELECT gen_random_uuid(),
@@ -490,13 +490,13 @@ INSERT INTO beneficiaries (id, user_id, nickname, account_number, account_id, ba
 (gen_random_uuid(), 'a1b2c3d4-0000-4000-8000-000000000001', 'My GBP Card', 'c0000001-0000-4000-8000-000000000003', 'c0000001-0000-4000-8000-000000000003', 'Internal', 'MICHAEL CHEN', 'GBP', false, NOW() - INTERVAL '120 days', NOW() - INTERVAL '30 days');
 
 
--- ─── 10. CARD REQUESTS ───────────────────────────────────────
+-- 10. CARD REQUESTS
 INSERT INTO card_requests (id, user_id, account_id, request_type, status, created_at, resolved_at) VALUES
 (gen_random_uuid(), 'a1b2c3d4-0000-4000-8000-000000000001', 'c0000001-0000-4000-8000-000000000004', 'BLOCK',   'APPROVED', NOW() - INTERVAL '30 days', NOW() - INTERVAL '29 days'),
 (gen_random_uuid(), 'a1b2c3d4-0000-4000-8000-000000000001', 'c0000001-0000-4000-8000-000000000004', 'UNBLOCK', 'PENDING',  NOW() - INTERVAL '2 days',  NULL);
 
 
--- ─── 11. AUDIT LOGS (sample) ─────────────────────────────────
+-- 11. AUDIT LOGS (sample)
 INSERT INTO audit_log (id, user_id, action, entity_type, entity_id, details, ip_address, created_at) VALUES
 (gen_random_uuid(), 'a1b2c3d4-0000-4000-8000-000000000001', 'LOGIN',        'USER',    'a1b2c3d4-0000-4000-8000-000000000001', 'Successful login',           '192.168.1.100', NOW() - INTERVAL '1 day'),
 (gen_random_uuid(), 'a1b2c3d4-0000-4000-8000-000000000001', 'CARD_CREATED', 'ACCOUNT', 'c0000001-0000-4000-8000-000000000001', 'VISA PREMIUM USD card',      '192.168.1.100', NOW() - INTERVAL '350 days'),
@@ -510,9 +510,7 @@ INSERT INTO audit_log (id, user_id, action, entity_type, entity_id, details, ip_
 (gen_random_uuid(), 'a1b2c3d4-0000-4000-8000-000000000001', 'LOGIN',        'USER',    'a1b2c3d4-0000-4000-8000-000000000001', 'Successful login',           '192.168.1.100', NOW() - INTERVAL '6 hours');
 
 
--- ═══════════════════════════════════════════════════════════
 -- USER 2: Sarah Mitchell — freelance designer, EUR + USD
--- ═══════════════════════════════════════════════════════════
 
 -- Sarah's cards
 INSERT INTO accounts (id, owner_id, balance, currency, status, created_at,
@@ -610,9 +608,7 @@ INSERT INTO audit_log (id, user_id, action, entity_type, entity_id, details, ip_
 (gen_random_uuid(), 'a1b2c3d4-0000-4000-8000-000000000002', 'CARD_DEPOSIT',  'ACCOUNT', 'c0000002-0000-4000-8000-000000000001', 'Salary €4,500', '85.214.132.47', NOW() - INTERVAL '30 days');
 
 
--- ═══════════════════════════════════════════════════════════
 -- USER 3: James Rodriguez — new user, just getting started
--- ═══════════════════════════════════════════════════════════
 
 INSERT INTO accounts (id, owner_id, balance, currency, status, created_at,
   card_network, card_tier, card_number, card_type, daily_limit, expiry_date, holder_name)
@@ -649,9 +645,7 @@ INSERT INTO audit_log (id, user_id, action, entity_type, entity_id, details, ip_
 (gen_random_uuid(), 'a1b2c3d4-0000-4000-8000-000000000003', 'LOGIN',        'USER', 'a1b2c3d4-0000-4000-8000-000000000003', 'Successful login', '203.0.113.42', NOW() - INTERVAL '1 day');
 
 
--- ═══════════════════════════════════════════════════════════
 -- USER 4: Elena Kowalski — premium client, high balances
--- ═══════════════════════════════════════════════════════════
 
 INSERT INTO accounts (id, owner_id, balance, currency, status, created_at,
   card_network, card_tier, card_number, card_type, daily_limit, expiry_date, holder_name)
@@ -811,9 +805,7 @@ INSERT INTO audit_log (id, user_id, action, entity_type, entity_id, details, ip_
 (gen_random_uuid(), 'a1b2c3d4-0000-4000-8000-000000000004', 'LOGIN',        'USER', 'a1b2c3d4-0000-4000-8000-000000000004', 'Successful login', '91.108.22.156', NOW() - INTERVAL '4 hours');
 
 
--- ═══════════════════════════════════════════════════════════
 -- USER 5: David Thompson — deactivated user (minimal data)
--- ═══════════════════════════════════════════════════════════
 
 INSERT INTO accounts (id, owner_id, balance, currency, status, created_at,
   card_network, card_tier, card_number, card_type, daily_limit, expiry_date, holder_name)
@@ -838,9 +830,7 @@ INSERT INTO audit_log (id, user_id, action, entity_type, entity_id, details, ip_
 (gen_random_uuid(), 'a1b2c3d4-0000-4000-8000-000000000005', 'LOGIN',    'USER', 'a1b2c3d4-0000-4000-8000-000000000005', 'Successful login', '172.16.254.1', NOW() - INTERVAL '165 days');
 
 
--- ═══════════════════════════════════════════════════════════
 -- USER 6: Olivia Nakamura — GBP-focused, active
--- ═══════════════════════════════════════════════════════════
 
 INSERT INTO accounts (id, owner_id, balance, currency, status, created_at,
   card_network, card_tier, card_number, card_type, daily_limit, expiry_date, holder_name)
@@ -945,9 +935,7 @@ INSERT INTO audit_log (id, user_id, action, entity_type, entity_id, details, ip_
 (gen_random_uuid(), 'a1b2c3d4-0000-4000-8000-000000000006', 'LOGIN',        'USER', 'a1b2c3d4-0000-4000-8000-000000000006', 'Successful login', '51.15.183.200', NOW() - INTERVAL '2 hours');
 
 
--- ═══════════════════════════════════════════════════════════
 -- Cross-user transfers (makes it feel like a real bank)
--- ═══════════════════════════════════════════════════════════
 
 -- Michael → Sarah (USD to USD)
 INSERT INTO transfers (id, from_account_id, to_account_id, amount, currency, to_credit_amount, to_currency, exchange_rate, created_at) VALUES
@@ -964,9 +952,7 @@ INSERT INTO transfers (id, from_account_id, to_account_id, amount, currency, to_
 (gen_random_uuid(), 'c0000002-0000-4000-8000-000000000001', 'c0000001-0000-4000-8000-000000000002', 300.00, 'EUR', 300.00, 'EUR', 1.0, NOW() - INTERVAL '30 days');
 
 
--- ═══════════════════════════════════════════════════════════
 -- Cross-user beneficiaries
--- ═══════════════════════════════════════════════════════════
 
 INSERT INTO beneficiaries (id, user_id, nickname, account_number, account_id, bank_name, holder_name, currency, is_favorite, created_at, last_used_at) VALUES
 (gen_random_uuid(), 'a1b2c3d4-0000-4000-8000-000000000002', 'Michael C.', 'c0000001-0000-4000-8000-000000000001', 'c0000001-0000-4000-8000-000000000001', 'Internal', 'MICHAEL CHEN', 'USD', false, NOW() - INTERVAL '95 days', NOW() - INTERVAL '30 days'),
@@ -974,17 +960,13 @@ INSERT INTO beneficiaries (id, user_id, nickname, account_number, account_id, ba
 (gen_random_uuid(), 'a1b2c3d4-0000-4000-8000-000000000001', 'Sarah M.', 'c0000002-0000-4000-8000-000000000002', 'c0000002-0000-4000-8000-000000000002', 'Internal', 'SARAH MITCHELL', 'USD', false, NOW() - INTERVAL '95 days', NOW() - INTERVAL '90 days');
 
 
--- ═══════════════════════════════════════════════════════════
 -- Large purchase + refund (creates a visible dip on the dashboard chart)
--- ═══════════════════════════════════════════════════════════
 INSERT INTO account_transactions (id, account_id, type, currency, amount, created_at, category) VALUES
 (gen_random_uuid(), 'c0000001-0000-4000-8000-000000000001', 'WITHDRAW', 'USD', 53000.00, '2025-12-15T12:00:00Z', 'SHOPPING'),
 (gen_random_uuid(), 'c0000001-0000-4000-8000-000000000001', 'DEPOSIT',  'USD', 53000.00, '2026-01-10T12:00:00Z', 'REFUND');
 
--- ═══════════════════════════════════════════════════════════
 -- RECALCULATE BALANCES from actual transactions
 -- (hardcoded balances in INSERT don't match transaction sums)
--- ═══════════════════════════════════════════════════════════
 UPDATE accounts a
 SET balance = (
   SELECT COALESCE(SUM(
@@ -995,9 +977,7 @@ SET balance = (
   WHERE t.account_id = a.id
 );
 
--- ═══════════════════════════════════════════════════════════
 -- DONE.
--- ═══════════════════════════════════════════════════════════
 -- Logins (all password: password123):
 --   m.chen@gmail.com        — Michael Chen (power user, 4 cards, loans, savings)
 --   sarah.mitchell@outlook.com — Sarah Mitchell (freelancer, EUR + USD)
@@ -1006,4 +986,3 @@ SET balance = (
 --   d.thompson@icloud.com   — David Thompson (deactivated, closed card)
 --   olivia.nakamura@gmail.com — Olivia Nakamura (GBP-focused, pending loan)
 --   admin@bank.local / admin123 — Admin (created by DataInitializer)
--- ═══════════════════════════════════════════════════════════

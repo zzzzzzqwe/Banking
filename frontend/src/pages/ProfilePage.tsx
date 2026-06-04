@@ -14,7 +14,6 @@ import { GlassCard } from '../components/GlassCard'
 import { ProfileSkeleton } from '../components/Skeleton'
 import type { User as UserType } from '../types'
 
-/* ─── Password strength ─────────────────────────────────── */
 function passwordStrength(p: string): { score: number; label: string; color: string } {
   if (!p) return { score: 0, label: '', color: '' }
   let score = 0
@@ -28,7 +27,6 @@ function passwordStrength(p: string): { score: number; label: string; color: str
   return { score, label: 'Strong', color: '#10b981' }
 }
 
-/* ─── Avatar ─────────────────────────────────────────────── */
 function Avatar({ firstName, lastName, size = 'lg' }: { firstName: string; lastName: string; size?: 'sm' | 'lg' }) {
   const initials = `${firstName[0] ?? ''}${lastName[0] ?? ''}`.toUpperCase()
   const dim = size === 'lg' ? 'w-24 h-24 text-3xl' : 'w-10 h-10 text-sm'
@@ -55,7 +53,6 @@ function Avatar({ firstName, lastName, size = 'lg' }: { firstName: string; lastN
   )
 }
 
-/* ─── Stat chip ──────────────────────────────────────────── */
 function StatChip({ icon: Icon, label, value, color }: { icon: typeof Wallet; label: string; value: string | number; color: string }) {
   return (
     <motion.div
@@ -73,7 +70,6 @@ function StatChip({ icon: Icon, label, value, color }: { icon: typeof Wallet; la
   )
 }
 
-/* ─── Main page ──────────────────────────────────────────── */
 export function ProfilePage() {
   const { setName } = useAuthStore()
   const push = useToastStore((s) => s.push)
@@ -177,21 +173,17 @@ export function ProfilePage() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}>
         <h1 className="text-2xl font-bold text-white">Profile</h1>
         <p className="text-sm text-slate-500 mt-0.5">Manage your personal information and security</p>
       </motion.div>
 
-      {/* Hero card */}
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}>
         <div className="relative rounded-2xl overflow-hidden"
           style={{ background: 'rgba(6,6,20,0.6)', border: '1px solid rgba(255,255,255,0.06)' }}>
 
-          {/* Gradient banner */}
           <div className="h-28 relative overflow-hidden"
             style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.15) 0%, rgba(168,85,247,0.12) 50%, rgba(59,130,246,0.1) 100%)' }}>
-            {/* Animated orbs */}
             <motion.div className="absolute w-48 h-48 rounded-full"
               animate={{ x: [0, 30, 0], y: [0, -15, 0] }}
               transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
@@ -202,13 +194,11 @@ export function ProfilePage() {
               transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
               style={{ top: '-80px', right: '5%', background: 'radial-gradient(circle, rgba(168,85,247,0.15), transparent 70%)' }}
             />
-            {/* Grid overlay */}
             <div className="absolute inset-0 opacity-[0.03]"
               style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)', backgroundSize: '32px 32px' }}
             />
           </div>
 
-          {/* Profile content */}
           <div className="px-6 pb-6">
             <div className="flex items-end gap-5 -mt-12 mb-5">
               <motion.div initial={{ scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ delay: 0.1, type: 'spring', stiffness: 200 }}>
@@ -229,7 +219,6 @@ export function ProfilePage() {
                       style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.08), rgba(168,85,247,0.08))' }}
                     />
                   </div>
-                  {/* Online dot */}
                   <div className="absolute bottom-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2"
                     style={{ borderColor: 'rgba(6,6,20,0.95)', boxShadow: '0 0 8px rgba(52,211,153,0.6)' }}
                   />
@@ -285,7 +274,6 @@ export function ProfilePage() {
               </div>
             </div>
 
-            {/* Stats row */}
             <div className="flex gap-3">
               <StatChip icon={Wallet}     label="Active Cards"  value={accCount}   color="#06b6d4" />
               <StatChip icon={CreditCard} label="Active Loans" value={loanCount}   color="#a855f7" />
@@ -296,10 +284,8 @@ export function ProfilePage() {
         </div>
       </motion.div>
 
-      {/* Two-column: personal info + security */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-        {/* Personal info */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
           <GlassCard glow="cyan" className="h-full">
             <div className="flex items-center gap-3 mb-6">
@@ -364,7 +350,6 @@ export function ProfilePage() {
           </GlassCard>
         </motion.div>
 
-        {/* Security */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
           <GlassCard glow="purple" className="h-full">
             <div className="flex items-center gap-3 mb-6">
@@ -393,7 +378,6 @@ export function ProfilePage() {
                 <motion.form key="form" onSubmit={handleChangePassword} className="space-y-4"
                   initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
 
-                  {/* Current password */}
                   <div>
                     <label className="text-[10px] text-slate-500 uppercase tracking-wider mb-1.5 block">Current Password</label>
                     <div className="relative">
@@ -406,7 +390,6 @@ export function ProfilePage() {
                     </div>
                   </div>
 
-                  {/* New password */}
                   <div>
                     <label className="text-[10px] text-slate-500 uppercase tracking-wider mb-1.5 block">New Password</label>
                     <div className="relative">
@@ -417,7 +400,6 @@ export function ProfilePage() {
                         {showNew ? <EyeOff size={14} /> : <Eye size={14} />}
                       </button>
                     </div>
-                    {/* Strength bar */}
                     <AnimatePresence>
                       {newPass && (
                         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
@@ -436,7 +418,6 @@ export function ProfilePage() {
                     </AnimatePresence>
                   </div>
 
-                  {/* Confirm password */}
                   <div>
                     <label className="text-[10px] text-slate-500 uppercase tracking-wider mb-1.5 block">Confirm New Password</label>
                     <div className="relative">
@@ -447,7 +428,6 @@ export function ProfilePage() {
                         {showConf ? <EyeOff size={14} /> : <Eye size={14} />}
                       </button>
                     </div>
-                    {/* Match indicator */}
                     <AnimatePresence>
                       {confPass && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}

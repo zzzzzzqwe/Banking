@@ -103,7 +103,6 @@ export function AdminAuditPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 rounded-xl flex items-center justify-center"
@@ -127,7 +126,6 @@ export function AdminAuditPage() {
         </div>
       </div>
 
-      {/* Filters */}
       {showFilters && (
         <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
           <GlassCard>
@@ -168,7 +166,6 @@ export function AdminAuditPage() {
         </motion.div>
       )}
 
-      {/* Table */}
       {loading ? <PageLoader /> : (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <GlassCard padding={false}>

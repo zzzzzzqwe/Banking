@@ -120,7 +120,6 @@ export function DashboardPage() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-8">
-      {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex items-start justify-between">
         <div>
           <p className="text-sm text-slate-500 mb-1">{greeting}</p>
@@ -138,7 +137,6 @@ export function DashboardPage() {
         </Link>
       </motion.div>
 
-      {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard label="Total Balance"    value={totalBalance}  prefix={sym}    icon={Wallet}     color="cyan"    animateNumber delay={0}    />
         <StatCard label="Active Cards"     value={activeAccs}                    icon={CreditCard}  color="blue"    animateNumber delay={0.05} />
@@ -147,7 +145,6 @@ export function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Balance chart */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -193,7 +190,6 @@ export function DashboardPage() {
           </GlassCard>
         </motion.div>
 
-        {/* Account list */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
           <GlassCard className="h-full">
             <div className="flex items-center justify-between mb-4">
@@ -233,7 +229,6 @@ export function DashboardPage() {
         </motion.div>
       </div>
 
-      {/* Recent loans */}
       {loans.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
           <GlassCard>

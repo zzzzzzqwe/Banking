@@ -14,7 +14,6 @@ import { GlassCard } from '../../components/GlassCard'
 import { useToastStore } from '../../store/useToastStore'
 import type { AdminStats } from '../../api/admin'
 
-/* ─── Animated counter ───────────────────────────────────── */
 function Counter({ to, duration = 1200 }: { to: number; duration?: number }) {
   const [val, setVal] = useState(0)
   useEffect(() => {
@@ -31,7 +30,6 @@ function Counter({ to, duration = 1200 }: { to: number; duration?: number }) {
   return <>{val.toLocaleString()}</>
 }
 
-/* ─── Stat card ──────────────────────────────────────────── */
 function StatCard({
   icon: Icon, label, value, sub, color, delay = 0,
 }: {
@@ -66,7 +64,6 @@ function StatCard({
   )
 }
 
-/* ─── Custom tooltip ─────────────────────────────────────── */
 const ChartTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null
   return (
@@ -79,7 +76,6 @@ const ChartTooltip = ({ active, payload, label }: any) => {
   )
 }
 
-/* ─── Pie tooltip ────────────────────────────────────────── */
 const PieTooltip = ({ active, payload }: any) => {
   if (!active || !payload?.length) return null
   return (
@@ -94,7 +90,6 @@ const PIE_COLORS: Record<string, string> = {
 }
 const CURRENCY_COLORS = ['#06b6d4', '#a855f7', '#10b981', '#f59e0b', '#3b82f6']
 
-/* ─── Main page ──────────────────────────────────────────── */
 export function AdminStatsPage() {
   const push = useToastStore((s) => s.push)
   const [stats, setStats]   = useState<AdminStats | null>(null)
@@ -126,7 +121,6 @@ export function AdminStatsPage() {
   return (
     <div className="max-w-7xl mx-auto space-y-8">
 
-      {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }}
         className="flex items-center justify-between">
         <div>
@@ -143,7 +137,6 @@ export function AdminStatsPage() {
         </button>
       </motion.div>
 
-      {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard icon={Users}         label="Total Users"    value={stats?.totalUsers ?? 0}     sub={`${stats?.activeUsers ?? 0} active`}    color="#06b6d4" delay={0}    />
         <StatCard icon={Wallet}        label="Cards"           value={stats?.totalAccounts ?? 0}  sub={`${stats?.activeAccounts ?? 0} active`} color="#a855f7" delay={0.06} />
@@ -151,10 +144,8 @@ export function AdminStatsPage() {
         <StatCard icon={AlertTriangle} label="Overdue"        value={stats?.overdueCount ?? 0}   sub={`${stats?.pendingLoans ?? 0} pending approval`} color="#ef4444" delay={0.18} />
       </div>
 
-      {/* Charts row 1: monthly volume + loan status pie */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* Monthly volume — area chart */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
           className="lg:col-span-2">
           <GlassCard glow="cyan" className="h-full">
@@ -188,7 +179,6 @@ export function AdminStatsPage() {
           </GlassCard>
         </motion.div>
 
-        {/* Loan status pie */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
           <GlassCard className="h-full">
             <div className="flex items-center gap-2 mb-1">
@@ -228,10 +218,8 @@ export function AdminStatsPage() {
         </motion.div>
       </div>
 
-      {/* Charts row 2: currency distribution + quick stats */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* Currency distribution bar chart */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
           className="lg:col-span-2">
           <GlassCard>
@@ -261,7 +249,6 @@ export function AdminStatsPage() {
           </GlassCard>
         </motion.div>
 
-        {/* Quick breakdown */}
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }}>
           <GlassCard className="h-full">
             <p className="text-xs text-slate-500 uppercase tracking-wider mb-4">Platform Health</p>
@@ -314,7 +301,6 @@ export function AdminStatsPage() {
         </motion.div>
       </div>
 
-      {/* Currency table */}
       {(stats?.currencyDistribution.length ?? 0) > 0 && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
           <GlassCard padding={false}>

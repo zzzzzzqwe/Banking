@@ -45,7 +45,7 @@
 }
 
 @layer components {
-  /* ── Glass card ── */
+  /* Glass card */
   .glass {
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(24px);
@@ -60,7 +60,7 @@
     border: 1px solid rgba(6, 182, 212, 0.12);
   }
 
-  /* ── Gradient text ── */
+  /* Gradient text */
   .gradient-text {
     background: linear-gradient(135deg, #06b6d4 0%, #a855f7 100%);
     -webkit-background-clip: text;
@@ -82,7 +82,7 @@
     background-clip: text;
   }
 
-  /* ── Buttons ── */
+  /* Buttons */
   .btn-primary {
     @apply relative overflow-hidden px-5 py-2.5 rounded-xl font-medium text-sm transition-all duration-200;
     background: linear-gradient(135deg, rgba(6,182,212,0.9), rgba(59,130,246,0.9));
@@ -133,7 +133,7 @@
     background: rgba(245,158,11,0.08);
   }
 
-  /* ── Inputs ── */
+  /*Inputs */
   .input {
     @apply w-full rounded-xl px-4 py-3 text-sm text-slate-200 placeholder-slate-600 transition-all duration-200 outline-none;
     background: rgba(0,0,0,0.4);
@@ -149,7 +149,7 @@
     @apply block text-xs font-medium text-slate-400 uppercase tracking-wider mb-2;
   }
 
-  /* ── Status badges ── */
+  /*Status badges */
   .badge {
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
@@ -163,7 +163,7 @@
   .badge-admin     { @apply badge; color: #fb923c; background: rgba(251,146,60,0.1); border: 1px solid rgba(251,146,60,0.2); }
   .badge-inactive  { @apply badge; color: #f87171; background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.2); }
 
-  /* ── Grid background ── */
+  /*Grid background */
   .grid-bg {
     background-image:
       linear-gradient(rgba(6,182,212,0.04) 1px, transparent 1px),
@@ -171,12 +171,12 @@
     background-size: 60px 60px;
   }
 
-  /* ── Divider ── */
+  /*Divider */
   .divider {
     @apply border-t border-white/[0.05] my-6;
   }
 
-  /* ── Table ── */
+  /*Table */
   .data-table {
     @apply w-full text-sm;
   }
@@ -192,7 +192,7 @@
   .data-table tr:last-child td { border-bottom: none; }
 }
 
-/* ── Animated orb ── */
+/*Animated orb */
 .orb {
   border-radius: 50%;
   position: absolute;
@@ -200,7 +200,7 @@
   filter: blur(100px);
 }
 
-/* ── Glow border animation ── */
+/*Glow border animation */
 @keyframes glow-border {
   0%, 100% { box-shadow: 0 0 5px rgba(6,182,212,0.3), inset 0 0 5px rgba(6,182,212,0.05); }
   50% { box-shadow: 0 0 20px rgba(6,182,212,0.5), 0 0 40px rgba(6,182,212,0.15), inset 0 0 10px rgba(6,182,212,0.05); }
@@ -215,16 +215,16 @@
   transform: translateY(-2px);
 }
 
-/* ── Number font ── */
+/*Number font */
 .num { font-family: 'JetBrains Mono', monospace; }
 
-/* ── Spinner ── */
+/*Spinner */
 @keyframes spinner {
   to { transform: rotate(360deg); }
 }
 .spin { animation: spinner 0.8s linear infinite; }
 
-/* ── Shimmer loading ── */
+/*Shimmer loading */
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
@@ -239,7 +239,7 @@
   animation: shimmer 1.5s infinite;
 }
 
-/* ── Progress bar ── */
+/*Progress bar */
 .progress-bar {
   height: 4px;
   border-radius: 2px;
@@ -253,7 +253,7 @@
   background: linear-gradient(90deg, #06b6d4, #a855f7);
 }
 
-/* ── Sidebar nav active ── */
+/*Sidebar nav active */
 .nav-active {
   background: linear-gradient(90deg, rgba(6,182,212,0.15), rgba(6,182,212,0.05));
   border-left: 2px solid #06b6d4;
@@ -261,6 +261,6 @@
 }
 .nav-active svg { color: #06b6d4; }
 
-/* ── Toast ── */
+/*Toast */
 .toast-enter { animation: slideInRight 0.3s ease-out; }
 .toast-exit  { animation: slideInRight 0.3s ease-out reverse; }

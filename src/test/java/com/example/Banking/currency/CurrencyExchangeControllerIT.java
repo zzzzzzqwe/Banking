@@ -111,10 +111,10 @@ class CurrencyExchangeControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void exchange_unauthenticated_returnsForbiddenOrUnauthorized() throws Exception {
+    void exchange_unauthenticated_returns401() throws Exception {
         mockMvc.perform(post("/api/exchange")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"fromAccountId\":\"x\",\"toAccountId\":\"y\",\"amount\":100}"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 }

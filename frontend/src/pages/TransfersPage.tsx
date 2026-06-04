@@ -112,7 +112,6 @@ export function TransfersPage() {
         <p className="text-sm text-slate-500 mt-0.5">Send funds between cards securely</p>
       </div>
 
-      {/* Saved beneficiaries */}
       {beneficiaries.length > 0 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <GlassCard>
@@ -148,7 +147,6 @@ export function TransfersPage() {
 
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
         <GlassCard glow="cyan">
-          {/* Icon header */}
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'rgba(6,182,212,0.1)', border: '1px solid rgba(6,182,212,0.2)' }}>
               <ArrowLeftRight size={18} className="text-cyan-400" />
@@ -180,7 +178,6 @@ export function TransfersPage() {
               <div className="flex-1 h-px bg-white/[0.05]" />
             </div>
 
-            {/* To mode toggle */}
             <div>
               <label className="label mb-2">To</label>
               <div className="flex gap-1 p-1 rounded-xl glass mb-3" style={{ width: 'fit-content' }}>
@@ -250,7 +247,6 @@ export function TransfersPage() {
         </GlassCard>
       </motion.div>
 
-      {/* Exchange rates table */}
       {Object.keys(rates).length > 0 && (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
           <GlassCard>
@@ -289,7 +285,6 @@ export function TransfersPage() {
         </motion.div>
       )}
 
-      {/* Last transaction */}
       {lastTxId && (
         <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}>
           <GlassCard glow="blue">
@@ -310,7 +305,6 @@ export function TransfersPage() {
         </motion.div>
       )}
 
-      {/* Save as beneficiary prompt */}
       {saveBeneficiary && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
           <GlassCard>

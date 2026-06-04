@@ -80,7 +80,6 @@ export function AdminLoansPage() {
         <button onClick={() => load(page)} className="btn-ghost text-xs flex items-center gap-2"><RefreshCw size={14} /></button>
       </div>
 
-      {/* Pending banner */}
       {pending > 0 && (
         <motion.div
           initial={{ opacity: 0, y: -10 }}
@@ -96,7 +95,6 @@ export function AdminLoansPage() {
         </motion.div>
       )}
 
-      {/* Stats */}
       {data && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           {[

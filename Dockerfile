@@ -1,4 +1,3 @@
-# ── Stage 1: build ──────────────────────────────────────────
 FROM eclipse-temurin:17-jdk-alpine AS builder
 WORKDIR /app
 
@@ -9,7 +8,6 @@ RUN ./mvnw dependency:go-offline -B
 COPY src ./src
 RUN ./mvnw package -DskipTests -B
 
-# ── Stage 2: run ─────────────────────────────────────────────
 FROM eclipse-temurin:17-jre-alpine
 WORKDIR /app
 

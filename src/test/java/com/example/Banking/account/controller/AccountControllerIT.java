@@ -140,8 +140,8 @@ class AccountControllerIT extends AbstractIntegrationTest {
     }
 
     @Test
-    void unauthenticated_returns403() throws Exception {
+    void unauthenticated_returns401() throws Exception {
         mockMvc.perform(get("/api/accounts"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().isUnauthorized());
     }
 }
