@@ -32,7 +32,7 @@ function GoalProgress({ current, target }: { current: number; target: number }) 
           animate={{ width: `${pct}%` }}
           transition={{ duration: 0.8, ease: 'easeOut' }}
           style={pct === 100 ? {
-            background: 'linear-gradient(90deg, #06b6d4, #a855f7, #06b6d4)',
+            background: 'linear-gradient(90deg, #06b6d4, #3b82f6, #06b6d4)',
             backgroundSize: '200% 100%',
             animation: 'border-spin 3s linear infinite',
           } : {}}
@@ -106,13 +106,13 @@ function GoalCard({ goal, onAction }: { goal: SavingsGoal; onAction: () => void 
                 className="w-10 h-10 rounded-xl flex items-center justify-center"
                 style={{
                   background: goal.completed
-                    ? 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(6,182,212,0.2))'
+                    ? 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(6,182,212,0.2))'
                     : 'linear-gradient(135deg, rgba(6,182,212,0.15), rgba(59,130,246,0.15))',
-                  border: `1px solid ${goal.completed ? 'rgba(168,85,247,0.3)' : 'rgba(6,182,212,0.2)'}`,
+                  border: `1px solid ${goal.completed ? 'rgba(59,130,246,0.3)' : 'rgba(6,182,212,0.2)'}`,
                 }}
               >
                 {goal.completed ? (
-                  <PartyPopper size={18} className="text-purple-400" />
+                  <PartyPopper size={18} className="text-blue-400" />
                 ) : (
                   <Target size={18} className="text-cyan-400" />
                 )}
@@ -142,8 +142,8 @@ function GoalCard({ goal, onAction }: { goal: SavingsGoal; onAction: () => void 
 
           {goal.completed ? (
             <div
-              className="text-center py-2 rounded-xl text-xs font-medium text-purple-300"
-              style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.1), rgba(6,182,212,0.1))' }}
+              className="text-center py-2 rounded-xl text-xs font-medium text-blue-300"
+              style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.1), rgba(6,182,212,0.1))' }}
             >
               Goal reached!
             </div>
@@ -335,7 +335,7 @@ export function SavingsGoalsPage() {
           <GlassCard>
             <div className="p-4 text-center">
               <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Completed</p>
-              <p className="text-lg font-bold text-purple-400">{completedCount}</p>
+              <p className="text-lg font-bold text-blue-400">{completedCount}</p>
             </div>
           </GlassCard>
         </div>

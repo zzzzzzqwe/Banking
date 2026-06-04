@@ -54,7 +54,7 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
         <div className="relative">
           <div
             className="w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(168,85,247,0.2))', border: '1px solid rgba(6,182,212,0.3)' }}
+            style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(59,130,246,0.2))', border: '1px solid rgba(6,182,212,0.3)' }}
           >
             <Hexagon size={18} className="text-cyan-400" />
           </div>
@@ -159,9 +159,9 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
           <div className="flex items-center gap-2">
             <div
               className="w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-bold flex-shrink-0"
-              style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(168,85,247,0.2))', border: '1px solid rgba(6,182,212,0.2)' }}
+              style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(59,130,246,0.2))', border: '1px solid rgba(6,182,212,0.2)' }}
             >
-              <span style={{ background: 'linear-gradient(135deg, #06b6d4, #a855f7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              <span style={{ background: 'linear-gradient(135deg, #06b6d4, #3b82f6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 {firstName && lastName ? `${firstName[0]}${lastName[0]}`.toUpperCase() : (isAdmin ? '⬡' : '◇')}
               </span>
             </div>

@@ -93,7 +93,7 @@ export function BudgetsPage() {
           </GlassCard>
           <GlassCard>
             <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Total Limit</p>
-            <p className="text-xl font-bold text-purple-400 num">{totalLimit.toFixed(2)}</p>
+            <p className="text-xl font-bold text-blue-400 num">{totalLimit.toFixed(2)}</p>
           </GlassCard>
           <GlassCard>
             <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">Active Budgets</p>

@@ -22,7 +22,7 @@ import type { Account, CardNetwork, CardTier, CardType, CardRequest } from '../t
 const CARD_GRADIENTS: Record<string, Record<string, string>> = {
   VISA: {
     STANDARD: 'linear-gradient(135deg, #1a1f71 0%, #00579f 50%, #1a1f71 100%)',
-    PREMIUM:  'linear-gradient(135deg, #5b21b6 0%, #7c3aed 50%, #2563eb 100%)',
+    PREMIUM:  'linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%)',
     DELUXE:   'linear-gradient(135deg, #0a0a0a 0%, #111827 50%, #1e3a8a 100%)',
   },
   MASTERCARD: {
@@ -31,8 +31,8 @@ const CARD_GRADIENTS: Record<string, Record<string, string>> = {
     DELUXE:   'linear-gradient(135deg, #0a0a0a 0%, #2a0a0a 50%, #7f1d1d 100%)',
   },
   DEFAULT: {
-    STANDARD: 'linear-gradient(135deg, #06b6d4 0%, #a855f7 100%)',
-    PREMIUM:  'linear-gradient(135deg, #0e7490 0%, #6d28d9 100%)',
+    STANDARD: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
+    PREMIUM:  'linear-gradient(135deg, #0e7490 0%, #1d4ed8 100%)',
     DELUXE:   'linear-gradient(135deg, #000000 0%, #0a0a0a 60%, #1a1a2e 100%)',
   },
 }
@@ -40,7 +40,7 @@ const CARD_GRADIENTS: Record<string, Record<string, string>> = {
 const TIER_LABEL: Record<string, { color: string; label: string }> = {
   STANDARD: { color: '#94a3b8', label: 'Standard' },
   PREMIUM:  { color: '#facc15', label: 'Premium' },
-  DELUXE:   { color: '#a855f7', label: 'Deluxe' },
+  DELUXE:   { color: '#fbbf24', label: 'Deluxe' },
 }
 
 const TIER_BENEFITS: Record<CardTier, { icon: typeof Shield; label: string; color: string; benefits: string[] }> = {
@@ -59,7 +59,7 @@ const TIER_BENEFITS: Record<CardTier, { icon: typeof Shield; label: string; colo
   PREMIUM: {
     icon: Crown,
     label: 'Premium',
-    color: '#a78bfa',
+    color: '#60a5fa',
     benefits: [
       'Zero-fee international transfers',
       'Up to 10 active cards',
@@ -393,7 +393,7 @@ function CardCreationWizard({
         {steps.map((s, i) => (
           <div key={s} className="flex items-center gap-2 flex-1">
             <div className="h-1 flex-1 rounded-full transition-all duration-300"
-              style={{ background: i <= stepIndex ? 'linear-gradient(90deg, #06b6d4, #a855f7)' : 'rgba(255,255,255,0.06)' }}
+              style={{ background: i <= stepIndex ? 'linear-gradient(90deg, #06b6d4, #3b82f6)' : 'rgba(255,255,255,0.06)' }}
             />
           </div>
         ))}
@@ -578,7 +578,7 @@ function CardCreationWizard({
           <button
             onClick={handleCreate} disabled={creating}
             className="btn-primary flex items-center justify-center gap-2 flex-1 text-xs"
-            style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.9), rgba(168,85,247,0.9))' }}
+            style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.9), rgba(59,130,246,0.9))' }}
           >
             {creating ? (
               <>

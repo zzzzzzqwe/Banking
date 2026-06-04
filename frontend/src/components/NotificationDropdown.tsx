@@ -13,7 +13,7 @@ const typeConfig: Record<NotificationType, { icon: typeof Bell; color: string }>
   TRANSFER_RECEIVED:  { icon: ArrowDownLeft,  color: 'text-emerald-400' },
   LOAN_APPROVED:      { icon: CheckCircle2,   color: 'text-cyan-400' },
   LOAN_REJECTED:      { icon: XCircle,        color: 'text-red-400' },
-  GOAL_COMPLETED:     { icon: Target,         color: 'text-purple-400' },
+  GOAL_COMPLETED:     { icon: Target,         color: 'text-blue-400' },
   LOAN_REPAYMENT:     { icon: CreditCard,     color: 'text-blue-400' },
   INSTALLMENT_OVERDUE:    { icon: AlertTriangle,  color: 'text-amber-400' },
   CARD_REQUEST_APPROVED:  { icon: Lock,           color: 'text-emerald-400' },

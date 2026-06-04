@@ -51,7 +51,7 @@ export function WelcomeSplash({ firstName, onComplete }: Props) {
                 <div
                   className="w-20 h-20 rounded-2xl flex items-center justify-center"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(168,85,247,0.15))',
+                    background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(59,130,246,0.12))',
                     border: '1px solid rgba(6,182,212,0.25)',
                   }}
                 >

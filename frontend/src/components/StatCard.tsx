@@ -9,7 +9,7 @@ interface Props {
   prefix?: string
   suffix?: string
   icon: LucideIcon
-  color: 'cyan' | 'purple' | 'blue' | 'emerald' | 'amber'
+  color: 'cyan' | 'blue' | 'emerald' | 'amber'
   animateNumber?: boolean
   subtext?: string
   delay?: number
@@ -17,7 +17,6 @@ interface Props {
 
 const colorMap = {
   cyan:    { icon: 'text-cyan-400',    bg: 'rgba(6,182,212,0.08)',    border: 'rgba(6,182,212,0.15)',    glow: 'rgba(6,182,212,0.2)' },
-  purple:  { icon: 'text-purple-400',  bg: 'rgba(168,85,247,0.08)',   border: 'rgba(168,85,247,0.15)',   glow: 'rgba(168,85,247,0.2)' },
   blue:    { icon: 'text-blue-400',    bg: 'rgba(59,130,246,0.08)',   border: 'rgba(59,130,246,0.15)',   glow: 'rgba(59,130,246,0.2)' },
   emerald: { icon: 'text-emerald-400', bg: 'rgba(52,211,153,0.08)',   border: 'rgba(52,211,153,0.15)',   glow: 'rgba(52,211,153,0.2)' },
   amber:   { icon: 'text-amber-400',   bg: 'rgba(251,191,36,0.08)',   border: 'rgba(251,191,36,0.15)',   glow: 'rgba(251,191,36,0.2)' },

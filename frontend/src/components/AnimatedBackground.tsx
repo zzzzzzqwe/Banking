@@ -15,7 +15,7 @@ export function AnimatedBackground() {
       <div
         className="orb w-[250px] h-[250px] sm:w-[500px] sm:h-[500px] animate-float-slow"
         style={{
-          background: 'radial-gradient(circle, rgba(168,85,247,0.15) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(59,130,246,0.12) 0%, transparent 70%)',
           bottom: '-10%', right: '-10%',
           animationDelay: '3s',
         }}

@@ -88,7 +88,7 @@ const PieTooltip = ({ active, payload }: any) => {
 const PIE_COLORS: Record<string, string> = {
   ACTIVE: '#06b6d4', PENDING: '#f59e0b', CLOSED: '#64748b', REJECTED: '#ef4444',
 }
-const CURRENCY_COLORS = ['#06b6d4', '#a855f7', '#10b981', '#f59e0b', '#3b82f6']
+const CURRENCY_COLORS = ['#06b6d4', '#3b82f6', '#10b981', '#f59e0b', '#60a5fa']
 
 export function AdminStatsPage() {
   const push = useToastStore((s) => s.push)
@@ -139,7 +139,7 @@ export function AdminStatsPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard icon={Users}         label="Total Users"    value={stats?.totalUsers ?? 0}     sub={`${stats?.activeUsers ?? 0} active`}    color="#06b6d4" delay={0}    />
-        <StatCard icon={Wallet}        label="Cards"           value={stats?.totalAccounts ?? 0}  sub={`${stats?.activeAccounts ?? 0} active`} color="#a855f7" delay={0.06} />
+        <StatCard icon={Wallet}        label="Cards"           value={stats?.totalAccounts ?? 0}  sub={`${stats?.activeAccounts ?? 0} active`} color="#3b82f6" delay={0.06} />
         <StatCard icon={CreditCard}    label="Loans Issued"   value={stats?.totalLoans ?? 0}     sub={`${stats?.activeLoans ?? 0} active`}    color="#10b981" delay={0.12} />
         <StatCard icon={AlertTriangle} label="Overdue"        value={stats?.overdueCount ?? 0}   sub={`${stats?.pendingLoans ?? 0} pending approval`} color="#ef4444" delay={0.18} />
       </div>
@@ -164,8 +164,8 @@ export function AdminStatsPage() {
                     <stop offset="100%" stopColor="#06b6d4" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="gWit" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#a855f7" stopOpacity={0.25} />
-                    <stop offset="100%" stopColor="#a855f7" stopOpacity={0} />
+                    <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.25} />
+                    <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <XAxis dataKey="month" tickFormatter={(v) => v.slice(5)}
@@ -173,7 +173,7 @@ export function AdminStatsPage() {
                 <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
                 <Tooltip content={<ChartTooltip />} />
                 <Area type="monotone" dataKey="deposits"    name="Deposits"    stroke="#06b6d4" strokeWidth={2} fill="url(#gDep)" />
-                <Area type="monotone" dataKey="withdrawals" name="Withdrawals" stroke="#a855f7" strokeWidth={2} fill="url(#gWit)" />
+                <Area type="monotone" dataKey="withdrawals" name="Withdrawals" stroke="#3b82f6" strokeWidth={2} fill="url(#gWit)" />
               </AreaChart>
             </ResponsiveContainer>
           </GlassCard>
@@ -182,7 +182,7 @@ export function AdminStatsPage() {
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }}>
           <GlassCard className="h-full">
             <div className="flex items-center gap-2 mb-1">
-              <CreditCard size={14} className="text-purple-400" />
+              <CreditCard size={14} className="text-blue-400" />
               <p className="text-xs text-slate-500 uppercase tracking-wider">Loan Status</p>
             </div>
             <p className="text-lg font-semibold text-white mb-4">Distribution</p>
@@ -255,7 +255,7 @@ export function AdminStatsPage() {
             <div className="space-y-3">
               {[
                 { label: 'Active Users',    value: stats?.activeUsers ?? 0,    total: stats?.totalUsers ?? 0,    color: '#06b6d4', icon: Users },
-                { label: 'Active Cards',    value: stats?.activeAccounts ?? 0, total: stats?.totalAccounts ?? 0, color: '#a855f7', icon: Wallet },
+                { label: 'Active Cards',    value: stats?.activeAccounts ?? 0, total: stats?.totalAccounts ?? 0, color: '#3b82f6', icon: Wallet },
                 { label: 'Active Loans',    value: stats?.activeLoans ?? 0,    total: stats?.totalLoans ?? 0,    color: '#10b981', icon: CreditCard },
               ].map(({ label, value, total, color, icon: Icon }) => {
                 const pct = total > 0 ? Math.round((value / total) * 100) : 0

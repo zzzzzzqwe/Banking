@@ -5,7 +5,7 @@ interface Props {
   children: ReactNode
   className?: string
   hover?: boolean
-  glow?: 'cyan' | 'purple' | 'blue' | 'none'
+  glow?: 'cyan' | 'blue' | 'none'
   padding?: boolean
 }
 
@@ -17,7 +17,7 @@ export function GlassCard({ children, className, hover = true, glow = 'none', pa
         padding && 'p-6',
         hover && 'card-glow cursor-default',
         glow === 'cyan'   && 'border-cyan-500/20',
-        glow === 'purple' && 'border-purple-500/20',
+        glow === 'blue'   && 'border-blue-500/20',
         glow === 'blue'   && 'border-blue-500/20',
         className
       )}
@@ -26,7 +26,7 @@ export function GlassCard({ children, className, hover = true, glow = 'none', pa
           ? {
               boxShadow:
                 glow === 'cyan'   ? '0 0 40px rgba(6,182,212,0.06)'   :
-                glow === 'purple' ? '0 0 40px rgba(168,85,247,0.06)'  :
+                glow === 'blue'   ? '0 0 40px rgba(59,130,246,0.06)'  :
                                     '0 0 40px rgba(59,130,246,0.06)',
             }
           : undefined

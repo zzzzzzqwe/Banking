@@ -55,8 +55,8 @@ export function RegisterPage() {
         className="w-full max-w-md mx-4 relative"
       >
         <div className="glass-heavy rounded-2xl overflow-hidden"
-          style={{ boxShadow: '0 0 80px rgba(168,85,247,0.06), 0 32px 80px rgba(0,0,0,0.5)' }}>
-          <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.6), rgba(6,182,212,0.4), transparent)' }} />
+          style={{ boxShadow: '0 0 80px rgba(59,130,246,0.06), 0 32px 80px rgba(0,0,0,0.5)' }}>
+          <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(59,130,246,0.5), rgba(6,182,212,0.4), transparent)' }} />
 
           <div className="px-8 pt-8 pb-9">
             <motion.div
@@ -67,11 +67,11 @@ export function RegisterPage() {
             >
               <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3"
-                style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.2), rgba(6,182,212,0.15))', border: '1px solid rgba(168,85,247,0.25)' }}
+                style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.2), rgba(6,182,212,0.15))', border: '1px solid rgba(59,130,246,0.25)' }}
               >
-                <Hexagon size={28} className="text-purple-400" />
+                <Hexagon size={28} className="text-blue-400" />
               </div>
-              <h1 className="text-xl font-bold tracking-widest" style={{ background: 'linear-gradient(135deg, #a855f7, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              <h1 className="text-xl font-bold tracking-widest" style={{ background: 'linear-gradient(135deg, #3b82f6, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 CREATE ACCOUNT
               </h1>
               <p className="text-xs text-slate-500 mt-1">Join the future of banking</p>
@@ -125,7 +125,7 @@ export function RegisterPage() {
               )}
 
               <button type="submit" disabled={loading} className="btn-primary w-full flex items-center justify-center gap-2 py-3 mt-1"
-                style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.9), rgba(6,182,212,0.8))' }}>
+                style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.9), rgba(6,182,212,0.8))' }}>
                 {loading ? (
                   <><div className="w-4 h-4 spin rounded-full" style={{ border: '2px solid rgba(255,255,255,0.3)', borderTopColor: 'white' }} /><span>Creating…</span></>
                 ) : (
@@ -140,7 +140,7 @@ export function RegisterPage() {
             </p>
           </div>
 
-          <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(6,182,212,0.3), rgba(168,85,247,0.2), transparent)' }} />
+          <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(6,182,212,0.3), rgba(59,130,246,0.15), transparent)' }} />
         </div>
       </motion.div>
 

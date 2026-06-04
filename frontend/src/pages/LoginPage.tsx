@@ -54,13 +54,13 @@ export function LoginPage() {
       >
         <div
           className="absolute -inset-px rounded-2xl pointer-events-none"
-          style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.15), rgba(168,85,247,0.1), transparent)', filter: 'blur(1px)' }}
+          style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.15), rgba(59,130,246,0.1), transparent)', filter: 'blur(1px)' }}
         />
 
         <div className="glass-heavy rounded-2xl relative overflow-hidden"
           style={{ boxShadow: '0 0 80px rgba(6,182,212,0.06), 0 32px 80px rgba(0,0,0,0.5)' }}>
 
-          <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(6,182,212,0.6), rgba(168,85,247,0.4), transparent)' }} />
+          <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(6,182,212,0.6), rgba(59,130,246,0.3), transparent)' }} />
 
           <div className="px-8 pt-8 pb-9">
             <motion.div
@@ -72,7 +72,7 @@ export function LoginPage() {
               <div className="relative mb-4">
                 <div
                   className="w-16 h-16 rounded-2xl flex items-center justify-center"
-                  style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(168,85,247,0.15))', border: '1px solid rgba(6,182,212,0.25)' }}
+                  style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.2), rgba(59,130,246,0.12))', border: '1px solid rgba(6,182,212,0.25)' }}
                 >
                   <Hexagon size={32} className="text-cyan-400" />
                 </div>
@@ -84,7 +84,7 @@ export function LoginPage() {
                 </div>
               </div>
               <h1 className="text-2xl font-bold tracking-widest gradient-text">VELORA BANK</h1>
-              <p className="text-xs text-slate-500 mt-1 tracking-wider">Next-Generation Banking</p>
+
             </motion.div>
 
             <motion.form
@@ -166,7 +166,7 @@ export function LoginPage() {
             </p>
           </div>
 
-          <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(168,85,247,0.3), rgba(6,182,212,0.2), transparent)' }} />
+          <div className="h-px w-full" style={{ background: 'linear-gradient(90deg, transparent, rgba(59,130,246,0.2), rgba(6,182,212,0.2), transparent)' }} />
         </div>
 
       </motion.div>

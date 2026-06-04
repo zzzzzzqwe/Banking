@@ -21,7 +21,7 @@ const CATEGORY_COLORS: Record<string, string> = {
   SALARY: '#10b981',
   GROCERIES: '#f59e0b',
   TRANSPORT: '#3b82f6',
-  ENTERTAINMENT: '#a855f7',
+  ENTERTAINMENT: '#8b5cf6',
   UTILITIES: '#6366f1',
   HEALTHCARE: '#ef4444',
   EDUCATION: '#14b8a6',
@@ -34,7 +34,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 }
 
 const PIE_COLORS = [
-  '#06b6d4', '#a855f7', '#f59e0b', '#10b981', '#ef4444',
+  '#06b6d4', '#3b82f6', '#f59e0b', '#10b981', '#ef4444',
   '#3b82f6', '#ec4899', '#f97316', '#6366f1', '#14b8a6',
   '#64748b', '#475569', '#8b5cf6',
 ]
@@ -192,9 +192,9 @@ export function AnalyticsPage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <GlassCard glow="purple">
+            <GlassCard glow="blue">
               <h3 className="text-sm font-semibold text-slate-300 mb-4 flex items-center gap-2">
-                <PieChartIcon size={16} className="text-purple-400" />
+                <PieChartIcon size={16} className="text-blue-400" />
                 Spending by Category
               </h3>
               {data.categoryBreakdown.length > 0 ? (

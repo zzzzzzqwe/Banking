@@ -33,12 +33,12 @@ function Avatar({ firstName, lastName, size = 'lg' }: { firstName: string; lastN
   return (
     <div className={`relative ${dim} rounded-2xl flex items-center justify-center font-bold flex-shrink-0`}
       style={{
-        background: 'linear-gradient(135deg, rgba(6,182,212,0.25), rgba(168,85,247,0.25))',
+        background: 'linear-gradient(135deg, rgba(6,182,212,0.25), rgba(59,130,246,0.2))',
         border: '1px solid rgba(6,182,212,0.3)',
         boxShadow: '0 0 40px rgba(6,182,212,0.15), inset 0 1px 0 rgba(255,255,255,0.05)',
       }}
     >
-      <span style={{ background: 'linear-gradient(135deg, #06b6d4, #a855f7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+      <span style={{ background: 'linear-gradient(135deg, #06b6d4, #3b82f6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
         {initials}
       </span>
       {size === 'lg' && (
@@ -46,7 +46,7 @@ function Avatar({ firstName, lastName, size = 'lg' }: { firstName: string; lastN
           className="absolute inset-0 rounded-2xl"
           animate={{ opacity: [0.3, 0.6, 0.3] }}
           transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.1), rgba(168,85,247,0.1))' }}
+          style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.1), rgba(59,130,246,0.1))' }}
         />
       )}
     </div>
@@ -183,7 +183,7 @@ export function ProfilePage() {
           style={{ background: 'rgba(6,6,20,0.6)', border: '1px solid rgba(255,255,255,0.06)' }}>
 
           <div className="h-28 relative overflow-hidden"
-            style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.15) 0%, rgba(168,85,247,0.12) 50%, rgba(59,130,246,0.1) 100%)' }}>
+            style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.15) 0%, rgba(59,130,246,0.12) 50%, rgba(59,130,246,0.1) 100%)' }}>
             <motion.div className="absolute w-48 h-48 rounded-full"
               animate={{ x: [0, 30, 0], y: [0, -15, 0] }}
               transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
@@ -192,7 +192,7 @@ export function ProfilePage() {
             <motion.div className="absolute w-64 h-64 rounded-full"
               animate={{ x: [0, -20, 0], y: [0, 10, 0] }}
               transition={{ duration: 10, repeat: Infinity, ease: 'easeInOut', delay: 2 }}
-              style={{ top: '-80px', right: '5%', background: 'radial-gradient(circle, rgba(168,85,247,0.15), transparent 70%)' }}
+              style={{ top: '-80px', right: '5%', background: 'radial-gradient(circle, rgba(59,130,246,0.15), transparent 70%)' }}
             />
             <div className="absolute inset-0 opacity-[0.03]"
               style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,1) 1px, transparent 1px)', backgroundSize: '32px 32px' }}
@@ -210,13 +210,13 @@ export function ProfilePage() {
                       boxShadow: '0 0 0 1px rgba(6,182,212,0.3), 0 0 40px rgba(6,182,212,0.15)',
                     }}
                   >
-                    <span style={{ background: 'linear-gradient(135deg, #06b6d4, #a855f7)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                    <span style={{ background: 'linear-gradient(135deg, #06b6d4, #3b82f6)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                       {initials}
                     </span>
                     <motion.div className="absolute inset-0 rounded-2xl pointer-events-none"
                       animate={{ opacity: [0.3, 0.7, 0.3] }}
                       transition={{ duration: 3, repeat: Infinity }}
-                      style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.08), rgba(168,85,247,0.08))' }}
+                      style={{ background: 'linear-gradient(135deg, rgba(6,182,212,0.08), rgba(59,130,246,0.08))' }}
                     />
                   </div>
                   <div className="absolute bottom-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2"
@@ -276,7 +276,7 @@ export function ProfilePage() {
 
             <div className="flex gap-3">
               <StatChip icon={Wallet}     label="Active Cards"  value={accCount}   color="#06b6d4" />
-              <StatChip icon={CreditCard} label="Active Loans" value={loanCount}   color="#a855f7" />
+              <StatChip icon={CreditCard} label="Active Loans" value={loanCount}   color="#3b82f6" />
               <StatChip icon={Shield}     label="Security"     value="Secured"     color="#10b981" />
               <StatChip icon={User}       label="Status"       value={profile.active ? 'Active' : 'Inactive'} color={profile.active ? '#10b981' : '#ef4444'} />
             </div>
@@ -351,11 +351,11 @@ export function ProfilePage() {
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
-          <GlassCard glow="purple" className="h-full">
+          <GlassCard glow="blue" className="h-full">
             <div className="flex items-center gap-3 mb-6">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-                style={{ background: 'rgba(168,85,247,0.1)', border: '1px solid rgba(168,85,247,0.2)' }}>
-                <Lock size={16} className="text-purple-400" />
+                style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)' }}>
+                <Lock size={16} className="text-blue-400" />
               </div>
               <div>
                 <p className="text-sm font-semibold text-white">Security</p>
@@ -443,7 +443,7 @@ export function ProfilePage() {
 
                   <button type="submit" disabled={passLoading || newPass !== confPass}
                     className="btn-primary w-full flex items-center justify-center gap-2 py-3 mt-2"
-                    style={{ background: 'linear-gradient(135deg, rgba(168,85,247,0.8), rgba(6,182,212,0.7))' }}>
+                    style={{ background: 'linear-gradient(135deg, rgba(59,130,246,0.8), rgba(6,182,212,0.7))' }}>
                     {passLoading
                       ? <><Loader2 size={15} className="spin" /><span>Updating…</span></>
                       : <><Lock size={15} /><span>Change Password</span></>

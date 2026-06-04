@@ -12,7 +12,7 @@ import type { AuditLogEntry, Page } from '../../types'
 const ACTION_COLORS: Record<string, string> = {
   LOGIN: '#06b6d4',
   REGISTER: '#06b6d4',
-  CARD_CREATED: '#a855f7',
+  CARD_CREATED: '#3b82f6',
   CARD_CLOSED: '#64748b',
   CARD_DEPOSIT: '#34d399',
   CARD_WITHDRAW: '#f87171',
@@ -29,7 +29,7 @@ const ACTION_COLORS: Record<string, string> = {
   CARD_BLOCK_REJECTED: '#f87171',
   CARD_UNBLOCK_APPROVED: '#34d399',
   CARD_UNBLOCK_REJECTED: '#f87171',
-  SAVINGS_GOAL_CREATED: '#a855f7',
+  SAVINGS_GOAL_CREATED: '#3b82f6',
   SAVINGS_GOAL_DEPOSIT: '#34d399',
   SAVINGS_GOAL_WITHDRAW: '#f87171',
   PROFILE_UPDATED: '#64748b',

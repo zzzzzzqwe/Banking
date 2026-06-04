@@ -51,7 +51,7 @@ export function AdminAccountsPage() {
           {[
             { label: 'This Page Balance', value: `$${totalBalance.toFixed(2)}`, color: 'text-cyan-400' },
             { label: 'Active on Page', value: activeCount.toString(), color: 'text-emerald-400' },
-            { label: 'Total Cards', value: data.totalElements.toString(), color: 'text-purple-400' },
+            { label: 'Total Cards', value: data.totalElements.toString(), color: 'text-blue-400' },
           ].map(({ label, value, color }) => (
             <div key={label} className="glass rounded-xl p-4">
               <p className="text-xs text-slate-500 uppercase tracking-wider mb-1">{label}</p>
