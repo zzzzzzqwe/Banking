@@ -7,6 +7,7 @@ import {
 import { getGoals, createGoal, depositToGoal, withdrawFromGoal, deleteGoal } from '../api/savingsGoals'
 import { getAccounts } from '../api/accounts'
 import { GlassCard } from '../components/GlassCard'
+import { AccountSelect } from '../components/AccountSelect'
 import { Modal } from '../components/Modal'
 import { useToastStore } from '../store/useToastStore'
 import type { SavingsGoal, Account } from '../types'
@@ -84,7 +85,7 @@ function GoalCard({ goal, onAction }: { goal: SavingsGoal; onAction: () => void 
   }
 
   const handleDelete = async () => {
-    if (!confirm('Delete this goal? Remaining funds will return to your account.')) return
+    if (!confirm('Delete this goal? Remaining funds will return to your card.')) return
     try {
       await deleteGoal(goal.id)
       push('Goal deleted', 'info')
@@ -391,22 +392,13 @@ export function SavingsGoalsPage() {
               maxLength={255}
             />
           </div>
-          <div>
-            <label className="label">Account</label>
-            <select
-              className="input w-full"
-              value={selectedAccount}
-              onChange={(e) => setSelectedAccount(e.target.value)}
-            >
-              <option value="">Select account...</option>
-              {accounts.map((acc) => (
-                <option key={acc.id} value={acc.id}>
-                  {acc.currency} — {fmt(acc.balance, acc.currency)}
-                  {acc.cardNetwork ? ` (${acc.cardNetwork})` : ''}
-                </option>
-              ))}
-            </select>
-          </div>
+          <AccountSelect
+            accounts={accounts}
+            value={selectedAccount}
+            onChange={(id) => setSelectedAccount(id)}
+            label="Card"
+            placeholder="Select card"
+          />
           <div>
             <label className="label">Target Amount</label>
             <input
@@ -420,7 +412,7 @@ export function SavingsGoalsPage() {
             />
             {selectedAccount && targetAmount && parseFloat(targetAmount) > 0 && (
               <p className="text-[11px] text-slate-600 mt-1">
-                Currency: {accounts.find((a) => a.id === selectedAccount)?.currency || '—'}
+                Currency: {accounts.find((a) => a.id === selectedAccount)?.currency || '-'}
               </p>
             )}
           </div>

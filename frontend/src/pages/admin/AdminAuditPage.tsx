@@ -204,9 +204,9 @@ export function AdminAuditPage() {
                         )}
                       </td>
                       <td className="text-xs text-slate-500 max-w-[200px] truncate" title={entry.details ?? ''}>
-                        {entry.details || '—'}
+                        {entry.details || '-'}
                       </td>
-                      <td className="text-xs text-slate-600 font-mono">{entry.ipAddress || '—'}</td>
+                      <td className="text-xs text-slate-600 font-mono">{entry.ipAddress || '-'}</td>
                     </motion.tr>
                   ))}
                   {data?.content.length === 0 && (

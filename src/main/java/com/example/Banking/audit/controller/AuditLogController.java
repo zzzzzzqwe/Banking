@@ -59,7 +59,7 @@ public class AuditLogController {
         return new AuditLogResponse(
                 a.getId(),
                 a.getUserId(),
-                a.getUserId() != null ? emailCache.getOrDefault(a.getUserId(), "—") : "system",
+                a.getUserId() != null ? emailCache.getOrDefault(a.getUserId(), "-") : "system",
                 a.getAction().name(),
                 a.getEntityType(),
                 a.getEntityId(),

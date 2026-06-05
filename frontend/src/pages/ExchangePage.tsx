@@ -2,12 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { RefreshCw, ArrowDownUp, Clock, ArrowRight } from 'lucide-react'
 import { GlassCard } from '../components/GlassCard'
+import { AccountSelect } from '../components/AccountSelect'
 import { getAccounts } from '../api/accounts'
 import {
   getExchangeRate,
   performExchange,
   getExchangeHistory,
-  type ExchangeResponseDto,
 } from '../api/exchange'
 import { useToastStore } from '../store/useToastStore'
 import type { Account, ExchangeRecord, Page } from '../types'
@@ -27,7 +27,6 @@ export function ExchangePage() {
   const [rate, setRate] = useState<number | null>(null)
   const [loading, setLoading] = useState(false)
   const [submitting, setSubmitting] = useState(false)
-  const [lastResult, setLastResult] = useState<ExchangeResponseDto | null>(null)
 
   // History
   const [history, setHistory] = useState<Page<ExchangeRecord> | null>(null)
@@ -71,12 +70,11 @@ export function ExchangePage() {
     if (!fromId || !toId || !amount) return
     setSubmitting(true)
     try {
-      const res = await performExchange({
+      await performExchange({
         fromAccountId: fromId,
         toAccountId: toId,
         amount: parseFloat(amount),
       })
-      setLastResult(res)
       setAmount('')
       push('Exchange completed successfully', 'success')
       // Refresh accounts and history
@@ -117,28 +115,21 @@ export function ExchangePage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-white">Currency Exchange</h1>
-        <p className="text-sm text-slate-500 mt-1">Convert between your accounts instantly</p>
+        <p className="text-sm text-slate-500 mt-1">Convert between your cards instantly</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
         <div className="lg:col-span-3">
           <GlassCard glow="cyan">
             <div className="space-y-5">
-              <div>
-                <label className="label">From Account</label>
-                <select
-                  className="input w-full"
-                  value={fromId}
-                  onChange={(e) => setFromId(e.target.value)}
-                >
-                  <option value="">Select source account</option>
-                  {accounts.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {CURRENCY_FLAGS[a.currency] || ''} {a.currency} — {a.balance.toFixed(2)} ({a.cardNumber || a.id.slice(0, 8) + '…'})
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <AccountSelect
+                accounts={accounts}
+                value={fromId}
+                onChange={(id) => setFromId(id)}
+                label="From Card"
+                placeholder="Select source card"
+                loading={loading}
+              />
 
               <div>
                 <label className="label">Amount</label>
@@ -169,27 +160,20 @@ export function ExchangePage() {
                 <button
                   onClick={handleSwap}
                   className="p-2 rounded-xl glass hover:bg-white/[0.06] transition-colors"
-                  title="Swap accounts"
+                  title="Swap cards"
                 >
                   <ArrowDownUp size={18} className="text-cyan-400" />
                 </button>
               </div>
 
-              <div>
-                <label className="label">To Account</label>
-                <select
-                  className="input w-full"
-                  value={toId}
-                  onChange={(e) => setToId(e.target.value)}
-                >
-                  <option value="">Select destination account</option>
-                  {availableToAccounts.map((a) => (
-                    <option key={a.id} value={a.id}>
-                      {CURRENCY_FLAGS[a.currency] || ''} {a.currency} — {a.balance.toFixed(2)} ({a.cardNumber || a.id.slice(0, 8) + '…'})
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <AccountSelect
+                accounts={availableToAccounts}
+                value={toId}
+                onChange={(id) => setToId(id)}
+                label="To Card"
+                placeholder="Select destination card"
+                loading={loading}
+              />
 
               <AnimatePresence>
                 {rate !== null && fromAccount && toAccount && (
@@ -202,7 +186,7 @@ export function ExchangePage() {
                     <div className="flex justify-between text-sm">
                       <span className="text-slate-400">Exchange Rate</span>
                       <span className="text-white font-mono">
-                        1 {fromAccount.currency} = {rate.toFixed(6)} {toAccount.currency}
+                        1 {fromAccount.currency} = {rate.toFixed(2)} {toAccount.currency}
                       </span>
                     </div>
                     {convertedAmount && (
@@ -233,42 +217,38 @@ export function ExchangePage() {
           </GlassCard>
         </div>
 
-        <div className="lg:col-span-2">
-          <AnimatePresence>
-            {lastResult && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-              >
-                <GlassCard glow="blue">
-                  <h3 className="text-sm font-semibold text-slate-300 mb-3">Last Exchange</h3>
-                  <div className="flex items-center justify-center gap-3 mb-3">
-                    <div className="text-center">
-                      <p className="text-lg font-bold text-red-400 num">
-                        -{lastResult.fromAmount.toFixed(2)}
-                      </p>
-                      <p className="text-xs text-slate-500">{lastResult.fromCurrency}</p>
-                    </div>
-                    <ArrowRight size={18} className="text-slate-600" />
-                    <div className="text-center">
-                      <p className="text-lg font-bold text-emerald-400 num">
-                        +{lastResult.toAmount.toFixed(2)}
-                      </p>
-                      <p className="text-xs text-slate-500">{lastResult.toCurrency}</p>
-                    </div>
+        <div className="lg:col-span-2 space-y-6">
+          {history && history.content.length > 0 && (() => {
+            const last = history.content[0]
+            return (
+              <GlassCard>
+                <h3 className="text-sm font-semibold text-slate-300 mb-3">Last Exchange</h3>
+                <div className="flex items-center justify-center gap-3 mb-3">
+                  <div className="text-center">
+                    <p className="text-lg font-bold text-red-400 num">
+                      -{last.fromAmount.toFixed(2)}
+                    </p>
+                    <p className="text-xs text-slate-500">{last.fromCurrency}</p>
                   </div>
-                  <p className="text-xs text-slate-600 text-center">
-                    Rate: {lastResult.rate.toFixed(6)}
-                  </p>
-                </GlassCard>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                  <ArrowRight size={18} className="text-slate-600" />
+                  <div className="text-center">
+                    <p className="text-lg font-bold text-emerald-400 num">
+                      +{last.toAmount.toFixed(2)}
+                    </p>
+                    <p className="text-xs text-slate-500">{last.toCurrency}</p>
+                  </div>
+                </div>
+                <p className="text-xs text-slate-600 text-center">
+                  Rate: {last.exchangeRate.toFixed(2)} · {new Date(last.createdAt).toLocaleDateString()}
+                </p>
+              </GlassCard>
+            )
+          })()}
 
           {accounts.length < 2 && (
             <GlassCard>
               <p className="text-sm text-slate-400 text-center py-4">
-                You need at least 2 accounts with different currencies to exchange.
+                You need at least 2 cards with different currencies to exchange.
               </p>
             </GlassCard>
           )}

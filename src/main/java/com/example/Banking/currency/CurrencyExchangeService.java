@@ -67,8 +67,7 @@ public class CurrencyExchangeService {
         }
 
         if (from.getBalance().compareTo(amount) < 0) {
-            throw new InsufficientFundsException(
-                    "Insufficient funds: balance=" + from.getBalance() + ", exchange=" + amount);
+            throw new InsufficientFundsException("Insufficient funds to complete this exchange.");
         }
 
         BigDecimal rate = rateService.getRate(from.getCurrency(), to.getCurrency());
@@ -81,6 +80,7 @@ public class CurrencyExchangeService {
 
         accountService.saveTransaction(fromAccountId, "EXCHANGE_OUT", from.getCurrency(), amount, "EXCHANGE");
         accountService.saveTransaction(toAccountId, "EXCHANGE_IN", to.getCurrency(), toAmount, "EXCHANGE");
+        accountService.checkDailyLimit(from);
 
         // Record exchange
         Instant now = Instant.now();

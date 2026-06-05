@@ -39,10 +39,18 @@ public class UserProfileController {
         UUID uid = UUID.fromString(auth.getName());
         var user = userRepo.findById(uid)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        if (req.firstName() != null && !req.firstName().isBlank())
-            user.setFirstName(req.firstName().trim());
-        if (req.lastName() != null && !req.lastName().isBlank())
-            user.setLastName(req.lastName().trim());
+        if (req.firstName() != null && !req.firstName().isBlank()) {
+            String first = req.firstName().trim();
+            if (first.length() > 15 || !first.matches("^[A-Za-z]+$"))
+                throw new IllegalArgumentException("First name must be 1-15 English letters only");
+            user.setFirstName(first);
+        }
+        if (req.lastName() != null && !req.lastName().isBlank()) {
+            String last = req.lastName().trim();
+            if (last.length() > 15 || !last.matches("^[A-Za-z]+$"))
+                throw new IllegalArgumentException("Last name must be 1-15 English letters only");
+            user.setLastName(last);
+        }
         var saved = userRepo.save(user);
         auditService.log(uid, AuditAction.PROFILE_UPDATED, "User", uid);
         return toResponse(saved);

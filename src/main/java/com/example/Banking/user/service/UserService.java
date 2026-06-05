@@ -32,7 +32,7 @@ public class UserService {
 
     public User register(String email, String password, String firstName, String lastName) {
         if (userRepo.existsByEmail(email)) {
-            throw new IllegalArgumentException("Email already registered: " + email);
+            throw new IllegalArgumentException("This email is already registered.");
         }
 
         var user = new User(

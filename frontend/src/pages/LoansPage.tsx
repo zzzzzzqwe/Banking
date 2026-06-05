@@ -2,11 +2,13 @@ import { useEffect, useRef, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { CreditCard, Plus, ChevronDown, ChevronUp, Calendar, TrendingDown, RefreshCw } from 'lucide-react'
 import { getMyLoans, applyForLoan, makeRepayment, getSchedule } from '../api/loans'
+import { getAccounts } from '../api/accounts'
 import { GlassCard } from '../components/GlassCard'
 import { LoansSkeleton } from '../components/Skeleton'
 import { Modal } from '../components/Modal'
+import { AccountSelect } from '../components/AccountSelect'
 import { useToastStore } from '../store/useToastStore'
-import type { Loan, RepaymentEntry } from '../types'
+import type { Account, Loan, RepaymentEntry } from '../types'
 
 function LoanBadge({ status }: { status: string }) {
   const map: Record<string, string> = { PENDING: 'badge-pending', ACTIVE: 'badge-active', REJECTED: 'badge-rejected', CLOSED: 'badge-closed' }
@@ -38,12 +40,11 @@ function RepaymentProgress({ paid, total }: { paid: number; total: number }) {
   )
 }
 
-function LoanCard({ loan, onRefresh }: { loan: Loan; onRefresh: () => void }) {
+function LoanCard({ loan, onRefresh, onMakePayment }: { loan: Loan; onRefresh: () => void; onMakePayment: (loan: Loan) => void }) {
   const push = useToastStore((s) => s.push)
   const [expanded, setExpanded]     = useState(false)
   const [schedule, setSchedule]     = useState<RepaymentEntry[] | null>(null)
   const [loadingSched, setLoadingSched] = useState(false)
-  const [repaying, setRepaying]     = useState(false)
 
   const loadSchedule = async () => {
     if (schedule) return
@@ -61,21 +62,6 @@ function LoanCard({ loan, onRefresh }: { loan: Loan; onRefresh: () => void }) {
   const handleExpand = () => {
     setExpanded(!expanded)
     if (!expanded) loadSchedule()
-  }
-
-  const handleRepay = async () => {
-    setRepaying(true)
-    try {
-      await makeRepayment(loan.id)
-      push('Payment processed!', 'success')
-      setSchedule(null)
-      onRefresh()
-      loadSchedule()
-    } catch (err: any) {
-      push(err.response?.data?.message || 'Repayment failed', 'error')
-    } finally {
-      setRepaying(false)
-    }
   }
 
   const paidCount = schedule?.filter((e) => e.status === 'PAID').length ?? 0
@@ -104,8 +90,8 @@ function LoanCard({ loan, onRefresh }: { loan: Loan; onRefresh: () => void }) {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
           {[
             { label: 'Term', value: `${loan.termMonths} mo.` },
-            { label: 'Monthly', value: loan.monthlyPayment ? `$${Number(loan.monthlyPayment).toFixed(2)}` : '—' },
-            { label: 'End Date', value: loan.endDate ?? '—' },
+            { label: 'Monthly', value: loan.monthlyPayment ? `$${Number(loan.monthlyPayment).toFixed(2)}` : '-' },
+            { label: 'End Date', value: loan.endDate ?? '-' },
           ].map(({ label, value }) => (
             <div key={label} className="rounded-xl p-2.5 text-center" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
               <p className="text-[10px] text-slate-600 uppercase tracking-wider">{label}</p>
@@ -122,9 +108,8 @@ function LoanCard({ loan, onRefresh }: { loan: Loan; onRefresh: () => void }) {
 
         <div className="flex gap-2">
           {loan.status === 'ACTIVE' && (
-            <button onClick={handleRepay} disabled={repaying} className="btn-primary flex-1 flex items-center justify-center gap-1.5 py-2 text-xs">
-              {repaying ? <div className="w-3 h-3 spin rounded-full" style={{ border: '1px solid rgba(255,255,255,0.3)', borderTopColor: 'white' }} /> : <TrendingDown size={12} />}
-              Make Payment
+            <button onClick={() => onMakePayment(loan)} className="btn-primary flex-1 flex items-center justify-center gap-1.5 py-2 text-xs">
+              <TrendingDown size={12} /> Make Payment
             </button>
           )}
           <button onClick={handleExpand} className="btn-ghost flex items-center justify-center gap-1.5 py-2 text-xs flex-1">
@@ -177,10 +162,15 @@ function LoanCard({ loan, onRefresh }: { loan: Loan; onRefresh: () => void }) {
 export function LoansPage() {
   const push = useToastStore((s) => s.push)
   const [loans, setLoans]       = useState<Loan[]>([])
+  const [accounts, setAccounts] = useState<Account[]>([])
+  const [accountsLoading, setAccountsLoading] = useState(true)
   const [loading, setLoading]   = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [applying, setApplying] = useState(false)
   const [form, setForm] = useState({ accountId: '', amount: '', annualRatePercent: '12', termMonths: '12' })
+  const [payLoan, setPayLoan] = useState<Loan | null>(null)
+  const [paySchedule, setPaySchedule] = useState<RepaymentEntry[] | null>(null)
+  const [repaying, setRepaying] = useState(false)
 
   const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, [k]: e.target.value }))
 
@@ -196,6 +186,10 @@ export function LoansPage() {
       .then((data) => { if (mountedRef.current) setLoans(data) })
       .catch(() => { if (mountedRef.current) push('Failed to load loans', 'error') })
       .finally(() => { if (mountedRef.current) setLoading(false) })
+    getAccounts()
+      .then((data) => { if (mountedRef.current) setAccounts(data) })
+      .catch(() => {})
+      .finally(() => { if (mountedRef.current) setAccountsLoading(false) })
   }
 
   useEffect(load, [])
@@ -230,6 +224,33 @@ export function LoansPage() {
     return m.toFixed(2)
   })()
 
+  const openPayment = async (loan: Loan) => {
+    setPayLoan(loan)
+    setPaySchedule(null)
+    try {
+      const s = await getSchedule(loan.id)
+      setPaySchedule(s)
+    } catch { /* schedule will be null */ }
+  }
+
+  const handleRepay = async () => {
+    if (!payLoan) return
+    setRepaying(true)
+    try {
+      await makeRepayment(payLoan.id)
+      push('Payment processed!', 'success')
+      setPayLoan(null)
+      load()
+    } catch (err: any) {
+      push(err.response?.data?.message || 'Repayment failed', 'error')
+    } finally {
+      setRepaying(false)
+    }
+  }
+
+  const payLinkedAccount = payLoan ? accounts.find((a) => a.id === payLoan.accountId) : null
+  const payNextInstallment = paySchedule?.find((e) => e.status === 'PENDING' || e.status === 'OVERDUE')
+
   if (loading) return <LoansSkeleton />
 
   return (
@@ -261,7 +282,7 @@ export function LoansPage() {
           <AnimatePresence>
             {loans.map((l, i) => (
               <motion.div key={l.id} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
-                <LoanCard loan={l} onRefresh={load} />
+                <LoanCard loan={l} onRefresh={load} onMakePayment={openPayment} />
               </motion.div>
             ))}
           </AnimatePresence>
@@ -270,10 +291,14 @@ export function LoansPage() {
 
       <Modal open={showModal} onClose={() => setShowModal(false)} title="Apply for a Loan">
         <form onSubmit={handleApply} className="space-y-4">
-          <div>
-            <label className="label">Account ID (for disbursement)</label>
-            <input value={form.accountId} onChange={set('accountId')} className="input font-mono text-sm" placeholder="UUID" required />
-          </div>
+          <AccountSelect
+            accounts={accounts}
+            value={form.accountId}
+            onChange={(id) => setForm((f) => ({ ...f, accountId: id }))}
+            label="Disbursement Card"
+            placeholder="Select card"
+            loading={accountsLoading}
+          />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="label">Principal ($)</label>
@@ -303,6 +328,32 @@ export function LoansPage() {
             </button>
           </div>
         </form>
+      </Modal>
+
+      <Modal open={!!payLoan} onClose={() => setPayLoan(null)} title="Confirm Payment">
+        <div className="space-y-4">
+          {payLinkedAccount && (
+            <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Pay from card</p>
+              <p className="text-sm text-white font-mono">{payLinkedAccount.cardNumber || payLinkedAccount.id.slice(0, 8) + '…'}</p>
+              <p className="text-xs text-slate-500 mt-0.5">Balance: {payLinkedAccount.balance.toFixed(2)} {payLinkedAccount.currency}</p>
+            </div>
+          )}
+          {payNextInstallment && (
+            <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
+              <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Installment #{payNextInstallment.installmentNumber}</p>
+              <p className="text-lg font-bold num text-white">${Number(payNextInstallment.totalPayment).toFixed(2)}</p>
+              <p className="text-xs text-slate-500 mt-0.5">Due: {payNextInstallment.dueDate} · {payNextInstallment.status === 'OVERDUE' ? <span className="text-red-400">Overdue</span> : 'Pending'}</p>
+            </div>
+          )}
+          <div className="flex gap-3 pt-1">
+            <button onClick={() => setPayLoan(null)} className="btn-ghost flex-1">Cancel</button>
+            <button onClick={handleRepay} disabled={repaying} className="btn-primary flex-1 flex items-center justify-center gap-2">
+              {repaying ? <div className="w-3 h-3 spin rounded-full" style={{ border: '1px solid rgba(255,255,255,0.3)', borderTopColor: 'white' }} /> : null}
+              {repaying ? 'Processing…' : 'Confirm Payment'}
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   )

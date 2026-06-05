@@ -40,6 +40,7 @@ export function NotificationDropdown({ onClose }: Props) {
   const { notifications, markRead, markAllRead: storeMarkAllRead } = useNotificationStore()
   const [items, setItems] = useState<AppNotification[]>(notifications)
   const [loading, setLoading] = useState(true)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
 
   useEffect(() => {
     getNotifications(0, 30)
@@ -104,7 +105,10 @@ export function NotificationDropdown({ onClose }: Props) {
             return (
               <button
                 key={n.id}
-                onClick={() => handleMarkRead(n)}
+                onClick={() => {
+                  handleMarkRead(n)
+                  setExpandedId((prev) => prev === n.id ? null : n.id)
+                }}
                 className={clsx(
                   'w-full flex items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-white/[0.04]',
                   !n.read && 'bg-cyan-500/[0.04]'
@@ -120,7 +124,7 @@ export function NotificationDropdown({ onClose }: Props) {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className={clsx('text-xs font-medium truncate', n.read ? 'text-slate-400' : 'text-slate-200')}>
+                    <p className={clsx('text-xs font-medium', n.read ? 'text-slate-400' : 'text-slate-200', expandedId !== n.id && 'truncate')}>
                       {n.title}
                     </p>
                     {!n.read && (
@@ -130,7 +134,7 @@ export function NotificationDropdown({ onClose }: Props) {
                       />
                     )}
                   </div>
-                  <p className="text-[11px] text-slate-500 truncate mt-0.5">{n.message}</p>
+                  <p className={clsx('text-[11px] text-slate-500 mt-0.5', expandedId !== n.id && 'truncate')}>{n.message}</p>
                   <p className="text-[10px] text-slate-600 mt-1">{timeAgo(n.createdAt)}</p>
                 </div>
               </button>

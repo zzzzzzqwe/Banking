@@ -54,7 +54,7 @@ public class CardRequestService {
         }
 
         if (requestRepo.existsByAccountIdAndStatusAndRequestType(accountId, CardRequestStatus.PENDING, type)) {
-            throw new IllegalStateException("A pending " + type + " request already exists for this card");
+            throw new IllegalStateException("You already have a pending request for this card.");
         }
 
         var request = new CardRequest(

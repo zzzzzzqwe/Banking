@@ -75,8 +75,7 @@ public class LoanService {
                 .orElseThrow(() -> new LoanNotFoundException(loanId));
 
         if (loan.getStatus() != LoanStatus.PENDING) {
-            throw new IllegalStateException(
-                    "Loan must be PENDING to approve, current status: " + loan.getStatus());
+            throw new IllegalStateException("Loan must be PENDING, current status: " + loan.getStatus());
         }
 
         BigDecimal monthlyPayment = calculator.monthlyPayment(
@@ -113,8 +112,7 @@ public class LoanService {
                 .orElseThrow(() -> new LoanNotFoundException(loanId));
 
         if (loan.getStatus() != LoanStatus.PENDING) {
-            throw new IllegalStateException(
-                    "Loan must be PENDING to reject, current status: " + loan.getStatus());
+            throw new IllegalStateException("Loan must be PENDING, current status: " + loan.getStatus());
         }
 
         loan.setStatus(LoanStatus.REJECTED);
@@ -137,8 +135,7 @@ public class LoanService {
         }
 
         if (loan.getStatus() != LoanStatus.ACTIVE) {
-            throw new IllegalStateException(
-                    "Cannot repay loan with status: " + loan.getStatus());
+            throw new IllegalStateException("This loan is not active and cannot be repaid.");
         }
 
         var entry = scheduleRepo

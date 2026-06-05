@@ -80,7 +80,7 @@ export function DashboardPage() {
 
           if (mounted.current) setChartData(chartPoints)
         } catch {
-          // нет истории — оставляем пустой граф
+          // нет истории - оставляем пустой граф
         }
       })
       .catch(() => {})
@@ -253,7 +253,7 @@ export function DashboardPage() {
                       <td className="num font-medium">${Number(l.principalAmount).toFixed(2)}</td>
                       <td className="text-amber-400">{(Number(l.annualInterestRate) * 100).toFixed(1)}%</td>
                       <td className="text-slate-400">{l.termMonths} mo.</td>
-                      <td className="num text-cyan-400">{l.monthlyPayment ? `$${Number(l.monthlyPayment).toFixed(2)}` : '—'}</td>
+                      <td className="num text-cyan-400">{l.monthlyPayment ? `$${Number(l.monthlyPayment).toFixed(2)}` : '-'}</td>
                       <td><LoanStatusBadge status={l.status} /></td>
                     </tr>
                   ))}

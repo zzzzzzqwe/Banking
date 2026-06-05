@@ -280,7 +280,7 @@ export function TransfersPage() {
                         const rate = rates[key]
                         return (
                           <td key={to} className={`num ${from === to ? 'text-slate-600' : 'text-slate-300'}`}>
-                            {rate != null ? Number(rate).toFixed(2) : '—'}
+                            {rate != null ? Number(rate).toFixed(2) : '-'}
                           </td>
                         )
                       })}

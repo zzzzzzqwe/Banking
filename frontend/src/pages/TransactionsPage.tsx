@@ -66,7 +66,7 @@ export function TransactionsPage() {
       setData(res)
       setPage(p)
     } catch {
-      push('Account not found or access denied', 'error')
+      push('Card not found or access denied', 'error')
     } finally {
       setLoading(false)
     }
@@ -151,7 +151,7 @@ export function TransactionsPage() {
         const totalExpense = filtered.filter((tx) => !isIncome(tx.type)).reduce((s, tx) => s + toUsd(Number(tx.amount), tx.currency), 0)
         const topCategories = Object.entries(
           filtered.reduce<Record<string, { amount: number; cat?: Category }>>((acc, tx) => {
-            const code = tx.category || 'UNCATEGORIZED'
+            const code = tx.category || 'Other'
             if (!acc[code]) acc[code] = { amount: 0, cat: categoryByCode(tx.category) }
             acc[code].amount += toUsd(Number(tx.amount), tx.currency)
             return acc
@@ -218,18 +218,21 @@ export function TransactionsPage() {
                             })()
                           ) : (
                             <select
-                              className="text-[10px] bg-transparent border border-white/[0.08] rounded px-1 py-0.5 text-slate-500 cursor-pointer hover:border-cyan-500/30"
+                              className="text-[10px] bg-transparent border border-white/[0.08] rounded px-1 py-0.5 text-slate-500 cursor-pointer hover:border-cyan-500/30 w-8"
                               value=""
                               onChange={async (e) => {
+                                const code = e.target.value
                                 try {
-                                  await updateTransactionCategory(tx.id, e.target.value)
-                                  tx.category = e.target.value
-                                  setData({ ...data! })
+                                  await updateTransactionCategory(tx.id, code)
+                                  setData((prev) => prev ? {
+                                    ...prev,
+                                    content: prev.content.map((t) => t.id === tx.id ? { ...t, category: code } : t),
+                                  } : prev)
                                   push('Category updated', 'success')
                                 } catch { push('Failed to update category', 'error') }
                               }}
                             >
-                              <option value="" disabled>+ category</option>
+                              <option value="" disabled></option>
                               {categories.map((c) => <option key={c.id} value={c.code}>{c.name}</option>)}
                             </select>
                           )}
@@ -271,7 +274,7 @@ export function TransactionsPage() {
                   </span>
                 </div>
               </div>
-              <p className="text-[10px] text-slate-600 mt-3">Converted to USD</p>
+
             </GlassCard>
           </motion.div>
 

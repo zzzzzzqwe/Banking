@@ -6,6 +6,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Legend,
 } from 'recharts'
 import { GlassCard } from '../components/GlassCard'
+import { AccountSelect } from '../components/AccountSelect'
 import { getAccounts, getAnalytics } from '../api/accounts'
 import { useToastStore } from '../store/useToastStore'
 import type { Account, AnalyticsResponse } from '../types'
@@ -115,14 +116,13 @@ export function AnalyticsPage() {
 
       <div className="flex flex-wrap gap-4 items-end">
         <div className="flex-1 min-w-[200px]">
-          <label className="label">Account</label>
-          <select className="input w-full" value={accountId} onChange={(e) => setAccountId(e.target.value)}>
-            {accounts.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.cardNetwork || 'Card'} · {a.currency} - {a.balance.toFixed(2)}
-              </option>
-            ))}
-          </select>
+          <AccountSelect
+            accounts={accounts}
+            value={accountId}
+            onChange={(id) => setAccountId(id)}
+            label="Card"
+            placeholder="Select card"
+          />
         </div>
         <div className="flex gap-1">
           {PERIODS.map((p) => (
@@ -255,12 +255,16 @@ export function AnalyticsPage() {
               {chartData.length > 0 ? (
                 <ResponsiveContainer width="100%" height={280}>
                   <BarChart data={chartData} barGap={2}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
                     <XAxis
                       dataKey="label"
                       tick={{ fontSize: 10, fill: '#64748b' }}
                       axisLine={false}
                       tickLine={false}
+                      interval={days === 30 ? 1 : 0}
+                      angle={-45}
+                      textAnchor="end"
+                      height={50}
                     />
                     <YAxis
                       tick={{ fontSize: 10, fill: '#64748b' }}
@@ -268,7 +272,7 @@ export function AnalyticsPage() {
                       tickLine={false}
                       width={50}
                     />
-                    <Tooltip content={<CustomTooltip />} />
+                    <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(13,148,136,0.25)' }} />
                     <Legend
                       wrapperStyle={{ fontSize: 11, color: '#94a3b8' }}
                     />
@@ -331,7 +335,7 @@ export function AnalyticsPage() {
         </>
       ) : (
         <GlassCard>
-          <p className="text-sm text-slate-500 text-center py-8">Select an account to view analytics</p>
+          <p className="text-sm text-slate-500 text-center py-8">Select a card to view analytics</p>
         </GlassCard>
       )}
     </div>

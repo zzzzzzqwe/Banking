@@ -44,6 +44,7 @@ public class DataInitializer implements ApplicationRunner {
     @Transactional
     public void run(ApplicationArguments args) {
         fixAccountsStatusConstraint();
+        fixNotificationsTypeConstraint();
         if (!userRepository.existsByEmail("admin@bank.local")) {
             var admin = new User(
                     UUID.randomUUID(),
@@ -61,6 +62,19 @@ public class DataInitializer implements ApplicationRunner {
 
         backfillCardMetadata();
         seedSystemCategories();
+    }
+
+    private void fixNotificationsTypeConstraint() {
+        try {
+            entityManager.createNativeQuery(
+                    "ALTER TABLE notifications DROP CONSTRAINT IF EXISTS notifications_type_check"
+            ).executeUpdate();
+            entityManager.createNativeQuery(
+                    "ALTER TABLE notifications ADD CONSTRAINT notifications_type_check CHECK (type IN ('TRANSFER_RECEIVED','LOAN_APPROVED','LOAN_REJECTED','GOAL_COMPLETED','LOAN_REPAYMENT','INSTALLMENT_OVERDUE','CARD_REQUEST_APPROVED','CARD_REQUEST_REJECTED','DAILY_LIMIT_REACHED','SYSTEM'))"
+            ).executeUpdate();
+        } catch (Exception e) {
+            System.out.println("Could not update notifications_type_check: " + e.getMessage());
+        }
     }
 
     private void fixAccountsStatusConstraint() {

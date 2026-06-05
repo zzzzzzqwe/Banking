@@ -7,7 +7,9 @@ import com.example.Banking.account.repository.AccountRepository;
 import com.example.Banking.account.repository.AccountTransactionRepository;
 import com.example.Banking.config.AccountNotFoundException;
 import com.example.Banking.config.InsufficientFundsException;
+import com.example.Banking.notification.event.DailyLimitReachedEvent;
 import com.example.Banking.user.repository.UserRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,13 +32,16 @@ public class AccountService {
     private final AccountRepository accountRepo;
     private final AccountTransactionRepository txRepo;
     private final UserRepository userRepo;
+    private final ApplicationEventPublisher eventPublisher;
 
     public AccountService(AccountRepository accountRepo,
                           AccountTransactionRepository txRepo,
-                          UserRepository userRepo) {
+                          UserRepository userRepo,
+                          ApplicationEventPublisher eventPublisher) {
         this.accountRepo = accountRepo;
         this.txRepo = txRepo;
         this.userRepo = userRepo;
+        this.eventPublisher = eventPublisher;
     }
 
     public Account create(String ownerId, String currency, BigDecimal initialBalance) {
@@ -124,8 +129,7 @@ public class AccountService {
         requireActive(account);
 
         if (!account.getCurrency().equals(currency)) {
-            throw new IllegalArgumentException(
-                    "Currency mismatch: account=" + account.getCurrency() + ", request=" + currency);
+            throw new IllegalArgumentException("Currency mismatch. Expected " + account.getCurrency() + ".");
         }
 
         account.setBalance(account.getBalance().add(amount).setScale(2, RoundingMode.HALF_UP));
@@ -147,8 +151,7 @@ public class AccountService {
         requireActive(account);
 
         if (!account.getCurrency().equals(currency)) {
-            throw new IllegalArgumentException(
-                    "Currency mismatch: account=" + account.getCurrency() + ", request=" + currency);
+            throw new IllegalArgumentException("Currency mismatch. Expected " + account.getCurrency() + ".");
         }
 
         if (amount.signum() <= 0) {
@@ -156,13 +159,13 @@ public class AccountService {
         }
 
         if (account.getBalance().compareTo(amount) < 0) {
-            throw new InsufficientFundsException(
-                    "insufficient funds: balance=" + account.getBalance() + ", withdraw=" + amount);
+            throw new InsufficientFundsException("Insufficient funds to complete this transaction.");
         }
 
         account.setBalance(account.getBalance().subtract(amount).setScale(2, RoundingMode.HALF_UP));
         accountRepo.save(account);
         saveTransaction(id, "WITHDRAW", currency, amount, category);
+        checkDailyLimit(account);
         return account;
     }
 
@@ -180,7 +183,7 @@ public class AccountService {
         }
 
         if (account.getBalance().signum() != 0) {
-            throw new IllegalArgumentException("Cannot close card with non-zero balance: " + account.getBalance());
+            throw new IllegalArgumentException("Please withdraw or transfer all funds before closing this card.");
         }
 
         account.setStatus(AccountStatus.CLOSED);
@@ -250,12 +253,30 @@ public class AccountService {
 
     private void requireActive(Account account) {
         if (account.getStatus() != AccountStatus.ACTIVE) {
-            throw new IllegalArgumentException("Card is not active (status=" + account.getStatus() + ")");
+            throw new IllegalArgumentException("This card is not currently active.");
+        }
+    }
+
+    public void checkDailyLimit(Account account) {
+        try {
+            if (account.getDailyLimit() == null) return;
+            Instant startOfDay = LocalDate.now().atStartOfDay(ZoneOffset.UTC).toInstant();
+            BigDecimal spentToday = txRepo.sumExpensesSince(account.getId(), startOfDay);
+            if (spentToday.compareTo(account.getDailyLimit()) >= 0) {
+                eventPublisher.publishEvent(new DailyLimitReachedEvent(
+                        account.getOwnerId(),
+                        account.getCardNumber(),
+                        account.getCurrency(),
+                        account.getDailyLimit(),
+                        spentToday
+                ));
+            }
+        } catch (Exception ignored) {
         }
     }
 
     public void saveTransaction(UUID accountId, String type, String currency, BigDecimal amount, String category) {
-        txRepo.save(new AccountTransaction(
+        txRepo.saveAndFlush(new AccountTransaction(
                 UUID.randomUUID(), accountId, type, currency, amount, Instant.now(), category
         ));
     }

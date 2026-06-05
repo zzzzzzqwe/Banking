@@ -78,7 +78,7 @@ const TIER_BENEFITS: Record<CardTier, { icon: typeof Shield; label: string; colo
       'Unlimited cards',
       'Best exchange rates (+0.5%)',
       '24/7 priority phone & chat support',
-      'Full analytics with AI insights',
+      'Full analytics with improved algorithms',
       'Cashback up to 2%',
       'Airport lounge access',
       'Exclusive partner offers',
@@ -188,7 +188,7 @@ function CardVisual({ account, reveal }: { account: Account; reveal?: boolean })
         <div>
           <p className="text-[9px] uppercase tracking-widest text-white/60">Cardholder</p>
           <p className="text-white text-xs font-medium tracking-wider">
-            {account.holderName || '—'}
+            {account.holderName || '-'}
           </p>
         </div>
         <div className="text-right">
@@ -196,7 +196,7 @@ function CardVisual({ account, reveal }: { account: Account; reveal?: boolean })
           <p className="text-white text-xs font-mono tracking-wider">
             {account.expiryDate
               ? new Date(account.expiryDate).toLocaleDateString('en-US', { month: '2-digit', year: '2-digit' })
-              : '—'}
+              : '-'}
           </p>
         </div>
       </div>
@@ -260,7 +260,7 @@ function CardItem({
 
         <div className="mt-4 space-y-3">
           <div className="flex items-center justify-between text-xs">
-            <span className="text-slate-500">Account balance</span>
+            <span className="text-slate-500">Card balance</span>
             <span className="font-mono font-medium text-white">
               {Number(account.balance).toFixed(2)} {account.currency}
             </span>
@@ -342,7 +342,6 @@ function CardCreationWizard({
   const [tier, setTier] = useState<CardTier | null>(null)
   const [cardType, setCardType] = useState<CardType>('PHYSICAL')
   const [currency, setCurrency] = useState('USD')
-  const [initBal, setInitBal] = useState('0')
   const [creating, setCreating] = useState(false)
 
   const steps: WizardStep[] = ['network', 'tier', 'type', 'currency', 'confirm']
@@ -363,7 +362,7 @@ function CardCreationWizard({
     if (!network || !tier) return
     setCreating(true)
     try {
-      await createAccount(currency.toUpperCase(), parseFloat(initBal) || 0, network, tier, cardType)
+      await createAccount(currency.toUpperCase(), 0, network, tier, cardType)
       push('Card created!', 'success')
       onCreated()
     } catch (err: any) {
@@ -374,7 +373,7 @@ function CardCreationWizard({
   const previewAccount: Account = {
     id: '00000000-0000-0000-0000-000000000000',
     ownerId: '',
-    balance: parseFloat(initBal) || 0,
+    balance: 0,
     currency,
     status: 'ACTIVE',
     createdAt: new Date().toISOString(),
@@ -533,19 +532,33 @@ function CardCreationWizard({
 
         {step === 'currency' && (
           <motion.div key="currency" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} transition={{ duration: 0.2 }}>
-            <h3 className="text-sm font-semibold text-slate-200 mb-1">Card Details</h3>
-            <p className="text-xs text-slate-500 mb-5">Select currency and initial deposit</p>
-            <div className="space-y-4">
-              <div>
-                <label className="label">Currency</label>
-                <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="input">
-                  {currencies.map((c) => <option key={c} value={c}>{c}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className="label">Initial Balance</label>
-                <input type="number" value={initBal} onChange={(e) => setInitBal(e.target.value)} className="input" placeholder="0.00" min="0" step="0.01" />
-              </div>
+            <h3 className="text-sm font-semibold text-slate-200 mb-1">Card Currency</h3>
+            <p className="text-xs text-slate-500 mb-5">Select currency for your card</p>
+            <div className="grid grid-cols-2 gap-3">
+              {currencies.map((c) => {
+                const selected = currency === c
+                const symbols: Record<string, string> = { USD: '$', EUR: '€', GBP: '£', RUB: '₽', JPY: '¥', CNY: '¥', KZT: '₸' }
+                return (
+                  <button
+                    key={c} onClick={() => setCurrency(c)}
+                    className="relative rounded-2xl p-4 transition-all duration-200 text-left"
+                    style={{
+                      background: selected ? 'linear-gradient(135deg, rgba(13,148,136,0.1), rgba(0,0,0,0.4))' : 'rgba(0,0,0,0.3)',
+                      border: `1px solid ${selected ? 'rgba(13,148,136,0.4)' : 'rgba(255,255,255,0.06)'}`,
+                      boxShadow: selected ? '0 0 30px rgba(13,148,136,0.1)' : 'none',
+                    }}
+                  >
+                    {selected && (
+                      <div className="absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center"
+                        style={{ background: 'rgba(13,148,136,0.2)', border: '1px solid rgba(13,148,136,0.4)' }}>
+                        <Check size={10} className="text-teal-400" />
+                      </div>
+                    )}
+                    <span className="text-lg font-bold text-slate-300">{symbols[c] || c}</span>
+                    <p className="text-xs text-slate-500 mt-1">{c}</p>
+                  </button>
+                )
+              })}
             </div>
           </motion.div>
         )}
@@ -560,7 +573,6 @@ function CardCreationWizard({
               <div className="flex justify-between text-slate-400"><span className="text-slate-600">Tier</span><span>{tier}</span></div>
               <div className="flex justify-between text-slate-400"><span className="text-slate-600">Type</span><span>{cardType}</span></div>
               <div className="flex justify-between text-slate-400"><span className="text-slate-600">Currency</span><span>{currency}</span></div>
-              <div className="flex justify-between text-slate-400"><span className="text-slate-600">Initial Balance</span><span className="num">{parseFloat(initBal || '0').toFixed(2)} {currency}</span></div>
             </div>
           </motion.div>
         )}
@@ -671,7 +683,7 @@ export function CardsPage() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="text-2xl font-bold text-white">My Cards</h1>
-          <p className="text-sm text-slate-500 mt-0.5">{accounts.length} card{accounts.length !== 1 ? 's' : ''} across your accounts</p>
+          <p className="text-sm text-slate-500 mt-0.5">{accounts.length} card{accounts.length !== 1 ? 's' : ''} in your wallet</p>
         </div>
         <div className="flex gap-3">
           <button onClick={load} className="btn-ghost flex items-center gap-2 text-xs"><RefreshCw size={14} /></button>
@@ -692,7 +704,12 @@ export function CardsPage() {
         </GlassCard>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {accounts.map((a) => (
+          {[...accounts].sort((a, b) => {
+            const rank = (s: string) => s === 'ACTIVE' ? 0 : 1
+            const d = rank(a.status) - rank(b.status)
+            if (d !== 0) return d
+            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          }).map((a) => (
             <CardItem
               key={a.id}
               account={a}
@@ -754,7 +771,7 @@ export function CardsPage() {
           <div>
             <label className="label">Category (optional)</label>
             <select value={txCategory} onChange={(e) => setTxCategory(e.target.value)} className="input w-full">
-              <option value="">—</option>
+              <option value="">-</option>
               {['SALARY', 'GROCERIES', 'TRANSPORT', 'ENTERTAINMENT', 'UTILITIES', 'HEALTHCARE', 'EDUCATION', 'SHOPPING', 'RESTAURANT', 'TRANSFER', 'LOAN', 'OTHER'].map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}

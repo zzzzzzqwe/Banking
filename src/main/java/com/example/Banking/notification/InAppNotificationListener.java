@@ -70,8 +70,8 @@ public class InAppNotificationListener {
         user.ifPresent(u -> notificationService.createNotification(
                 u.getId(),
                 "Installment Overdue",
-                "Installment #" + event.installmentNumber() + " for loan " + event.loanId() +
-                        " is overdue. Amount: " + event.amount(),
+                "Installment #" + event.installmentNumber() + " is overdue (due " + event.dueDate() +
+                        "). Amount due: " + event.amount(),
                 NotificationType.INSTALLMENT_OVERDUE
         ));
     }
@@ -105,6 +105,21 @@ public class InAppNotificationListener {
                     approved ? NotificationType.CARD_REQUEST_APPROVED : NotificationType.CARD_REQUEST_REJECTED
             );
         });
+    }
+
+    @Async
+    @EventListener
+    public void onDailyLimitReached(DailyLimitReachedEvent event) {
+        String card = event.cardNumber() != null ? event.cardNumber().substring(event.cardNumber().length() - 4) : "****";
+        notificationService.createNotification(
+                event.userId(),
+                "Daily Limit Reached",
+                "You have spent " + event.spentToday().setScale(2, java.math.RoundingMode.HALF_UP) +
+                        " " + event.currency() + " today on card ending in " + card +
+                        ", reaching your daily limit of " + event.dailyLimit().setScale(2, java.math.RoundingMode.HALF_UP) +
+                        " " + event.currency() + ".",
+                NotificationType.DAILY_LIMIT_REACHED
+        );
     }
 
     @Async

@@ -168,7 +168,7 @@ public class TransactionController {
             Authentication auth
     ) {
         AccountTransaction tx = txRepo.findById(txId)
-                .orElseThrow(() -> new IllegalArgumentException("Transaction not found: " + txId));
+                .orElseThrow(() -> new IllegalArgumentException("Transaction not found."));
 
         var account = accountService.getById(tx.getAccountId());
         if (!account.getOwnerId().toString().equals(auth.getName())) {

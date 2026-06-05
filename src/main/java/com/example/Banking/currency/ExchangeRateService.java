@@ -30,8 +30,8 @@ public class ExchangeRateService {
         BigDecimal fromUsd = TO_USD.get(from);
         BigDecimal toUsd   = TO_USD.get(to);
 
-        if (fromUsd == null) throw new IllegalArgumentException("Unsupported currency: " + fromCurrency);
-        if (toUsd == null)   throw new IllegalArgumentException("Unsupported currency: " + toCurrency);
+        if (fromUsd == null) throw new IllegalArgumentException("Selected currency is not supported.");
+        if (toUsd == null)   throw new IllegalArgumentException("Selected currency is not supported.");
 
         return fromUsd.divide(toUsd, 6, RoundingMode.HALF_UP);
     }

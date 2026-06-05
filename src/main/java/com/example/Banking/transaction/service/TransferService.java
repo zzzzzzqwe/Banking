@@ -109,6 +109,7 @@ public class TransferService {
 
         accountService.saveTransaction(fromId, "TRANSFER_OUT", from.getCurrency(), transferAmount, "TRANSFER");
         accountService.saveTransaction(toId, "TRANSFER_IN", to.getCurrency(), creditAmount, "TRANSFER");
+        accountService.checkDailyLimit(from);
 
         idempotencyRepo.save(new IdempotencyRecord(idempotencyKey, txId, Instant.now()));
 

@@ -191,7 +191,7 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
   )
 }
 
-/* Desktop sidebar — always visible on md+ */
+/* Desktop sidebar - always visible on md+ */
 export function Sidebar() {
   return (
     <motion.aside
@@ -205,7 +205,7 @@ export function Sidebar() {
   )
 }
 
-/* Mobile sidebar — overlay with backdrop */
+/* Mobile sidebar - overlay with backdrop */
 export function MobileSidebar({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
     <AnimatePresence>

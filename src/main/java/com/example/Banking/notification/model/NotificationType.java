@@ -9,5 +9,6 @@ public enum NotificationType {
     INSTALLMENT_OVERDUE,
     CARD_REQUEST_APPROVED,
     CARD_REQUEST_REJECTED,
+    DAILY_LIMIT_REACHED,
     SYSTEM
 }

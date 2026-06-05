@@ -103,7 +103,7 @@ export function ProfilePage() {
       .then((prof) => {
         if (!mounted.current) return
         setProfile(prof)
-        // Load stats independently — don't block profile on failure
+        // Load stats independently - don't block profile on failure
         Promise.all([
           getAccounts().catch(() => []),
           getMyLoans().catch(() => []),
@@ -122,6 +122,11 @@ export function ProfilePage() {
     return () => { mounted.current = false }
   }, [])
 
+  const NAME_REGEX = /^[A-Za-z]+$/
+  const MAX_NAME_LEN = 15
+
+  const sanitizeName = (v: string) => v.replace(/[^A-Za-z]/g, '').slice(0, MAX_NAME_LEN)
+
   const startEdit = () => {
     setEditFirst(profile?.firstName ?? '')
     setEditLast(profile?.lastName ?? '')
@@ -131,7 +136,13 @@ export function ProfilePage() {
   const cancelEdit = () => setEditing(false)
 
   const handleSaveName = async () => {
-    if (!editFirst.trim() || !editLast.trim()) return
+    const first = editFirst.trim()
+    const last = editLast.trim()
+    if (!first || !last) return
+    if (!NAME_REGEX.test(first) || !NAME_REGEX.test(last)) {
+      push('Name must contain only English letters', 'error')
+      return
+    }
     setSaving(true)
     try {
       const updated = await updateProfile(editFirst.trim(), editLast.trim())
@@ -230,10 +241,10 @@ export function ProfilePage() {
                   {editing ? (
                     <motion.div key="edit" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -5 }}
                       className="flex items-center gap-2">
-                      <input value={editFirst} onChange={(e) => setEditFirst(e.target.value)}
-                        className="input py-1 text-sm w-28" placeholder="First" autoFocus />
-                      <input value={editLast} onChange={(e) => setEditLast(e.target.value)}
-                        className="input py-1 text-sm w-28" placeholder="Last" />
+                      <input value={editFirst} onChange={(e) => setEditFirst(sanitizeName(e.target.value))}
+                        className="input py-1 text-sm w-28" placeholder="First" maxLength={MAX_NAME_LEN} autoFocus />
+                      <input value={editLast} onChange={(e) => setEditLast(sanitizeName(e.target.value))}
+                        className="input py-1 text-sm w-28" placeholder="Last" maxLength={MAX_NAME_LEN} />
                       <button onClick={handleSaveName} disabled={saving}
                         className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
                         style={{ background: 'rgba(52,211,153,0.15)', border: '1px solid rgba(52,211,153,0.3)' }}>

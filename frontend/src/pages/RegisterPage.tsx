@@ -21,12 +21,21 @@ export function RegisterPage() {
   const [error, setError]       = useState('')
   const [splashName, setSplashName] = useState<string | null>(null)
 
-  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) =>
-    setForm((f) => ({ ...f, [k]: e.target.value }))
+  const NAME_REGEX = /^[A-Za-z]+$/
+  const MAX_NAME_LEN = 15
+
+  const set = (k: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value
+    if (k === 'firstName' || k === 'lastName') val = val.replace(/[^A-Za-z]/g, '').slice(0, MAX_NAME_LEN)
+    setForm((f) => ({ ...f, [k]: val }))
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    if (!NAME_REGEX.test(form.firstName) || !NAME_REGEX.test(form.lastName)) {
+      setError('Name must contain only English letters'); return
+    }
     if (form.password.length < 6) { setError('Password must be at least 6 characters'); return }
     setLoading(true)
     try {
@@ -87,11 +96,11 @@ export function RegisterPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="label">First Name</label>
-                  <input type="text" value={form.firstName} onChange={set('firstName')} className="input" placeholder="Alex" required />
+                  <input type="text" value={form.firstName} onChange={set('firstName')} className="input" placeholder="Alex" maxLength={MAX_NAME_LEN} required />
                 </div>
                 <div>
                   <label className="label">Last Name</label>
-                  <input type="text" value={form.lastName} onChange={set('lastName')} className="input" placeholder="Smith" required />
+                  <input type="text" value={form.lastName} onChange={set('lastName')} className="input" placeholder="Smith" maxLength={MAX_NAME_LEN} required />
                 </div>
               </div>
 

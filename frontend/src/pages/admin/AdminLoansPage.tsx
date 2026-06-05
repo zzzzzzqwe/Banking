@@ -35,11 +35,11 @@ export function AdminLoansPage() {
   useEffect(() => { load() }, [])
 
   const handleApprove = async (loan: Loan) => {
-    if (!confirm(`Approve loan ${loan.id.slice(0, 8)}…?\n\n$${loan.principalAmount} will be credited to the account.`)) return
+    if (!confirm(`Approve loan ${loan.id.slice(0, 8)}…?\n\n$${loan.principalAmount} will be credited to the card.`)) return
     setActionId(loan.id)
     try {
       await approveLoan(loan.id)
-      push('Loan approved — funds disbursed!', 'success')
+      push('Loan approved - funds disbursed!', 'success')
       load(page)
     } catch (err: any) {
       push(err.response?.data?.message || 'Approval failed', 'error')
@@ -143,7 +143,7 @@ export function AdminLoansPage() {
                       <td className="num font-semibold text-white">${Number(l.principalAmount).toLocaleString()}</td>
                       <td className="text-amber-400 num">{(Number(l.annualInterestRate) * 100).toFixed(1)}%</td>
                       <td className="text-slate-400">{l.termMonths} mo.</td>
-                      <td className="num text-cyan-400">{l.monthlyPayment ? `$${Number(l.monthlyPayment).toFixed(2)}` : '—'}</td>
+                      <td className="num text-cyan-400">{l.monthlyPayment ? `$${Number(l.monthlyPayment).toFixed(2)}` : '-'}</td>
                       <td><LoanBadge status={l.status} /></td>
                       <td className="text-xs text-slate-500">{new Date(l.createdAt).toLocaleDateString()}</td>
                       <td>

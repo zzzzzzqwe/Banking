@@ -88,9 +88,9 @@ function LoansTab() {
   useEffect(() => { load() }, [])
 
   const handleApprove = async (loan: Loan) => {
-    if (!confirm(`Approve loan ${loan.id.slice(0, 8)}…?\n\n$${loan.principalAmount} will be credited to the account.`)) return
+    if (!confirm(`Approve loan ${loan.id.slice(0, 8)}…?\n\n$${loan.principalAmount} will be credited to the card.`)) return
     setActionId(loan.id)
-    try { await approveLoan(loan.id); push('Loan approved — funds disbursed!', 'success'); load(page) }
+    try { await approveLoan(loan.id); push('Loan approved - funds disbursed!', 'success'); load(page) }
     catch (err: any) { push(err.response?.data?.message || 'Approval failed', 'error') }
     finally { setActionId(null) }
   }
@@ -136,7 +136,7 @@ function LoansTab() {
                   <td className="num font-semibold text-white">${Number(l.principalAmount).toLocaleString()}</td>
                   <td className="text-amber-400 num">{(Number(l.annualInterestRate) * 100).toFixed(1)}%</td>
                   <td className="text-slate-400">{l.termMonths} mo.</td>
-                  <td className="num text-cyan-400">{l.monthlyPayment ? `$${Number(l.monthlyPayment).toFixed(2)}` : '—'}</td>
+                  <td className="num text-cyan-400">{l.monthlyPayment ? `$${Number(l.monthlyPayment).toFixed(2)}` : '-'}</td>
                   <td><StatusBadge status={l.status} /></td>
                   <td className="text-xs text-slate-500">{new Date(l.createdAt).toLocaleDateString()}</td>
                   <td>
@@ -220,7 +220,7 @@ function CardRequestsTab() {
                 >
                   <td className="font-mono text-xs text-slate-500">{r.id.slice(0, 12)}…</td>
                   <td className="font-mono text-xs text-slate-400">{r.cardNumber || r.accountId.slice(0, 12) + '…'}</td>
-                  <td className="text-xs text-slate-400">{r.holderName || '—'}</td>
+                  <td className="text-xs text-slate-400">{r.holderName || '-'}</td>
                   <td>
                     <span className="inline-flex items-center gap-1.5 text-xs font-medium"
                       style={{ color: r.requestType === 'BLOCK' ? '#f87171' : '#34d399' }}>
@@ -230,7 +230,7 @@ function CardRequestsTab() {
                   </td>
                   <td><StatusBadge status={r.status} /></td>
                   <td className="text-xs text-slate-500">{new Date(r.createdAt).toLocaleDateString()}</td>
-                  <td className="text-xs text-slate-500">{r.resolvedAt ? new Date(r.resolvedAt).toLocaleDateString() : '—'}</td>
+                  <td className="text-xs text-slate-500">{r.resolvedAt ? new Date(r.resolvedAt).toLocaleDateString() : '-'}</td>
                   <td>
                     <ActionButtons
                       isPending={r.status === 'PENDING'} actionId={actionId} itemId={r.id}

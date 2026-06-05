@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { X } from 'lucide-react'
 import type { ReactNode } from 'react'
@@ -11,7 +12,7 @@ interface Props {
 }
 
 export function Modal({ open, onClose, title, children, maxWidth = 'max-w-md' }: Props) {
-  return (
+  return createPortal(
     <AnimatePresence>
       {open && (
         <>
@@ -20,10 +21,10 @@ export function Modal({ open, onClose, title, children, maxWidth = 'max-w-md' }:
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
+            className="fixed inset-0 z-[60] bg-black/60"
             onClick={onClose}
           />
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+          <div className="fixed inset-0 z-[61] flex items-center justify-center p-4 pointer-events-none">
             <motion.div
               key="modal"
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -47,6 +48,7 @@ export function Modal({ open, onClose, title, children, maxWidth = 'max-w-md' }:
           </div>
         </>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   )
 }

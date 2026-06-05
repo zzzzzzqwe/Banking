@@ -226,7 +226,7 @@ export function AdminStatsPage() {
             <div className="flex items-center gap-2 mb-1">
               <Wallet size={14} className="text-emerald-400" />
               <p className="text-xs text-slate-500 uppercase tracking-wider">Currency Distribution</p>
-              <span className="text-xs text-slate-600 ml-auto">active accounts</span>
+              <span className="text-xs text-slate-600 ml-auto">active cards</span>
             </div>
             <p className="text-lg font-semibold text-white mb-5">Balance by Currency</p>
             {(stats?.currencyDistribution.length ?? 0) > 0 ? (
@@ -244,7 +244,7 @@ export function AdminStatsPage() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="flex items-center justify-center h-32 text-xs text-slate-600">No accounts yet</div>
+              <div className="flex items-center justify-center h-32 text-xs text-slate-600">No cards yet</div>
             )}
           </GlassCard>
         </motion.div>
@@ -311,7 +311,7 @@ export function AdminStatsPage() {
               <thead>
                 <tr>
                   <th>Currency</th>
-                  <th>Active Accounts</th>
+                  <th>Active Cards</th>
                   <th>Total Balance</th>
                   <th>Avg Balance</th>
                   <th>Share</th>
