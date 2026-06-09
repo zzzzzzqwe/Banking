@@ -41,7 +41,7 @@ const PIE_COLORS = [
 ]
 
 const CURRENCY_SYMBOLS: Record<string, string> = {
-  USD: '$', EUR: '€', GBP: '£', RUB: '₽', JPY: '¥',
+  USD: '$', EUR: '€', GBP: '£', RUB: '₽', JPY: '¥', MDL: 'L',
 }
 
 const CustomTooltip = ({ active, payload, label }: any) => {

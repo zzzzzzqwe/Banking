@@ -67,10 +67,13 @@ function StatCard({
 const ChartTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null
   return (
-    <div className="rounded-xl px-3 py-2 text-xs" style={{ background: 'rgba(4,4,16,0.95)', border: '1px solid rgba(6,182,212,0.2)' }}>
+    <div className="glass rounded-lg px-3 py-2 text-xs border border-white/[0.08]"
+         style={{ background: 'rgba(4,4,16,0.95)' }}>
       <p className="text-slate-400 mb-1">{label}</p>
       {payload.map((p: any) => (
-        <p key={p.name} style={{ color: p.color }}>{p.name}: <span className="font-semibold">{p.value}</span></p>
+        <p key={p.name} style={{ color: p.color }} className="num">
+          {p.name}: <span className="font-semibold">{p.value?.toFixed(2)}</span>
+        </p>
       ))}
     </div>
   )
@@ -235,7 +238,7 @@ export function AdminStatsPage() {
                   margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                   <XAxis dataKey="currency" tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
                   <YAxis tick={{ fill: '#64748b', fontSize: 11 }} axisLine={false} tickLine={false} />
-                  <Tooltip content={<ChartTooltip />} />
+                  <Tooltip content={<ChartTooltip />} cursor={{ fill: 'rgba(13,148,136,0.25)' }} />
                   <Bar dataKey="totalBalance" name="Total Balance" radius={[6, 6, 0, 0]}>
                     {stats?.currencyDistribution.map((_, i) => (
                       <Cell key={i} fill={CURRENCY_COLORS[i % CURRENCY_COLORS.length]} />

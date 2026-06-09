@@ -8,7 +8,7 @@ import { getBeneficiaries, createBeneficiary, deleteBeneficiary, updateBeneficia
 import { useToastStore } from '../store/useToastStore'
 import type { Beneficiary } from '../types'
 
-const CURRENCIES = ['USD', 'EUR', 'GBP', 'RUB', 'KZT', 'JPY', 'CNY']
+const CURRENCIES = ['USD', 'EUR', 'GBP', 'RUB', 'JPY', 'MDL']
 
 export function BeneficiariesPage() {
   const push = useToastStore((s) => s.push)
@@ -144,10 +144,22 @@ export function BeneficiariesPage() {
               </select>
             </div>
           </div>
-          <label className="flex items-center gap-2 text-xs text-slate-400">
-            <input type="checkbox" checked={form.favorite} onChange={(e) => setForm({ ...form, favorite: e.target.checked })} />
-            Mark as favorite
-          </label>
+          <button
+            type="button"
+            onClick={() => setForm({ ...form, favorite: !form.favorite })}
+            className="flex items-center gap-2.5 w-full px-3 py-2.5 rounded-xl text-xs transition-all"
+            style={{
+              background: form.favorite ? 'rgba(245,158,11,0.1)' : 'rgba(255,255,255,0.03)',
+              border: `1px solid ${form.favorite ? 'rgba(245,158,11,0.3)' : 'rgba(255,255,255,0.06)'}`,
+            }}
+          >
+            {form.favorite
+              ? <Star size={14} className="text-amber-400" fill="currentColor" />
+              : <StarOff size={14} className="text-slate-600" />}
+            <span className={form.favorite ? 'text-amber-400' : 'text-slate-400'}>
+              {form.favorite ? 'Marked as favorite' : 'Mark as favorite'}
+            </span>
+          </button>
 
           <div className="flex gap-2 pt-2">
             <button onClick={() => setCreateOpen(false)} className="btn-ghost flex-1">Cancel</button>

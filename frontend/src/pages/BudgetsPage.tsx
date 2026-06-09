@@ -200,7 +200,7 @@ export function BudgetsPage() {
             <div>
               <label className="label">Currency</label>
               <select value={form.currency} onChange={(e) => setForm({ ...form, currency: e.target.value })} className="input w-full">
-                {['USD', 'EUR', 'GBP', 'RUB', 'KZT', 'JPY', 'CNY'].map((c) => <option key={c} value={c}>{c}</option>)}
+                {['USD', 'EUR', 'GBP', 'RUB', 'JPY', 'MDL'].map((c) => <option key={c} value={c}>{c}</option>)}
               </select>
             </div>
           </div>

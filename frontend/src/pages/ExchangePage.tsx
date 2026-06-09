@@ -6,6 +6,7 @@ import { AccountSelect } from '../components/AccountSelect'
 import { getAccounts } from '../api/accounts'
 import {
   getExchangeRate,
+  getExchangeRates,
   performExchange,
   getExchangeHistory,
 } from '../api/exchange'
@@ -13,7 +14,7 @@ import { useToastStore } from '../store/useToastStore'
 import type { Account, ExchangeRecord, Page } from '../types'
 
 const CURRENCY_FLAGS: Record<string, string> = {
-  USD: '$', EUR: '€', GBP: '£', RUB: '₽', JPY: '¥',
+  USD: '$', EUR: '€', GBP: '£', RUB: '₽', JPY: '¥', MDL: 'L',
 }
 
 export function ExchangePage() {
@@ -31,6 +32,7 @@ export function ExchangePage() {
   // History
   const [history, setHistory] = useState<Page<ExchangeRecord> | null>(null)
   const [historyPage, setHistoryPage] = useState(0)
+  const [allRates, setAllRates] = useState<Record<string, number>>({})
 
   useEffect(() => {
     mountedRef.current = true
@@ -42,6 +44,9 @@ export function ExchangePage() {
       .catch(() => push('Failed to load accounts', 'error'))
       .finally(() => { if (mountedRef.current) setLoading(false) })
     loadHistory(0)
+    getExchangeRates()
+      .then((r) => { if (mountedRef.current) setAllRates(r) })
+      .catch(() => {})
     return () => { mountedRef.current = false }
   }, [])
 
@@ -314,6 +319,44 @@ export function ExchangePage() {
           </GlassCard>
         </div>
       </div>
+
+      {Object.keys(allRates).length > 0 && (() => {
+        const currencies = [...new Set(Object.keys(allRates).map((k) => k.split('_')[0]))].sort()
+        return (
+          <GlassCard>
+            <div className="flex items-center gap-2 mb-4">
+              <RefreshCw size={14} className="text-cyan-400" />
+              <p className="text-xs text-slate-500 uppercase tracking-wider">Exchange Rates</p>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="data-table text-xs">
+                <thead>
+                  <tr>
+                    <th>From \ To</th>
+                    {currencies.map((c) => <th key={c}>{c}</th>)}
+                  </tr>
+                </thead>
+                <tbody>
+                  {currencies.map((from) => (
+                    <tr key={from}>
+                      <td className="font-semibold text-slate-300">{from}</td>
+                      {currencies.map((to) => {
+                        const key = `${from}_${to}`
+                        const r = allRates[key]
+                        return (
+                          <td key={to} className={`num ${from === to ? 'text-slate-600' : 'text-slate-300'}`}>
+                            {r != null ? Number(r).toFixed(2) : '-'}
+                          </td>
+                        )
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </GlassCard>
+        )
+      })()}
     </div>
   )
 }

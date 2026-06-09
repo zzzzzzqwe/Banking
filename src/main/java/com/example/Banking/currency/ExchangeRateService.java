@@ -15,7 +15,8 @@ public class ExchangeRateService {
             "EUR", new BigDecimal("1.08"),
             "GBP", new BigDecimal("1.27"),
             "RUB", new BigDecimal("0.011"),
-            "JPY", new BigDecimal("0.0067")
+            "JPY", new BigDecimal("0.0067"),
+            "MDL", new BigDecimal("0.056")
     );
 
     /**

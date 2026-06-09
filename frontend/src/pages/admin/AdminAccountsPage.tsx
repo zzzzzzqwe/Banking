@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { CreditCard, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react'
+import { CreditCard, ChevronLeft, ChevronRight, RefreshCw, Copy } from 'lucide-react'
 import { getAllAccounts } from '../../api/admin'
 import { GlassCard } from '../../components/GlassCard'
 import { PageLoader } from '../../components/LoadingSpinner'
@@ -79,8 +79,24 @@ export function AdminAccountsPage() {
                 <tbody>
                   {data?.content.map((a, i) => (
                     <motion.tr key={a.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.02 }}>
-                      <td className="font-mono text-xs text-slate-500">{a.cardNumber || a.id.slice(0, 14) + '…'}</td>
-                      <td className="font-mono text-xs text-slate-500">{a.ownerId.slice(0, 14)}…</td>
+                      <td>
+                        <button
+                          onClick={() => { navigator.clipboard.writeText(a.cardNumber || a.id); push('ID copied', 'success') }}
+                          className="flex items-center gap-1 font-mono text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                          title={a.cardNumber || a.id}
+                        >
+                          {a.cardNumber || a.id.slice(0, 10) + '…'} <Copy size={9} />
+                        </button>
+                      </td>
+                      <td>
+                        <button
+                          onClick={() => { navigator.clipboard.writeText(a.ownerId); push('ID copied', 'success') }}
+                          className="flex items-center gap-1 font-mono text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                          title={a.ownerId}
+                        >
+                          {a.ownerId.slice(0, 10)}… <Copy size={9} />
+                        </button>
+                      </td>
                       <td>
                         <span className="px-2 py-0.5 rounded-md text-xs font-mono font-medium" style={{ background: 'rgba(6,182,212,0.1)', color: '#06b6d4', border: '1px solid rgba(6,182,212,0.2)' }}>
                           {a.currency}

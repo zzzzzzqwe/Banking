@@ -537,7 +537,7 @@ function CardCreationWizard({
             <div className="grid grid-cols-2 gap-3">
               {currencies.map((c) => {
                 const selected = currency === c
-                const symbols: Record<string, string> = { USD: '$', EUR: '€', GBP: '£', RUB: '₽', JPY: '¥', CNY: '¥', KZT: '₸' }
+                const symbols: Record<string, string> = { USD: '$', EUR: '€', GBP: '£', RUB: '₽', JPY: '¥', MDL: 'L' }
                 return (
                   <button
                     key={c} onClick={() => setCurrency(c)}

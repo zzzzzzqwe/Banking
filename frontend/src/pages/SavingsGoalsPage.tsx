@@ -12,7 +12,7 @@ import { Modal } from '../components/Modal'
 import { useToastStore } from '../store/useToastStore'
 import type { SavingsGoal, Account } from '../types'
 
-const currencySymbols: Record<string, string> = { USD: '$', EUR: '\u20ac', RUB: '\u20bd', GBP: '\u00a3' }
+const currencySymbols: Record<string, string> = { USD: '$', EUR: '\u20ac', RUB: '\u20bd', GBP: '\u00a3', JPY: '\u00a5', MDL: 'L' }
 function fmt(amount: number, currency: string) {
   const sym = currencySymbols[currency] || currency + ' '
   return sym + amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { Users, Search, UserX, ChevronLeft, ChevronRight, RefreshCw, Shield } from 'lucide-react'
+import { Users, Search, UserX, ChevronLeft, ChevronRight, RefreshCw, Shield, Copy } from 'lucide-react'
 import { getUsers, deactivateUser } from '../../api/admin'
 import { GlassCard } from '../../components/GlassCard'
 import { PageLoader } from '../../components/LoadingSpinner'
@@ -108,7 +108,13 @@ export function AdminUsersPage() {
                           </div>
                           <div>
                             <p className="font-medium text-slate-200 text-sm">{u.firstName} {u.lastName}</p>
-                            <p className="text-xs font-mono text-slate-600">{u.id.slice(0, 10)}…</p>
+                            <button
+                              onClick={() => { navigator.clipboard.writeText(u.id); push('ID copied', 'success') }}
+                              className="flex items-center gap-1 text-xs font-mono text-slate-600 hover:text-slate-400 transition-colors"
+                              title={u.id}
+                            >
+                              {u.id.slice(0, 10)}… <Copy size={9} />
+                            </button>
                           </div>
                         </div>
                       </td>

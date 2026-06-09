@@ -12,7 +12,7 @@ import { ExchangeRateBanner } from '../components/ExchangeRateBanner'
 import { useToastStore } from '../store/useToastStore'
 import type { Account, Beneficiary } from '../types'
 
-const FALLBACK_CURRENCIES = ['USD', 'EUR', 'GBP', 'RUB']
+const FALLBACK_CURRENCIES = ['USD', 'EUR', 'GBP', 'RUB', 'JPY', 'MDL']
 
 type ToMode = 'own' | 'card'
 

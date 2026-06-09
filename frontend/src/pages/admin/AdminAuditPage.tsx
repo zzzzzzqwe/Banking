@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
-  ScrollText, ChevronLeft, ChevronRight, Filter, RefreshCw, X,
+  ScrollText, ChevronLeft, ChevronRight, Filter, RefreshCw, X, Copy,
+  Search,
 } from 'lucide-react'
 import { getAuditLog, getAuditActions } from '../../api/admin'
 import { GlassCard } from '../../components/GlassCard'
@@ -73,6 +74,7 @@ export function AdminAuditPage() {
 
   const [filterAction, setFilterAction] = useState('')
   const [filterUser, setFilterUser] = useState('')
+  const hasFilters = !!(filterAction || filterUser)
 
   const load = async (p = 0) => {
     setLoading(true)
@@ -115,50 +117,67 @@ export function AdminAuditPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={() => setShowFilters(!showFilters)}
-            className="btn-ghost flex items-center gap-2 text-xs">
-            <Filter size={14} /> Filters
+          <button
+            onClick={() => setShowFilters(!showFilters)}
+            className="flex items-center gap-2 px-3 py-2 rounded-xl text-xs font-medium transition-all"
+            style={showFilters || hasFilters
+              ? { background: 'rgba(251,146,60,0.12)', border: '1px solid rgba(251,146,60,0.25)', color: '#fb923c' }
+              : { background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)', color: '#94a3b8' }}
+          >
+            <Filter size={14} />
+            Filters
+            {hasFilters && (
+              <span className="w-4 h-4 rounded-full text-[10px] flex items-center justify-center"
+                style={{ background: 'rgba(251,146,60,0.25)', color: '#fb923c' }}>
+                {[filterAction, filterUser].filter(Boolean).length}
+              </span>
+            )}
           </button>
           <button onClick={() => load(page)} disabled={loading}
             className="btn-ghost flex items-center gap-2 text-xs">
-            <RefreshCw size={14} className={loading ? 'spin' : ''} /> Refresh
+            <RefreshCw size={14} className={loading ? 'spin' : ''} />
           </button>
         </div>
       </div>
 
       {showFilters && (
-        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}>
+        <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
           <GlassCard>
-            <div className="flex flex-wrap items-end gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-[10px] text-slate-500 uppercase tracking-wider block mb-1">Action</label>
+                <label className="text-[10px] text-slate-500 uppercase tracking-wider font-medium block mb-2">Action</label>
                 <select
                   value={filterAction}
                   onChange={(e) => setFilterAction(e.target.value)}
-                  className="input-field text-xs w-52"
+                  className="input text-xs w-full !py-2.5"
                 >
                   <option value="">All actions</option>
-                  {actions.map((a) => <option key={a} value={a}>{a}</option>)}
+                  {actions.map((a) => <option key={a} value={a}>{a.replaceAll('_', ' ')}</option>)}
                 </select>
               </div>
               <div>
-                <label className="text-[10px] text-slate-500 uppercase tracking-wider block mb-1">User ID</label>
-                <input
-                  value={filterUser}
-                  onChange={(e) => setFilterUser(e.target.value)}
-                  placeholder="UUID..."
-                  className="input-field text-xs w-64"
-                />
+                <label className="text-[10px] text-slate-500 uppercase tracking-wider font-medium block mb-2">User ID</label>
+                <div className="relative">
+                  <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-600" />
+                  <input
+                    value={filterUser}
+                    onChange={(e) => setFilterUser(e.target.value)}
+                    placeholder="Paste UUID…"
+                    className="input text-xs w-full !py-2.5 !pl-8 font-mono"
+                  />
+                </div>
               </div>
+            </div>
+            <div className="flex items-center gap-3 mt-4 pt-4 border-t border-white/[0.04]">
               <button onClick={applyFilters}
-                className="px-4 py-2 rounded-xl text-xs font-medium transition-all"
+                className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-medium transition-all"
                 style={{ background: 'rgba(251,146,60,0.12)', border: '1px solid rgba(251,146,60,0.25)', color: '#fb923c' }}>
-                Apply
+                <Filter size={12} /> Apply Filters
               </button>
-              {(filterAction || filterUser) && (
+              {hasFilters && (
                 <button onClick={clearFilters}
-                  className="flex items-center gap-1 px-3 py-2 rounded-xl text-xs text-slate-500 hover:text-slate-300 transition-colors">
-                  <X size={12} /> Clear
+                  className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs text-slate-500 hover:text-slate-300 transition-colors hover:bg-white/[0.04]">
+                  <X size={12} /> Clear all
                 </button>
               )}
             </div>
@@ -200,7 +219,13 @@ export function AdminAuditPage() {
                           <span className="text-slate-400">{entry.entityType}</span>
                         )}
                         {entry.entityId && (
-                          <span className="text-slate-600 font-mono ml-1">{entry.entityId.slice(0, 8)}…</span>
+                          <button
+                            onClick={() => { navigator.clipboard.writeText(entry.entityId!); push('ID copied', 'success') }}
+                            className="inline-flex items-center gap-1 font-mono text-slate-600 hover:text-slate-300 transition-colors ml-1"
+                            title={entry.entityId}
+                          >
+                            {entry.entityId.slice(0, 8)}… <Copy size={9} />
+                          </button>
                         )}
                       </td>
                       <td className="text-xs text-slate-500 max-w-[200px] truncate" title={entry.details ?? ''}>

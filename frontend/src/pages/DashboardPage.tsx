@@ -107,7 +107,7 @@ export function DashboardPage() {
     .filter((a) => a.status !== 'CLOSED')
     .reduce((s, a) => s + convertToPrimary(a.balance, a.currency), 0)
 
-  const currencySymbol: Record<string, string> = { USD: '$', EUR: '€', GBP: '£', RUB: '₽', JPY: '¥', CNY: '¥', KZT: '₸' }
+  const currencySymbol: Record<string, string> = { USD: '$', EUR: '€', GBP: '£', RUB: '₽', JPY: '¥', MDL: 'L' }
   const sym = currencySymbol[primaryCurrency] || primaryCurrency + ' '
   const formatCurrency = (amount: number, currency: string) => {
     const s = currencySymbol[currency] || currency + ' '

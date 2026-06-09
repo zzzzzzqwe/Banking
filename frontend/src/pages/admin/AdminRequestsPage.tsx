@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import {
   ShieldCheck, CheckCircle, XCircle, RefreshCw, ChevronLeft, ChevronRight,
-  Clock, Lock, Unlock, CreditCard,
+  Clock, Lock, Unlock, CreditCard, Copy,
 } from 'lucide-react'
 import {
   getAllLoans, approveLoan, rejectLoan,
@@ -131,8 +131,24 @@ function LoansTab() {
                   transition={{ delay: i * 0.02 }}
                   className={l.status === 'PENDING' ? 'bg-amber-500/[0.02]' : ''}
                 >
-                  <td className="font-mono text-xs text-slate-500">{l.id.slice(0, 12)}…</td>
-                  <td className="font-mono text-xs text-slate-500">{l.borrowerId.slice(0, 10)}…</td>
+                  <td>
+                    <button
+                      onClick={() => { navigator.clipboard.writeText(l.id); push('ID copied', 'success') }}
+                      className="flex items-center gap-1 font-mono text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                      title={l.id}
+                    >
+                      {l.id.slice(0, 10)}… <Copy size={9} />
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      onClick={() => { navigator.clipboard.writeText(l.borrowerId); push('ID copied', 'success') }}
+                      className="flex items-center gap-1 font-mono text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                      title={l.borrowerId}
+                    >
+                      {l.borrowerId.slice(0, 10)}… <Copy size={9} />
+                    </button>
+                  </td>
                   <td className="num font-semibold text-white">${Number(l.principalAmount).toLocaleString()}</td>
                   <td className="text-amber-400 num">{(Number(l.annualInterestRate) * 100).toFixed(1)}%</td>
                   <td className="text-slate-400">{l.termMonths} mo.</td>
@@ -218,8 +234,24 @@ function CardRequestsTab() {
                   transition={{ delay: i * 0.02 }}
                   className={r.status === 'PENDING' ? 'bg-amber-500/[0.02]' : ''}
                 >
-                  <td className="font-mono text-xs text-slate-500">{r.id.slice(0, 12)}…</td>
-                  <td className="font-mono text-xs text-slate-400">{r.cardNumber || r.accountId.slice(0, 12) + '…'}</td>
+                  <td>
+                    <button
+                      onClick={() => { navigator.clipboard.writeText(r.id); push('ID copied', 'success') }}
+                      className="flex items-center gap-1 font-mono text-xs text-slate-500 hover:text-slate-300 transition-colors"
+                      title={r.id}
+                    >
+                      {r.id.slice(0, 10)}… <Copy size={9} />
+                    </button>
+                  </td>
+                  <td>
+                    <button
+                      onClick={() => { navigator.clipboard.writeText(r.cardNumber || r.accountId); push('ID copied', 'success') }}
+                      className="flex items-center gap-1 font-mono text-xs text-slate-400 hover:text-slate-200 transition-colors"
+                      title={r.cardNumber || r.accountId}
+                    >
+                      {r.cardNumber || r.accountId.slice(0, 10) + '…'} <Copy size={9} />
+                    </button>
+                  </td>
                   <td className="text-xs text-slate-400">{r.holderName || '-'}</td>
                   <td>
                     <span className="inline-flex items-center gap-1.5 text-xs font-medium"
