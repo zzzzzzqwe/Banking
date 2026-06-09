@@ -10,6 +10,9 @@ import { AccountSelect } from '../components/AccountSelect'
 import { useToastStore } from '../store/useToastStore'
 import type { Account, Loan, RepaymentEntry } from '../types'
 
+const SYM: Record<string, string> = { USD: '$', EUR: '€', GBP: '£', RUB: '₽', JPY: '¥', MDL: 'L' }
+const cs = (c?: string | null) => (c && SYM[c]) || c || '$'
+
 function LoanBadge({ status }: { status: string }) {
   const map: Record<string, string> = { PENDING: 'badge-pending', ACTIVE: 'badge-active', REJECTED: 'badge-rejected', CLOSED: 'badge-closed' }
   return <span className={map[status] || 'badge'}>{status}</span>
@@ -82,7 +85,7 @@ function LoanCard({ loan, onRefresh, onMakePayment }: { loan: Loan; onRefresh: (
             <LoanBadge status={loan.status} />
           </div>
           <div className="text-right">
-            <p className="text-2xl font-bold num text-white">${Number(loan.principalAmount).toLocaleString()}</p>
+            <p className="text-2xl font-bold num text-white">{cs(loan.currency)}{Number(loan.principalAmount).toLocaleString()}</p>
             <p className="text-xs text-slate-500">{(Number(loan.annualInterestRate) * 100).toFixed(1)}% / yr</p>
           </div>
         </div>
@@ -90,7 +93,7 @@ function LoanCard({ loan, onRefresh, onMakePayment }: { loan: Loan; onRefresh: (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
           {[
             { label: 'Term', value: `${loan.termMonths} mo.` },
-            { label: 'Monthly', value: loan.monthlyPayment ? `$${Number(loan.monthlyPayment).toFixed(2)}` : '-' },
+            { label: 'Monthly', value: loan.monthlyPayment ? `${cs(loan.currency)}${Number(loan.monthlyPayment).toFixed(2)}` : '-' },
             { label: 'End Date', value: loan.endDate ?? '-' },
           ].map(({ label, value }) => (
             <div key={label} className="rounded-xl p-2.5 text-center" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)' }}>
@@ -142,7 +145,7 @@ function LoanCard({ loan, onRefresh, onMakePayment }: { loan: Loan; onRefresh: (
                     >
                       <span className="text-slate-600 w-4 text-right">{e.installmentNumber}</span>
                       <span className="text-slate-500 w-20">{e.dueDate}</span>
-                      <span className="flex-1 num text-slate-300">${Number(e.totalPayment).toFixed(2)}</span>
+                      <span className="flex-1 num text-slate-300">{cs(loan.currency)}{Number(e.totalPayment).toFixed(2)}</span>
                       <span className="text-slate-500 num text-[10px]">{Number(e.principal).toFixed(2)} + {Number(e.interest).toFixed(2)}</span>
                       <RepayBadge status={e.status} />
                     </div>
@@ -301,7 +304,7 @@ export function LoansPage() {
           />
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="label">Principal ($)</label>
+              <label className="label">Principal</label>
               <input type="number" value={form.amount} onChange={set('amount')} className="input num" placeholder="10000" min="0.01" step="0.01" required />
             </div>
             <div>
@@ -317,7 +320,7 @@ export function LoansPage() {
           {preview && (
             <div className="rounded-xl p-3 flex items-center justify-between" style={{ background: 'rgba(6,182,212,0.06)', border: '1px solid rgba(6,182,212,0.15)' }}>
               <p className="text-xs text-slate-400">Estimated monthly payment</p>
-              <p className="text-lg font-bold num text-cyan-400">${preview}</p>
+              <p className="text-lg font-bold num text-cyan-400">{cs(accounts.find((a) => a.id === form.accountId)?.currency)}{preview}</p>
             </div>
           )}
 
@@ -342,7 +345,7 @@ export function LoansPage() {
           {payNextInstallment && (
             <div className="rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
               <p className="text-[10px] text-slate-500 uppercase tracking-wider mb-1">Installment #{payNextInstallment.installmentNumber}</p>
-              <p className="text-lg font-bold num text-white">${Number(payNextInstallment.totalPayment).toFixed(2)}</p>
+              <p className="text-lg font-bold num text-white">{cs(payLoan?.currency)}{Number(payNextInstallment.totalPayment).toFixed(2)}</p>
               <p className="text-xs text-slate-500 mt-0.5">Due: {payNextInstallment.dueDate} · {payNextInstallment.status === 'OVERDUE' ? <span className="text-red-400">Overdue</span> : 'Pending'}</p>
             </div>
           )}

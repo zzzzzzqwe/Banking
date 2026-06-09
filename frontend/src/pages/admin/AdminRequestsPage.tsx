@@ -7,11 +7,15 @@ import {
 import {
   getAllLoans, approveLoan, rejectLoan,
   getAllCardRequests, approveCardRequest, rejectCardRequest,
+  getUser,
 } from '../../api/admin'
 import { GlassCard } from '../../components/GlassCard'
 import { PageLoader } from '../../components/LoadingSpinner'
 import { useToastStore } from '../../store/useToastStore'
 import type { Loan, CardRequest, Page } from '../../types'
+
+const SYM: Record<string, string> = { USD: '$', EUR: '€', GBP: '£', RUB: '₽', JPY: '¥', MDL: 'L' }
+const cs = (c?: string | null) => (c && SYM[c]) || c || '$'
 
 type Tab = 'loans' | 'cards'
 
@@ -77,18 +81,33 @@ function LoansTab() {
   const [page, setPage]         = useState(0)
   const [loading, setLoading]   = useState(true)
   const [actionId, setActionId] = useState<string | null>(null)
+  const [names, setNames]       = useState<Record<string, string>>({})
 
   const load = async (p = 0) => {
     setLoading(true)
-    try { setData(await getAllLoans(p, 15)); setPage(p) }
-    catch { push('Failed to load loans', 'error') }
-    finally { setLoading(false) }
+    try {
+      const res = await getAllLoans(p, 15)
+      setData(res)
+      setPage(p)
+      const ids = [...new Set(res.content.map((l) => l.borrowerId))].filter((id) => !names[id])
+      const fetched: Record<string, string> = {}
+      await Promise.all(ids.map((id) =>
+        getUser(id)
+          .then((u) => { fetched[id] = `${u.firstName} ${u.lastName}` })
+          .catch(() => {})
+      ))
+      if (Object.keys(fetched).length) setNames((prev) => ({ ...prev, ...fetched }))
+    } catch {
+      push('Failed to load loans', 'error')
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => { load() }, [])
 
   const handleApprove = async (loan: Loan) => {
-    if (!confirm(`Approve loan ${loan.id.slice(0, 8)}…?\n\n$${loan.principalAmount} will be credited to the card.`)) return
+    if (!confirm(`Approve loan ${loan.id.slice(0, 8)}…?\n\n${cs(loan.currency)}${loan.principalAmount} will be credited to the card.`)) return
     setActionId(loan.id)
     try { await approveLoan(loan.id); push('Loan approved - funds disbursed!', 'success'); load(page) }
     catch (err: any) { push(err.response?.data?.message || 'Approval failed', 'error') }
@@ -141,18 +160,21 @@ function LoansTab() {
                     </button>
                   </td>
                   <td>
-                    <button
-                      onClick={() => { navigator.clipboard.writeText(l.borrowerId); push('ID copied', 'success') }}
-                      className="flex items-center gap-1 font-mono text-xs text-slate-500 hover:text-slate-300 transition-colors"
-                      title={l.borrowerId}
-                    >
-                      {l.borrowerId.slice(0, 10)}… <Copy size={9} />
-                    </button>
+                    <div>
+                      <p className="text-sm text-slate-200 font-medium">{names[l.borrowerId] || '—'}</p>
+                      <button
+                        onClick={() => { navigator.clipboard.writeText(l.borrowerId); push('ID copied', 'success') }}
+                        className="flex items-center gap-1 font-mono text-xs text-slate-600 hover:text-slate-400 transition-colors"
+                        title={l.borrowerId}
+                      >
+                        {l.borrowerId.slice(0, 10)}… <Copy size={9} />
+                      </button>
+                    </div>
                   </td>
-                  <td className="num font-semibold text-white">${Number(l.principalAmount).toLocaleString()}</td>
+                  <td className="num font-semibold text-white">{cs(l.currency)}{Number(l.principalAmount).toLocaleString()}</td>
                   <td className="text-amber-400 num">{(Number(l.annualInterestRate) * 100).toFixed(1)}%</td>
                   <td className="text-slate-400">{l.termMonths} mo.</td>
-                  <td className="num text-cyan-400">{l.monthlyPayment ? `$${Number(l.monthlyPayment).toFixed(2)}` : '-'}</td>
+                  <td className="num text-cyan-400">{l.monthlyPayment ? `${cs(l.currency)}${Number(l.monthlyPayment).toFixed(2)}` : '-'}</td>
                   <td><StatusBadge status={l.status} /></td>
                   <td className="text-xs text-slate-500">{new Date(l.createdAt).toLocaleDateString()}</td>
                   <td>

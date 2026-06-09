@@ -1,5 +1,6 @@
 package com.example.Banking.loan.controller;
 
+import com.example.Banking.account.service.AccountService;
 import com.example.Banking.audit.model.AuditAction;
 import com.example.Banking.audit.service.AuditService;
 import com.example.Banking.loan.model.Loan;
@@ -24,10 +25,12 @@ public class LoanController {
 
     private final LoanService loanService;
     private final AuditService auditService;
+    private final AccountService accountService;
 
-    public LoanController(LoanService loanService, AuditService auditService) {
+    public LoanController(LoanService loanService, AuditService auditService, AccountService accountService) {
         this.loanService = loanService;
         this.auditService = auditService;
+        this.accountService = accountService;
     }
 
     @PostMapping("/api/loans")
@@ -89,10 +92,15 @@ public class LoanController {
     }
 
     private LoanResponse toResponse(Loan loan) {
+        String currency = null;
+        try {
+            currency = accountService.getById(loan.getAccountId()).getCurrency();
+        } catch (Exception ignored) {}
         return new LoanResponse(
                 loan.getId(),
                 loan.getBorrowerId(),
                 loan.getAccountId(),
+                currency,
                 loan.getPrincipalAmount(),
                 loan.getAnnualInterestRate(),
                 loan.getTermMonths(),

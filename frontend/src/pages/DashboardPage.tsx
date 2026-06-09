@@ -250,10 +250,10 @@ export function DashboardPage() {
                 <tbody>
                   {loans.slice(0, 5).map((l) => (
                     <tr key={l.id}>
-                      <td className="num font-medium">${Number(l.principalAmount).toFixed(2)}</td>
+                      <td className="num font-medium">{currencySymbol[l.currency ?? ''] || l.currency || '$'}{Number(l.principalAmount).toFixed(2)}</td>
                       <td className="text-amber-400">{(Number(l.annualInterestRate) * 100).toFixed(1)}%</td>
                       <td className="text-slate-400">{l.termMonths} mo.</td>
-                      <td className="num text-cyan-400">{l.monthlyPayment ? `$${Number(l.monthlyPayment).toFixed(2)}` : '-'}</td>
+                      <td className="num text-cyan-400">{l.monthlyPayment ? `${currencySymbol[l.currency ?? ''] || l.currency || '$'}${Number(l.monthlyPayment).toFixed(2)}` : '-'}</td>
                       <td><LoanStatusBadge status={l.status} /></td>
                     </tr>
                   ))}

@@ -9,6 +9,7 @@ public record LoanResponse(
         UUID id,
         UUID borrowerId,
         UUID accountId,
+        String currency,
         BigDecimal principalAmount,
         BigDecimal annualInterestRate,
         int termMonths,

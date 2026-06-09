@@ -89,6 +89,7 @@ export interface Loan {
   id: string
   borrowerId: string
   accountId: string
+  currency: string | null
   principalAmount: number
   annualInterestRate: number
   termMonths: number

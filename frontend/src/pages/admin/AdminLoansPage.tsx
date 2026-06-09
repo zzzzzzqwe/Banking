@@ -7,6 +7,9 @@ import { PageLoader } from '../../components/LoadingSpinner'
 import { useToastStore } from '../../store/useToastStore'
 import type { Loan, Page } from '../../types'
 
+const SYM: Record<string, string> = { USD: '$', EUR: '€', GBP: '£', RUB: '₽', JPY: '¥', MDL: 'L' }
+const cs = (c?: string | null) => (c && SYM[c]) || c || '$'
+
 function LoanBadge({ status }: { status: string }) {
   const map: Record<string, string> = { PENDING: 'badge-pending', ACTIVE: 'badge-active', REJECTED: 'badge-rejected', CLOSED: 'badge-closed' }
   return <span className={map[status] || 'badge'}>{status}</span>
@@ -35,7 +38,7 @@ export function AdminLoansPage() {
   useEffect(() => { load() }, [])
 
   const handleApprove = async (loan: Loan) => {
-    if (!confirm(`Approve loan ${loan.id.slice(0, 8)}…?\n\n$${loan.principalAmount} will be credited to the card.`)) return
+    if (!confirm(`Approve loan ${loan.id.slice(0, 8)}…?\n\n${cs(loan.currency)}${loan.principalAmount} will be credited to the card.`)) return
     setActionId(loan.id)
     try {
       await approveLoan(loan.id)
@@ -140,10 +143,10 @@ export function AdminLoansPage() {
                     >
                       <td className="font-mono text-xs text-slate-500">{l.id.slice(0, 12)}…</td>
                       <td className="font-mono text-xs text-slate-500">{l.borrowerId.slice(0, 10)}…</td>
-                      <td className="num font-semibold text-white">${Number(l.principalAmount).toLocaleString()}</td>
+                      <td className="num font-semibold text-white">{cs(l.currency)}{Number(l.principalAmount).toLocaleString()}</td>
                       <td className="text-amber-400 num">{(Number(l.annualInterestRate) * 100).toFixed(1)}%</td>
                       <td className="text-slate-400">{l.termMonths} mo.</td>
-                      <td className="num text-cyan-400">{l.monthlyPayment ? `$${Number(l.monthlyPayment).toFixed(2)}` : '-'}</td>
+                      <td className="num text-cyan-400">{l.monthlyPayment ? `${cs(l.currency)}${Number(l.monthlyPayment).toFixed(2)}` : '-'}</td>
                       <td><LoanBadge status={l.status} /></td>
                       <td className="text-xs text-slate-500">{new Date(l.createdAt).toLocaleDateString()}</td>
                       <td>
