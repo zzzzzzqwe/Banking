@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import clsx from 'clsx'
 import { useAuthStore } from '../store/useAuthStore'
+import { useNotificationStore } from '../store/useNotificationStore'
 
 interface NavItem {
   to: string
@@ -39,6 +40,7 @@ const adminNav: NavItem[] = [
 
 function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
   const { userId, role, firstName, lastName, logout } = useAuthStore()
+  const unreadCount = useNotificationStore((s) => s.unreadCount)
   const navigate = useNavigate()
   const isAdmin = role === 'ADMIN'
 
@@ -58,10 +60,12 @@ function SidebarContent({ onNavClick }: { onNavClick?: () => void }) {
           >
             <Hexagon size={18} className="text-cyan-400" />
           </div>
-          <div
-            className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-cyan-400 animate-pulse-glow"
-            style={{ boxShadow: '0 0 6px rgba(6,182,212,0.8)' }}
-          />
+          {unreadCount > 0 && (
+            <div
+              className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-cyan-400 animate-pulse-glow"
+              style={{ boxShadow: '0 0 6px rgba(6,182,212,0.8)' }}
+            />
+          )}
         </div>
         <div>
           <span className="text-sm font-bold tracking-widest gradient-text">VELORA</span>
