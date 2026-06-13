@@ -22,15 +22,15 @@ const txColor = (type: string) => {
 
 export function TransactionsPage() {
   const push = useToastStore((s) => s.push)
-  const [accounts, setAccounts]       = useState<Account[]>([])
-  const [categories, setCategories]   = useState<Category[]>([])
+  const [accounts, setAccounts] = useState<Account[]>([])
+  const [categories, setCategories] = useState<Category[]>([])
   const [accountsLoading, setAccountsLoading] = useState(true)
   const [accountId, setAccountId] = useState('ALL')
-  const [fromDate, setFromDate]   = useState('')
-  const [toDate, setToDate]       = useState('')
-  const [data, setData]           = useState<Page<Transaction> | null>(null)
-  const [page, setPage]           = useState(0)
-  const [loading, setLoading]     = useState(false)
+  const [fromDate, setFromDate] = useState('')
+  const [toDate, setToDate] = useState('')
+  const [data, setData] = useState<Page<Transaction> | null>(null)
+  const [page, setPage] = useState(0)
+  const [loading, setLoading] = useState(false)
   const [exporting, setExporting] = useState(false)
   const [rates, setRates] = useState<Record<string, number>>({})
 

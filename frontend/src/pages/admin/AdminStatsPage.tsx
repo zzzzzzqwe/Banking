@@ -95,7 +95,7 @@ const CURRENCY_COLORS = ['#06b6d4', '#3b82f6', '#10b981', '#f59e0b', '#60a5fa']
 
 export function AdminStatsPage() {
   const push = useToastStore((s) => s.push)
-  const [stats, setStats]   = useState<AdminStats | null>(null)
+  const [stats, setStats] = useState<AdminStats | null>(null)
   const [loading, setLoading] = useState(true)
   const mounted = useRef(true)
 

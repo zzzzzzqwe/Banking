@@ -45,8 +45,8 @@ function RepaymentProgress({ paid, total }: { paid: number; total: number }) {
 
 function LoanCard({ loan, onRefresh, onMakePayment }: { loan: Loan; onRefresh: () => void; onMakePayment: (loan: Loan) => void }) {
   const push = useToastStore((s) => s.push)
-  const [expanded, setExpanded]     = useState(false)
-  const [schedule, setSchedule]     = useState<RepaymentEntry[] | null>(null)
+  const [expanded, setExpanded] = useState(false)
+  const [schedule, setSchedule] = useState<RepaymentEntry[] | null>(null)
   const [loadingSched, setLoadingSched] = useState(false)
 
   const loadSchedule = async () => {
@@ -164,10 +164,10 @@ function LoanCard({ loan, onRefresh, onMakePayment }: { loan: Loan; onRefresh: (
 
 export function LoansPage() {
   const push = useToastStore((s) => s.push)
-  const [loans, setLoans]       = useState<Loan[]>([])
+  const [loans, setLoans] = useState<Loan[]>([])
   const [accounts, setAccounts] = useState<Account[]>([])
   const [accountsLoading, setAccountsLoading] = useState(true)
-  const [loading, setLoading]   = useState(true)
+  const [loading, setLoading] = useState(true)
   const [showModal, setShowModal] = useState(false)
   const [applying, setApplying] = useState(false)
   const [form, setForm] = useState({ accountId: '', amount: '', annualRatePercent: '12', termMonths: '12' })

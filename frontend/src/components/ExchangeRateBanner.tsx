@@ -35,7 +35,6 @@ export function ExchangeRateBanner({ fromCurrency, toCurrency }: Props) {
       <span className="text-cyan-400 font-semibold num">
         1 {fromCurrency} = {Number(rate).toFixed(6)} {toCurrency}
       </span>
-      <span className="text-slate-600 ml-auto">recipient gets converted amount</span>
     </div>
   )
 }

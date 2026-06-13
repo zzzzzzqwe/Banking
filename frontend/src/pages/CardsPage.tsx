@@ -22,25 +22,25 @@ import type { Account, CardNetwork, CardTier, CardType, CardRequest } from '../t
 const CARD_GRADIENTS: Record<string, Record<string, string>> = {
   VISA: {
     STANDARD: 'linear-gradient(135deg, #1a1f71 0%, #00579f 50%, #1a1f71 100%)',
-    PREMIUM:  'linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%)',
-    DELUXE:   'linear-gradient(135deg, #0a0a0a 0%, #111827 50%, #1e3a8a 100%)',
+    PREMIUM: 'linear-gradient(135deg, #1e40af 0%, #2563eb 50%, #3b82f6 100%)',
+    DELUXE: 'linear-gradient(135deg, #0a0a0a 0%, #111827 50%, #1e3a8a 100%)',
   },
   MASTERCARD: {
     STANDARD: 'linear-gradient(135deg, #eb001b 0%, #f79e1b 100%)',
-    PREMIUM:  'linear-gradient(135deg, #b91c1c 0%, #ea580c 50%, #f59e0b 100%)',
-    DELUXE:   'linear-gradient(135deg, #0a0a0a 0%, #2a0a0a 50%, #7f1d1d 100%)',
+    PREMIUM: 'linear-gradient(135deg, #b91c1c 0%, #ea580c 50%, #f59e0b 100%)',
+    DELUXE: 'linear-gradient(135deg, #0a0a0a 0%, #2a0a0a 50%, #7f1d1d 100%)',
   },
   DEFAULT: {
     STANDARD: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
-    PREMIUM:  'linear-gradient(135deg, #0e7490 0%, #1d4ed8 100%)',
-    DELUXE:   'linear-gradient(135deg, #000000 0%, #0a0a0a 60%, #1a1a2e 100%)',
+    PREMIUM: 'linear-gradient(135deg, #0e7490 0%, #1d4ed8 100%)',
+    DELUXE: 'linear-gradient(135deg, #000000 0%, #0a0a0a 60%, #1a1a2e 100%)',
   },
 }
 
 const TIER_LABEL: Record<string, { color: string; label: string }> = {
   STANDARD: { color: '#94a3b8', label: 'Standard' },
-  PREMIUM:  { color: '#facc15', label: 'Premium' },
-  DELUXE:   { color: '#fbbf24', label: 'Deluxe' },
+  PREMIUM: { color: '#facc15', label: 'Premium' },
+  DELUXE: { color: '#fbbf24', label: 'Deluxe' },
 }
 
 const TIER_BENEFITS: Record<CardTier, { icon: typeof Shield; label: string; color: string; benefits: string[] }> = {

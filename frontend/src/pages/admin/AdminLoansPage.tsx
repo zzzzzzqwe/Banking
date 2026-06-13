@@ -17,9 +17,9 @@ function LoanBadge({ status }: { status: string }) {
 
 export function AdminLoansPage() {
   const push = useToastStore((s) => s.push)
-  const [data, setData]         = useState<Page<Loan> | null>(null)
-  const [page, setPage]         = useState(0)
-  const [loading, setLoading]   = useState(true)
+  const [data, setData] = useState<Page<Loan> | null>(null)
+  const [page, setPage] = useState(0)
+  const [loading, setLoading] = useState(true)
   const [actionId, setActionId] = useState<string | null>(null)
 
   const load = async (p = 0) => {
@@ -66,7 +66,7 @@ export function AdminLoansPage() {
   }
 
   const pending = data?.content.filter((l) => l.status === 'PENDING').length ?? 0
-  const active  = data?.content.filter((l) => l.status === 'ACTIVE').length ?? 0
+  const active = data?.content.filter((l) => l.status === 'ACTIVE').length ?? 0
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">

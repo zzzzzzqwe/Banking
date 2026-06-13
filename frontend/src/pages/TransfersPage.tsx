@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
-import { ArrowLeftRight, CheckCircle2, Copy, TrendingUp, Star, Users, Plus, CreditCard, UserPlus } from 'lucide-react'
+import { ArrowLeftRight, CheckCircle2, TrendingUp, Star, Users, Plus, CreditCard, UserPlus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { transfer } from '../api/transfers'
 import { getAccounts } from '../api/accounts'
@@ -21,12 +21,12 @@ export function TransfersPage() {
 
   const [form, setForm] = useState({ fromAccountId: '', toAccountId: '', toCardNumber: '', currency: 'USD', toCurrency: 'USD', amount: '' })
   const [toMode, setToMode] = useState<ToMode>('own')
-  const [idempKey, setIdempKey]   = useState<string>(crypto.randomUUID())
-  const [loading, setLoading]     = useState(false)
-  const [lastTxId, setLastTxId]   = useState<string | null>(null)
+  const [idempKey, setIdempKey] = useState<string>(crypto.randomUUID())
+  const [loading, setLoading] = useState(false)
+  const [lastTxId, setLastTxId] = useState<string | null>(null)
   const [currencies, setCurrencies] = useState<string[]>(FALLBACK_CURRENCIES)
-  const [rates, setRates]           = useState<Record<string, number>>({})
-  const [accounts, setAccounts]     = useState<Account[]>([])
+  const [rates, setRates] = useState<Record<string, number>>({})
+  const [accounts, setAccounts] = useState<Account[]>([])
   const [accountsLoading, setAccountsLoading] = useState(true)
   const [beneficiaries, setBeneficiaries] = useState<Beneficiary[]>([])
   const [usedBeneficiaryId, setUsedBeneficiaryId] = useState<string | null>(null)
@@ -79,6 +79,7 @@ export function TransfersPage() {
       }, idempKey)
       setLastTxId(res.transactionId)
       push('Transfer completed!', 'success')
+      getAccounts().then(setAccounts).catch(() => {})
       const sentCardNumber = form.toCardNumber.trim()
       const sentCurrency = form.toCurrency
       setForm((f) => ({ ...f, amount: '', toCardNumber: '' }))
@@ -98,11 +99,6 @@ export function TransfersPage() {
     } finally {
       setLoading(false)
     }
-  }
-
-  const copyId = (id: string) => {
-    navigator.clipboard.writeText(id)
-    push('Copied to clipboard', 'info')
   }
 
   return (
@@ -299,17 +295,11 @@ export function TransfersPage() {
       {lastTxId && (
         <motion.div initial={{ opacity: 0, scale: 0.97 }} animate={{ opacity: 1, scale: 1 }}>
           <GlassCard glow="blue">
-            <div className="flex items-start gap-3">
-              <CheckCircle2 size={20} className="text-emerald-400 flex-shrink-0 mt-0.5" />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-emerald-400 mb-1">Transfer successful</p>
-                <p className="text-xs text-slate-500 mb-1">Transaction ID:</p>
-                <div className="flex items-center gap-2">
-                  <p className="font-mono text-xs text-slate-300 truncate">{lastTxId}</p>
-                  <button onClick={() => copyId(lastTxId)} className="text-slate-500 hover:text-cyan-400 flex-shrink-0 transition-colors">
-                    <Copy size={12} />
-                  </button>
-                </div>
+            <div className="flex items-center gap-3">
+              <CheckCircle2 size={20} className="text-emerald-400 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-emerald-400">Transfer successful</p>
+                <p className="text-xs text-slate-500">Your funds have been sent successfully</p>
               </div>
             </div>
           </GlassCard>

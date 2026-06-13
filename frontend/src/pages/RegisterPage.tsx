@@ -17,8 +17,8 @@ export function RegisterPage() {
 
   const [form, setForm] = useState({ email: '', password: '', firstName: '', lastName: '' })
   const [showPass, setShowPass] = useState(false)
-  const [loading, setLoading]   = useState(false)
-  const [error, setError]       = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [splashName, setSplashName] = useState<string | null>(null)
 
   const NAME_REGEX = /^[A-Za-z]+$/

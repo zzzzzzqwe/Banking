@@ -19,12 +19,11 @@ const CARD_ICONS: Record<string, string> = {
   MASTERCARD: '💳',
 }
 
+const SYM: Record<string, string> = { USD: '$', EUR: '€', GBP: '£', RUB: '₽', JPY: '¥', MDL: 'L' }
+
 function formatBalance(balance: number, currency: string) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-    minimumFractionDigits: 2,
-  }).format(balance)
+  const symbol = SYM[currency] || currency + ' '
+  return `${symbol}${balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
 function displayNumber(acc: Account) {

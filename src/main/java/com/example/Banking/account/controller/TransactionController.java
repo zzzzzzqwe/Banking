@@ -96,11 +96,11 @@ public class TransactionController {
             throw new AccessDeniedException("Access denied");
         }
 
-        LocalDate toDate   = (to   != null) ? LocalDate.parse(to)   : LocalDate.now(ZoneOffset.UTC);
-        LocalDate fromDate = (from != null) ? LocalDate.parse(from)  : toDate.minusDays(90);
+        LocalDate toDate = (to != null) ? LocalDate.parse(to) : LocalDate.now(ZoneOffset.UTC);
+        LocalDate fromDate = (from != null) ? LocalDate.parse(from) : toDate.minusDays(90);
 
         Instant fromInstant = fromDate.atStartOfDay(ZoneOffset.UTC).toInstant();
-        Instant toInstant   = toDate.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
+        Instant toInstant = toDate.plusDays(1).atStartOfDay(ZoneOffset.UTC).toInstant();
 
         var transactions = accountService.getTransactionsForExport(id, fromInstant, toInstant);
 

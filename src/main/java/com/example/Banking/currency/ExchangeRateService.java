@@ -24,15 +24,15 @@ public class ExchangeRateService {
      */
     public BigDecimal getRate(String fromCurrency, String toCurrency) {
         String from = fromCurrency.toUpperCase();
-        String to   = toCurrency.toUpperCase();
+        String to = toCurrency.toUpperCase();
 
         if (from.equals(to)) return BigDecimal.ONE;
 
         BigDecimal fromUsd = TO_USD.get(from);
-        BigDecimal toUsd   = TO_USD.get(to);
+        BigDecimal toUsd = TO_USD.get(to);
 
         if (fromUsd == null) throw new IllegalArgumentException("Selected currency is not supported.");
-        if (toUsd == null)   throw new IllegalArgumentException("Selected currency is not supported.");
+        if (toUsd == null) throw new IllegalArgumentException("Selected currency is not supported.");
 
         return fromUsd.divide(toUsd, 6, RoundingMode.HALF_UP);
     }

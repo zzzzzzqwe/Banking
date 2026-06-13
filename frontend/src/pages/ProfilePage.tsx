@@ -74,23 +74,23 @@ export function ProfilePage() {
   const { setName } = useAuthStore()
   const push = useToastStore((s) => s.push)
 
-  const [profile, setProfile]   = useState<UserType | null>(null)
-  const [loading, setLoading]   = useState(true)
+  const [profile, setProfile] = useState<UserType | null>(null)
+  const [loading, setLoading] = useState(true)
   const [accCount, setAccCount] = useState(0)
   const [loanCount, setLoanCount] = useState(0)
 
   /* Edit name */
-  const [editing, setEditing]   = useState(false)
+  const [editing, setEditing] = useState(false)
   const [editFirst, setEditFirst] = useState('')
-  const [editLast, setEditLast]   = useState('')
-  const [saving, setSaving]       = useState(false)
+  const [editLast, setEditLast] = useState('')
+  const [saving, setSaving] = useState(false)
 
   /* Change password */
-  const [curPass, setCurPass]   = useState('')
-  const [newPass, setNewPass]   = useState('')
+  const [curPass, setCurPass] = useState('')
+  const [newPass, setNewPass] = useState('')
   const [confPass, setConfPass] = useState('')
-  const [showCur, setShowCur]   = useState(false)
-  const [showNew, setShowNew]   = useState(false)
+  const [showCur, setShowCur] = useState(false)
+  const [showNew, setShowNew] = useState(false)
   const [showConf, setShowConf] = useState(false)
   const [passLoading, setPassLoading] = useState(false)
   const [passSuccess, setPassSuccess] = useState(false)

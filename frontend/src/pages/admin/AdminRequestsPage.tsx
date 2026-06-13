@@ -73,15 +73,15 @@ function ActionButtons({ isPending, actionId, itemId, onApprove, onReject }: {
   )
 }
 
-/*   Loans Tab   */
+/* Loans Tab */
 
 function LoansTab() {
   const push = useToastStore((s) => s.push)
-  const [data, setData]         = useState<Page<Loan> | null>(null)
-  const [page, setPage]         = useState(0)
-  const [loading, setLoading]   = useState(true)
+  const [data, setData] = useState<Page<Loan> | null>(null)
+  const [page, setPage] = useState(0)
+  const [loading, setLoading] = useState(true)
   const [actionId, setActionId] = useState<string | null>(null)
-  const [names, setNames]       = useState<Record<string, string>>({})
+  const [names, setNames] = useState<Record<string, string>>({})
 
   const load = async (p = 0) => {
     setLoading(true)
@@ -194,13 +194,13 @@ function LoansTab() {
   )
 }
 
-/*   Card Requests Tab   */
+/* Card Requests Tab */
 
 function CardRequestsTab() {
   const push = useToastStore((s) => s.push)
-  const [data, setData]         = useState<Page<CardRequest> | null>(null)
-  const [page, setPage]         = useState(0)
-  const [loading, setLoading]   = useState(true)
+  const [data, setData] = useState<Page<CardRequest> | null>(null)
+  const [page, setPage] = useState(0)
+  const [loading, setLoading] = useState(true)
   const [actionId, setActionId] = useState<string | null>(null)
 
   const load = async (p = 0) => {
@@ -305,7 +305,7 @@ function CardRequestsTab() {
   )
 }
 
-/*   Main Page   */
+/* Main Page */
 
 const TABS: { key: Tab; label: string; icon: typeof ShieldCheck }[] = [
   { key: 'loans', label: 'Loans', icon: ShieldCheck },

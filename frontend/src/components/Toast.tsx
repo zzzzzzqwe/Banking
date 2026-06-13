@@ -5,16 +5,16 @@ import clsx from 'clsx'
 
 const iconMap = {
   success: { Icon: CheckCircle2, color: 'text-emerald-400', bg: 'bg-emerald-500/10 border-emerald-500/20' },
-  error:   { Icon: XCircle,      color: 'text-red-400',     bg: 'bg-red-500/10 border-red-500/20' },
-  warning: { Icon: AlertTriangle, color: 'text-amber-400',  bg: 'bg-amber-500/10 border-amber-500/20' },
-  info:    { Icon: Info,          color: 'text-cyan-400',   bg: 'bg-cyan-500/10 border-cyan-500/20' },
+  error: { Icon: XCircle, color: 'text-red-400', bg: 'bg-red-500/10 border-red-500/20' },
+  warning: { Icon: AlertTriangle, color: 'text-amber-400', bg: 'bg-amber-500/10 border-amber-500/20' },
+  info: { Icon: Info, color: 'text-cyan-400', bg: 'bg-cyan-500/10 border-cyan-500/20' },
 }
 
 export function ToastContainer() {
   const { toasts, remove } = useToastStore()
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3 pointer-events-none">
+    <div className="fixed bottom-6 right-6 z-[70] flex flex-col gap-3 pointer-events-none">
       <AnimatePresence>
         {toasts.map((t) => {
           const { Icon, color, bg } = iconMap[t.type]

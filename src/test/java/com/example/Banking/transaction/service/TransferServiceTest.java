@@ -134,7 +134,7 @@ class TransferServiceTest {
     void transfer_crossCurrency_appliesExchangeRate() {
         UUID otherOwner = UUID.randomUUID();
         Account from = account(fromId, ownerId, new BigDecimal("500.00"), "USD", AccountStatus.ACTIVE);
-        Account to   = account(toId, otherOwner, new BigDecimal("0.00"), "EUR", AccountStatus.ACTIVE);
+        Account to = account(toId, otherOwner, new BigDecimal("0.00"), "EUR", AccountStatus.ACTIVE);
 
         when(idempotencyRepo.findByIdemKey("key-x")).thenReturn(Optional.empty());
         when(accountRepo.findById(fromId)).thenReturn(Optional.of(from));

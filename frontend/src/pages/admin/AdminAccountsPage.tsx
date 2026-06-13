@@ -9,8 +9,8 @@ import type { Account, Page } from '../../types'
 
 export function AdminAccountsPage() {
   const push = useToastStore((s) => s.push)
-  const [data, setData]       = useState<Page<Account> | null>(null)
-  const [page, setPage]       = useState(0)
+  const [data, setData] = useState<Page<Account> | null>(null)
+  const [page, setPage] = useState(0)
   const [loading, setLoading] = useState(true)
 
   const load = async (p = 0) => {
@@ -29,7 +29,7 @@ export function AdminAccountsPage() {
   useEffect(() => { load() }, [])
 
   const totalBalance = data?.content.reduce((s, a) => s + Number(a.balance), 0) ?? 0
-  const activeCount  = data?.content.filter((a) => a.status === 'ACTIVE').length ?? 0
+  const activeCount = data?.content.filter((a) => a.status === 'ACTIVE').length ?? 0
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">

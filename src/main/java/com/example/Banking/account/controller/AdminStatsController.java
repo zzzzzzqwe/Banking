@@ -47,20 +47,20 @@ public class AdminStatsController {
     @GetMapping
     public AdminStatsResponse getStats() {
         // Users
-        long totalUsers   = userRepo.count();
-        long activeUsers  = userRepo.countByActiveTrue();
+        long totalUsers = userRepo.count();
+        long activeUsers = userRepo.countByActiveTrue();
 
         // Accounts
-        long totalAccounts  = accountRepo.count();
+        long totalAccounts = accountRepo.count();
         long activeAccounts = accountRepo.countByStatus(AccountStatus.ACTIVE);
 
         // Loans
-        long totalLoans    = loanRepo.count();
-        long activeLoans   = loanRepo.countByStatus(LoanStatus.ACTIVE);
-        long pendingLoans  = loanRepo.countByStatus(LoanStatus.PENDING);
+        long totalLoans = loanRepo.count();
+        long activeLoans = loanRepo.countByStatus(LoanStatus.ACTIVE);
+        long pendingLoans = loanRepo.countByStatus(LoanStatus.PENDING);
         long rejectedLoans = loanRepo.countByStatus(LoanStatus.REJECTED);
-        long closedLoans   = loanRepo.countByStatus(LoanStatus.CLOSED);
-        long overdueCount  = scheduleRepo.countByStatus(RepaymentStatus.OVERDUE);
+        long closedLoans = loanRepo.countByStatus(LoanStatus.CLOSED);
+        long overdueCount = scheduleRepo.countByStatus(RepaymentStatus.OVERDUE);
 
         // Loan status breakdown for pie chart
         Map<String, Long> loanStatusCounts = new LinkedHashMap<>();

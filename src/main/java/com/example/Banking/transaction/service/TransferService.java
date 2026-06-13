@@ -89,9 +89,9 @@ public class TransferService {
 
         if (from.getCurrency().equalsIgnoreCase(to.getCurrency())) {
             creditAmount = transferAmount;
-            appliedRate  = null;
+            appliedRate = null;
         } else {
-            appliedRate  = exchangeRateService.getRate(from.getCurrency(), to.getCurrency());
+            appliedRate = exchangeRateService.getRate(from.getCurrency(), to.getCurrency());
             creditAmount = transferAmount.multiply(appliedRate).setScale(2, RoundingMode.HALF_UP);
         }
 
@@ -114,7 +114,7 @@ public class TransferService {
         idempotencyRepo.save(new IdempotencyRecord(idempotencyKey, txId, Instant.now()));
 
         try {
-            var senderOpt    = userRepo.findById(from.getOwnerId());
+            var senderOpt = userRepo.findById(from.getOwnerId());
             var recipientOpt = userRepo.findById(to.getOwnerId());
             if (senderOpt.isPresent() && recipientOpt.isPresent()) {
                 eventPublisher.publishEvent(new TransferCompletedEvent(

@@ -240,7 +240,7 @@ public class AccountService {
 
         List<DailyBalance> result = new ArrayList<>();
         LocalDate startDate = LocalDate.now(ZoneOffset.UTC).minusDays(days);
-        LocalDate endDate   = LocalDate.now(ZoneOffset.UTC);
+        LocalDate endDate = LocalDate.now(ZoneOffset.UTC);
 
         for (LocalDate d = startDate; !d.isAfter(endDate); d = d.plusDays(1)) {
             String key = d.toString();

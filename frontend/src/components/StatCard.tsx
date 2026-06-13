@@ -16,10 +16,10 @@ interface Props {
 }
 
 const colorMap = {
-  cyan:    { icon: 'text-cyan-400',    bg: 'rgba(6,182,212,0.08)',    border: 'rgba(6,182,212,0.15)',    glow: 'rgba(6,182,212,0.2)' },
-  blue:    { icon: 'text-blue-400',    bg: 'rgba(59,130,246,0.08)',   border: 'rgba(59,130,246,0.15)',   glow: 'rgba(59,130,246,0.2)' },
-  emerald: { icon: 'text-emerald-400', bg: 'rgba(52,211,153,0.08)',   border: 'rgba(52,211,153,0.15)',   glow: 'rgba(52,211,153,0.2)' },
-  amber:   { icon: 'text-amber-400',   bg: 'rgba(251,191,36,0.08)',   border: 'rgba(251,191,36,0.15)',   glow: 'rgba(251,191,36,0.2)' },
+  cyan: { icon: 'text-cyan-400', bg: 'rgba(6,182,212,0.08)', border: 'rgba(6,182,212,0.15)', glow: 'rgba(6,182,212,0.2)' },
+  blue: { icon: 'text-blue-400', bg: 'rgba(59,130,246,0.08)', border: 'rgba(59,130,246,0.15)', glow: 'rgba(59,130,246,0.2)' },
+  emerald: { icon: 'text-emerald-400', bg: 'rgba(52,211,153,0.08)', border: 'rgba(52,211,153,0.15)', glow: 'rgba(52,211,153,0.2)' },
+  amber: { icon: 'text-amber-400', bg: 'rgba(251,191,36,0.08)', border: 'rgba(251,191,36,0.15)', glow: 'rgba(251,191,36,0.2)' },
 }
 
 function useCountUp(target: number, duration = 1200) {

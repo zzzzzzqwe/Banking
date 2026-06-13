@@ -30,9 +30,9 @@ public class OverdueDetectionService {
                                    LoanRepository loanRepo,
                                    UserRepository userRepo,
                                    ApplicationEventPublisher eventPublisher) {
-        this.scheduleRepo  = scheduleRepo;
-        this.loanRepo      = loanRepo;
-        this.userRepo      = userRepo;
+        this.scheduleRepo = scheduleRepo;
+        this.loanRepo = loanRepo;
+        this.userRepo = userRepo;
         this.eventPublisher = eventPublisher;
     }
 

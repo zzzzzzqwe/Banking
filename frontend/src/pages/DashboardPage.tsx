@@ -14,10 +14,10 @@ import type { Account, Loan } from '../types'
 
 function LoanStatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
-    PENDING:  'badge-pending',
-    ACTIVE:   'badge-active',
+    PENDING: 'badge-pending',
+    ACTIVE: 'badge-active',
     REJECTED: 'badge-rejected',
-    CLOSED:   'badge-closed',
+    CLOSED: 'badge-closed',
   }
   return <span className={map[status] || 'badge'}>{status}</span>
 }
@@ -25,8 +25,8 @@ function LoanStatusBadge({ status }: { status: string }) {
 export function DashboardPage() {
   const { userId, role, firstName } = useAuthStore()
   const [accounts, setAccounts] = useState<Account[]>([])
-  const [loans, setLoans]       = useState<Loan[]>([])
-  const [loading, setLoading]   = useState(true)
+  const [loans, setLoans] = useState<Loan[]>([])
+  const [loading, setLoading] = useState(true)
   const [chartData, setChartData] = useState<{ name: string; value: number }[]>([])
   const [rates, setRates] = useState<Record<string, number>>({})
 
@@ -90,9 +90,9 @@ export function DashboardPage() {
 
   if (loading) return <DashboardSkeleton />
 
-  const activeAccs    = accounts.filter((a) => a.status === 'ACTIVE').length
-  const activeLoans   = loans.filter((l) => l.status === 'ACTIVE').length
-  const pendingLoans  = loans.filter((l) => l.status === 'PENDING').length
+  const activeAccs = accounts.filter((a) => a.status === 'ACTIVE').length
+  const activeLoans = loans.filter((l) => l.status === 'ACTIVE').length
+  const pendingLoans = loans.filter((l) => l.status === 'PENDING').length
   const primaryCurrency = 'USD'
 
   const convertToPrimary = (balance: number, fromCurrency: string) => {

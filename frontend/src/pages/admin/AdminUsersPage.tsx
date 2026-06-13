@@ -9,10 +9,10 @@ import type { User, Page } from '../../types'
 
 export function AdminUsersPage() {
   const push = useToastStore((s) => s.push)
-  const [data, setData]       = useState<Page<User> | null>(null)
-  const [page, setPage]       = useState(0)
+  const [data, setData] = useState<Page<User> | null>(null)
+  const [page, setPage] = useState(0)
   const [loading, setLoading] = useState(true)
-  const [search, setSearch]   = useState('')
+  const [search, setSearch] = useState('')
   const [deactivating, setDeactivating] = useState<string | null>(null)
 
   const load = async (p = 0) => {

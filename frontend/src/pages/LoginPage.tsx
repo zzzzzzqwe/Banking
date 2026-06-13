@@ -15,11 +15,11 @@ export function LoginPage() {
   const setAuth = useAuthStore((s) => s.setAuth)
   const push = useToastStore((s) => s.push)
 
-  const [email, setEmail]       = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
-  const [loading, setLoading]   = useState(false)
-  const [error, setError]       = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const [splashName, setSplashName] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
