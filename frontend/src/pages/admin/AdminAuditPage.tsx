@@ -152,7 +152,7 @@ export function AdminAuditPage() {
                   className="input text-xs w-full !py-2.5"
                 >
                   <option value="">All actions</option>
-                  {actions.map((a) => <option key={a} value={a}>{a.replaceAll('_', ' ')}</option>)}
+                  {actions.map((a) => <option key={a} value={a}>{a.split('_').join(' ')}</option>)}
                 </select>
               </div>
               <div>
