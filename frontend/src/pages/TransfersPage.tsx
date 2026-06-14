@@ -186,7 +186,11 @@ export function TransfersPage() {
                 <div>
                   <input
                     value={form.toCardNumber}
-                    onChange={(e) => setForm((f) => ({ ...f, toCardNumber: e.target.value }))}
+                    onChange={(e) => {
+                      const digits = e.target.value.replace(/\D/g, '').slice(0, 16)
+                      const formatted = digits.replace(/(.{4})/g, '$1 ').trim()
+                      setForm((f) => ({ ...f, toCardNumber: formatted }))
+                    }}
                     className="input font-mono w-full"
                     placeholder="XXXX XXXX XXXX XXXX"
                     maxLength={19}

@@ -83,7 +83,6 @@ export function RegisterPage() {
               <h1 className="text-xl font-bold tracking-widest" style={{ background: 'linear-gradient(135deg, #3b82f6, #06b6d4)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
                 CREATE ACCOUNT
               </h1>
-              <p className="text-xs text-slate-500 mt-1">Join the future of banking</p>
             </motion.div>
 
             <motion.form
