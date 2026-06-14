@@ -31,8 +31,6 @@ build/
 
 ### VS Code ###
 .vscode/
-.claude/
-CLAUDE.md
 
 ### Frontend ###
 frontend/node_modules/
